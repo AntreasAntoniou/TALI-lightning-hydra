@@ -1,0 +1,11 @@
+defaults:
+  - modus_prime.yaml
+  - image_embedding_config: base-image-resnet50.yaml
+  - audio_embedding_config: base-audio-convformer.yaml
+  - text_embedding_config: base-text-transformer.yaml
+  - video_embedding_config: base-video-averager.yaml
+  - optimizer_config: adam.yaml
+  - lr_scheduler_config: cosine_annealing.yaml
+
+name: base_modus_prime_resnet50
+#sub_batch_size_dict: {'video': 8}

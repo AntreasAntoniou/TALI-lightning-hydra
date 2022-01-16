@@ -17,12 +17,12 @@ hydra:
 
   # https://hydra.cc/docs/tutorials/basic/running_your_app/logging/
   # use this to set level of only chosen command line loggers to 'DEBUG'
-  # verbose: [src.train, src.utils]
+  # verbose: [exp_frameworktrain, exp_frameworkutils]
 
   run:
-    dir: logs/debug/runs/${now:%Y-%m-%d}/${now:%H-%M-%S}
+    dir: ${log_dir}/runs/${name}/${hydra.job.name}/${now:%Y-%m-%d_%H-%M-%S}
   sweep:
-    dir: logs/debug/multiruns/${now:%Y-%m-%d}/${now:%H-%M-%S}
+    dir: ${log_dir}/multiruns/${name}/${hydra.job.name}/${now:%Y-%m-%d_%H-%M-%S}
     subdir: ${hydra.job.num}
 
 # disable rich config printing, since it will be already printed by hydra when `verbose: True`

@@ -4,23 +4,13 @@
 defaults:
   - _self_
   - trainer: default.yaml
-  - model: mnist.yaml
-  - datamodule: mnist.yaml
-  - callbacks: default.yaml
-  - logger: null # set logger here or use command line (e.g. `python run.py logger=wandb`)
+  - model: milli_modus_prime_vi-transformer16.yaml
+  - datamodule: base-tali.yaml
+  - callbacks: wandb.yaml
+  - logger: wandb.yaml # set logger here or use command line (e.g. `python run.py logger=wandb`)
 
   # modes are special collections of config options for different purposes, e.g. debugging
   - mode: default.yaml
-
-  # experiment configs allow for version control of specific configurations
-  # for example, use them to store best hyperparameters for each combination of model and datamodule
-  - experiment: null
-
-  # config for hyperparameter optimization
-  - hparams_search: null
-
-  # optional local config for machine/user specific settings
-  - optional local: default.yaml
 
   # enable color logging
   - override hydra/hydra_logging: colorlog
@@ -32,21 +22,34 @@ defaults:
 # https://hydra.cc/docs/next/tutorials/basic/running_your_app/working_directory
 work_dir: ${hydra:runtime.cwd}
 
+ray_multi_run: True
+log_dir: /mnt/disk/filestore/experiments
+
 # path to folder with data
-data_dir: ${work_dir}/data/
+data_dir: /mnt/disk/filestore/tali-dataset
 
 # pretty print config at the start of the run using Rich library
 print_config: True
 
 # disable python warnings if they annoy you
 ignore_warnings: True
-
+logging_level: INFO
 # evaluate on test set, using best model weights achieved during training
 # lightning chooses best weights based on metric specified in checkpoint callback
 test_after_training: True
 
+batch_size: 2
 # seed for random number generators in pytorch, numpy and python.random
-seed: null
+seed: 20221601
 
 # name of the run, should be used along with experiment mode
-name: null
+name: ${datamodule.config.dataset_name}-${model.name}-${datamodule.config.modality_config.name}-${seed}
+
+
+model:
+  google_storage_config:
+    local_experiments_root_dir: ${log_dir}
+    experiment_name: ${name}
+    from_scratch: False
+    use_google_storage: False
+    bucket_name: "tali-experiments"

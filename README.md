@@ -413,7 +413,7 @@ Have a question? Found a bug? Missing a specific feature? Have an idea for impro
 Every run is initialized by [run.py](run.py) file. All PyTorch Lightning modules are dynamically instantiated from module paths specified in config. Example model config:
 
 ```yaml
-_target_: src.models.mnist_model.MNISTLitModule
+_target_: exp_frameworkmodels.mnist_model.MNISTLitModule
 input_size: 784
 lin1_size: 256
 lin2_size: 256
@@ -765,7 +765,7 @@ The following code is an example of loading model from checkpoint and running pr
 from PIL import Image
 from torchvision import transforms
 
-from src.models.mnist_module import MNISTLitModule
+from exp_frameworkmodels.mnist_module import MNISTLitModule
 
 
 def predict():

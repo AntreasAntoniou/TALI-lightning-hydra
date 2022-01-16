@@ -1,0 +1,10 @@
+
+_target_: tali.models.auto_builder.transformers.AutoCLIPTextTransformer
+config:
+  transformer_num_filters: 512
+  transformer_num_layers: 12
+  transformer_num_heads: 8
+  transformer_dim_feedforward: 2048
+  vocab_size: 49408
+  context_length: 77
+  embedding_output_features: 512

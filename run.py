@@ -7,13 +7,13 @@ from omegaconf import DictConfig
 dotenv.load_dotenv(override=True)
 
 
-@hydra.main(config_path="configs/", config_name="config.yaml")
+@hydra.main(config_path="configs", config_name="config")
 def main(config: DictConfig):
 
     # Imports can be nested inside @hydra.main to optimize tab completion
     # https://github.com/facebookresearch/hydra/issues/934
-    from src.train import train
-    from src import utils
+    from exp_framework import utils
+    from tali.train import train_eval
 
     # A couple of optional utilities:
     # - disabling python warnings
@@ -26,8 +26,13 @@ def main(config: DictConfig):
     if config.get("print_config"):
         utils.print_config(config, resolve=True)
 
-    # Train model
-    return train(config)
+    # if config.ray_multi_run:
+    #     # Train multiple models using cloud compute using ray when
+    #     # given a list of search options
+    #     return multi_train_eval(config)
+    # else:
+    #     # Train model in a single run
+    return train_eval(config)
 
 
 if __name__ == "__main__":

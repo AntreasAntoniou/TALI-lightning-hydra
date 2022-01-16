@@ -1,9 +1,18 @@
-# --------- pytorch --------- #
+# --------- machine-learning --------- #
 torch>=1.10.0
 torchvision>=0.11.0
 pytorch-lightning>=1.5.0
 torchmetrics>=0.6.0
-
+einops
+scipy
+imutils
+ftfy
+transformers
+git+https://github.com/openai/CLIP.git@main
+cryptography
+google-api-python-client
+google-cloud-storage
+git+https://github.com/AntreasAntoniou/GATE.git@antreas_dev
 # --------- hydra --------- #
 hydra-core==1.1.0
 hydra-colorlog==1.1.0
@@ -24,6 +33,8 @@ pre-commit      # hooks for applying linters on commit
 black           # code formatting
 isort           # import sorting
 flake8          # code analysis
+jsonlint        # json linting
+yamllint        # yaml linting
 
 # --------- others --------- #
 python-dotenv   # loading env variables from .env file
@@ -34,3 +45,8 @@ scikit-learn    # used in some callbacks
 seaborn         # used in some callbacks
 jupyterlab      # better jupyter notebooks
 pudb            # debugger
+regex
+tqdm
+testresources
+# --------scaling up on the cloud ----------#
+ray

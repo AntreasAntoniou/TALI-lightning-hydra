@@ -1,0 +1,10 @@
+defaults:
+  - modus_prime.yaml
+  - image_embedding_config: centi-image-resnet50.yaml
+  - audio_embedding_config: centi-audio-convformer.yaml
+  - text_embedding_config: centi-text-transformer.yaml
+  - video_embedding_config: centi-video-averager.yaml
+  - optimizer_config: adam.yaml
+  - lr_scheduler_config: cosine_annealing.yaml
+
+name: centi_modus_prime_resnet50

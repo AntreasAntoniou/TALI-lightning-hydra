@@ -1,0 +1,5 @@
+
+_target_: tali.models.systems.ModusPrime
+
+embedding_output_features: 512
+logit_scale: 1.0

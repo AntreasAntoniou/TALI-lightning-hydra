@@ -1,0 +1,9 @@
+_target_: tali.models.auto_builder.transformers.AutoCLIPVisionTransformer
+config:
+  grid_patch_size: 16
+  embedding_output_features: 512
+  image_resolution: 224
+  transformer_num_filters: 384
+  transformer_num_layers: 12
+  transformer_num_heads: 12
+  transformer_dim_feedforward: 1536

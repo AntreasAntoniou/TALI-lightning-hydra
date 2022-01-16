@@ -1,0 +1,5 @@
+defaults:
+  - tali.yaml
+
+config:
+  training_set_size_identifier: hecta
