@@ -12,7 +12,7 @@ def main(config: DictConfig):
 
     # Imports can be nested inside @hydra.main to optimize tab completion
     # https://github.com/facebookresearch/hydra/issues/934
-    from exp_framework import utils
+    from base import utils
     from tali.train import train_eval
 
     # A couple of optional utilities:

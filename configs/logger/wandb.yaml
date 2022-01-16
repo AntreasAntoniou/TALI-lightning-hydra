@@ -6,7 +6,7 @@ wandb:
   name: ${name}
   offline: False # set True to store all logs only locally
   resume: true
-  save_dir: ${log_dir}/${name}
+  save_dir: ${exp_dir}/
   log_model: 'all'
   id: ${name}
   prefix: ""

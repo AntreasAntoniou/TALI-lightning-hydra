@@ -4,7 +4,7 @@
 defaults:
   - _self_
   - trainer: default.yaml
-  - model: milli_modus_prime_vi-transformer16.yaml
+  - model: base_modus_prime_vi-transformer16.yaml
   - datamodule: base-tali.yaml
   - callbacks: wandb.yaml
   - logger: wandb.yaml # set logger here or use command line (e.g. `python run.py logger=wandb`)
@@ -20,13 +20,7 @@ defaults:
 # hydra hijacks working directory by changing it to the new log directory
 # so it's useful to have this path as a special variable
 # https://hydra.cc/docs/next/tutorials/basic/running_your_app/working_directory
-work_dir: ${hydra:runtime.cwd}
 
-ray_multi_run: True
-log_dir: /mnt/disk/filestore/experiments
-
-# path to folder with data
-data_dir: /mnt/disk/filestore/tali-dataset
 
 # pretty print config at the start of the run using Rich library
 print_config: True
@@ -45,10 +39,17 @@ seed: 20221601
 # name of the run, should be used along with experiment mode
 name: ${datamodule.config.dataset_name}-${model.name}-${datamodule.config.modality_config.name}-${seed}
 
+code_dir: ${hydra:runtime.cwd}
+root_log_dir: /mnt/disk/filestore/experiments
+exp_dir: ${root_log_dir}/${name}/
+# path to folder with data
+data_dir: /mnt/disk/filestore/tali-dataset
+
+
 
 model:
   google_storage_config:
-    local_experiments_root_dir: ${log_dir}
+    local_experiments_root_dir: ${exp_dir}
     experiment_name: ${name}
     from_scratch: False
     use_google_storage: False

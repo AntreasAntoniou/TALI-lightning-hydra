@@ -205,15 +205,6 @@ class ModusPrime(LightningModule):
         self.lr_scheduler_config = lr_scheduler_config
         self.save_hyperparameters(logger=False)
 
-    def on_save_checkpoint(self, checkpoint: Dict[str, Any]) -> None:
-        google_storage_rsync_local_to_gs(
-            bucket_name=self.google_storage_config.bucket_name,
-            experiments_root_dir=f"{self.google_storage_config.local_experiments_root_dir}",
-            experiment_name=f"{self.google_storage_config.experiment_name}",
-            exclude_list=[""],
-            options_list=["-r", "-u", "-d"],
-        )
-
     def build(self, batch):
         _, _ = self.system.forward(batch=batch)
 

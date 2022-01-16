@@ -50,7 +50,7 @@ class TALIDataModule(BaseDataModule):
         persistent_workers: bool = False,
         pin_memory: bool = True,
         prefetch_factor: int = 2,
-        batch_size: int = 32
+        batch_size: int = 32,
     ):
         super(TALIDataModule, self).__init__()
         self.save_hyperparameters(logger=False)

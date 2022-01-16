@@ -4,7 +4,6 @@ import shutil
 from typing import Dict, List, Optional
 
 import hydra
-
 from omegaconf import DictConfig
 from pytorch_lightning import (
     Callback,
@@ -15,7 +14,7 @@ from pytorch_lightning import (
 )
 from pytorch_lightning.loggers import LightningLoggerBase
 
-from exp_framework import utils
+from base import utils
 
 log = utils.get_logger(__name__)
 
@@ -65,12 +64,10 @@ def train_eval(config: DictConfig) -> List[Dict[str, float]]:
                 options_list=["-r", "-d", "-u"],
             )
 
-        if not pathlib.Path(f'{config.log_dir}/{config.name}').exists():
-            os.makedirs(f'{config.log_dir}/{config.name}', exist_ok=True)
+        if not pathlib.Path(f"{config.exp_dir}").exists():
+            os.makedirs(f"{config.exp_dir}", exist_ok=True)
 
-        latest_checkpoint_path = (
-            f'{config.log_dir}/{config.name}checkpoints/last.ckpt'
-        )
+        latest_checkpoint_path = f"{config.exp_dir}/checkpoints/last.ckpt"
 
         log.info(latest_checkpoint_path)
 
