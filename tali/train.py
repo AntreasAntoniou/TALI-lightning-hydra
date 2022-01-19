@@ -4,6 +4,7 @@ import shutil
 from typing import Dict, List, Optional
 
 import hydra
+import torch.cuda
 from omegaconf import DictConfig
 from pytorch_lightning import (
     Callback,
@@ -25,7 +26,7 @@ from tali.utils.storage import (
     pretty_print_dict,
 )
 
-
+torch.cuda.is_available()
 def train_eval(config: DictConfig) -> List[Dict[str, float]]:
     """Contains training pipeline.
     Instantiates all PyTorch Lightning objects from config.
