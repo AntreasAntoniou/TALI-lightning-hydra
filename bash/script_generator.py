@@ -18,8 +18,8 @@ def main():
         dict(model_name="milli_modus_prime_resnet50", batch_size=16, num_gpus=1),
         dict(model_name="centi_modus_prime_resnet50", batch_size=8, num_gpus=1),
         dict(model_name="deci_modus_prime_resnet50", batch_size=10, num_gpus=1),
-        dict(model_name="base-deci-hybrid_modus_prime_resnet50", batch_size=4, num_gpus=1),
-        dict(model_name="base_modus_prime_resnet50", batch_size=10, num_gpus=2),
+        # dict(model_name="base-deci-hybrid_modus_prime_resnet50", batch_size=4, num_gpus=1),
+        dict(model_name="base_modus_prime_resnet50", batch_size=10, num_gpus=1),
 
         dict(model_name="milli_modus_prime_vi-transformer16", batch_size=16, num_gpus=1),
         dict(model_name="centi_modus_prime_vi-transformer16", batch_size=8, num_gpus=1),
@@ -46,7 +46,8 @@ def main():
                                 template_command = (
                                     f"python run.py hydra.verbose=True trainer=default "
                                     f"resume=True batch_size={batch_size} "
-                                    f"trainer.gpus={num_gpus}"
+                                    f"trainer.gpus={num_gpus} "
+                                    f"trainer.auto_scale_batch_size=True "
                                     f"model={model_name} datamodule={datamodule_name} "
                                     f"datamodule.config.modality_config.image={use_image_modality} "
                                     f"datamodule.config.modality_config.text={use_text_modality} "
