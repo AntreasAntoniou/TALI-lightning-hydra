@@ -56,6 +56,9 @@ class TALIDataModule(BaseDataModule):
         self.save_hyperparameters(logger=False)
         log.info(f"TALI DataModule config {self.hparams}")
         self.batch_size = batch_size
+        self.persistent_workers = persistent_workers
+        self.pin_memory = pin_memory
+        self.prefetch_factor = prefetch_factor
         self.tokenizer = HuggingFaceBPETokenizer(
             context_length=config.text_context_length
         )
@@ -127,51 +130,51 @@ class TALIDataModule(BaseDataModule):
     def dummy_dataloader(self):
         return DataLoader(
             self.train_set,
-            batch_size=self.hparams.batch_size,
+            batch_size=self.batch_size,
             shuffle=False,
             num_workers=mp.cpu_count(),
-            pin_memory=self.hparams.pin_memory,
-            prefetch_factor=self.hparams.prefetch_factor,
+            pin_memory=self.pin_memory,
+            prefetch_factor=self.prefetch_factor,
             collate_fn=tali.datasets.utils.helpers.collate_resample_none,
-            persistent_workers=self.hparams.persistent_workers,
+            persistent_workers=self.persistent_workers,
             drop_last=True,
         )
 
     def train_dataloader(self):
         return DataLoader(
             dataset=self.train_set,
-            batch_size=self.hparams.batch_size,
+            batch_size=self.batch_size,
             shuffle=True,
             num_workers=mp.cpu_count(),
-            pin_memory=self.hparams.pin_memory,
-            prefetch_factor=self.hparams.prefetch_factor,
+            pin_memory=self.pin_memory,
+            prefetch_factor=self.prefetch_factor,
             collate_fn=tali.datasets.utils.helpers.collate_resample_none,
-            persistent_workers=self.hparams.persistent_workers,
+            persistent_workers=self.persistent_workers,
             drop_last=True,
         )
 
     def val_dataloader(self):
         return DataLoader(
             dataset=self.val_set,
-            batch_size=self.hparams.batch_size,
+            batch_size=self.batch_size,
             shuffle=False,
             num_workers=mp.cpu_count(),
-            pin_memory=self.hparams.pin_memory,
-            prefetch_factor=self.hparams.prefetch_factor,
+            pin_memory=self.pin_memory,
+            prefetch_factor=self.prefetch_factor,
             collate_fn=tali.datasets.utils.helpers.collate_resample_none,
-            persistent_workers=self.hparams.persistent_workers,
+            persistent_workers=self.persistent_workers,
             drop_last=True,
         )
 
     def test_dataloader(self):
         return DataLoader(
             dataset=self.test_set,
-            batch_size=self.hparams.batch_size,
+            batch_size=self.batch_size,
             shuffle=False,
             num_workers=mp.cpu_count(),
-            pin_memory=self.hparams.pin_memory,
-            prefetch_factor=self.hparams.prefetch_factor,
+            pin_memory=self.pin_memory,
+            prefetch_factor=self.prefetch_factor,
             collate_fn=tali.datasets.utils.helpers.collate_resample_none,
-            persistent_workers=self.hparams.persistent_workers,
+            persistent_workers=self.persistent_workers,
             drop_last=True,
         )

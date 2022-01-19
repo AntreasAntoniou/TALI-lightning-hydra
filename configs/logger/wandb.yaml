@@ -5,7 +5,7 @@ wandb:
   project: 'TALI-gcp-exp'
   name: ${name}
   offline: False # set True to store all logs only locally
-  resume: true
+  resume: ${resume}
   save_dir: ${exp_dir}/
   log_model: 'all'
   id: ${name}

@@ -77,11 +77,11 @@ class FCCNetwork(nn.Module):
     def forward(self, x):
         if not self.is_layer_built:
             self.build(input_shape=x.shape)
-            self.to(x.device)
+            self.type_as(x)
 
         out = x
 
-        self.to(out.device)
+        self.type_as(out)
 
         for i in range(self.num_hidden_layers):
             out = self.activation_fn(self.layer_dict[f"fcc_layer_{i}"].forward(out))
@@ -99,186 +99,6 @@ class ChooseSpecificTimeStepFromVector(nn.Module):
     def forward(self, x):
 
         return x, x[:, self.time_step_to_choose, :]
-
-
-class Conv2DTransformer(nn.Module):
-    def __init__(
-        self,
-        grid_patch_size: int,
-        transformer_num_filters: int,
-        transformer_num_layers: int,
-        transformer_num_heads: int,
-        transformer_dim_feedforward: int,
-        stem_conv_bias: False,
-    ):
-        super(Conv2DTransformer, self).__init__()
-        self.layer_dict = nn.ModuleDict()
-        self.grid_patch_size = grid_patch_size
-        self.transformer_num_filters = transformer_num_filters
-        self.transformer_num_layers = transformer_num_layers
-        self.transformer_num_heads = transformer_num_heads
-        self.transformer_dim_feedforward = transformer_dim_feedforward
-        self.stem_conv_bias = stem_conv_bias
-
-        self.is_built = False
-
-    def build(self, input_shape):
-        dummy_x = torch.zeros(input_shape)
-
-        ratio = (dummy_x.shape[2]) / self.grid_patch_size
-
-        if not ratio.is_integer():
-            ceiling = int(np.ceil(ratio))
-            new_h = ceiling * self.grid_patch_size
-            new_w = ceiling * self.grid_patch_size
-            dummy_x = F.interpolate(
-                dummy_x,
-                size=(new_h, new_w),
-            )
-
-        out = dummy_x
-
-        b, c, h, w = out.shape
-
-        out = rearrange(
-            out,
-            "b f (h h1) (w w1) -> (b h w) (h1 w1 f)",
-            h1=self.grid_patch_size,
-            w1=self.grid_patch_size,
-        )
-        log.info(f"{out.shape}")
-        num_patches = out.shape[0] / dummy_x.shape[0]
-
-        self.layer_dict["stem_linear"] = nn.Linear(
-            in_features=out.shape[1],
-            out_features=int(self.transformer_num_filters / 2),
-            bias=False,
-        )
-
-        out = self.layer_dict["stem_linear"].forward(out)
-        # b, c, h, w
-        log.info(f"{out.shape}")
-
-        self.layer_dict["stem_layer_normalization"] = nn.LayerNorm(out.shape[1])
-
-        out = self.layer_dict["stem_layer_normalization"].forward(out)
-        log.info(f"{out.shape}")
-
-        out = rearrange(out, "(b s) (f) -> b s f", s=int(num_patches))
-        log.info(f"{out.shape}")
-
-        self.enumerate_patches_idx = (
-            torch.arange(start=0, end=num_patches) / num_patches
-        )
-
-        position_inputs = repeat(
-            self.enumerate_patches_idx, "p -> b p", b=dummy_x.shape[0]
-        )
-        log.info(f"{position_inputs.shape}")
-
-        position_inputs = rearrange(position_inputs, "b (p d) -> (b p) d", d=1)
-        log.info(f"{position_inputs.shape}")
-
-        self.layer_dict["positional_embedding_generator_network"] = FCCNetwork(
-            num_hidden_features=64,
-            num_hidden_layers=2,
-            embedding_output_features=out.shape[2],
-        )
-
-        positional_embeddings = self.layer_dict[
-            "positional_embedding_generator_network"
-        ].forward(position_inputs)
-        log.info(f"{positional_embeddings.shape}")
-
-        positional_embeddings = rearrange(
-            positional_embeddings,
-            "(b p) d -> b p d",
-            b=dummy_x.shape[0],
-            d=out.shape[2],
-        )
-        log.info(f"{positional_embeddings.shape} {out.shape}")
-        out = torch.cat([out, positional_embeddings], dim=2)
-
-        self.layer_dict["transformer_encoder_layer"] = nn.TransformerEncoderLayer(
-            d_model=self.transformer_num_filters,
-            dim_feedforward=self.transformer_dim_feedforward,
-            nhead=self.transformer_num_heads,
-            activation=F.gelu,
-            dropout=0.0,
-            batch_first=True,
-            norm_first=True,
-        )
-        self.layer_dict["transformer_encoder"] = nn.TransformerEncoder(
-            encoder_layer=self.layer_dict["transformer_encoder_layer"],
-            num_layers=self.transformer_num_layers,
-        )
-
-        out = self.layer_dict["transformer_encoder"].forward(out)
-
-        self.is_built = True
-        log.info(
-            f"Build {self.__class__.__name__} with input shape {input_shape} with "
-            f"output shape {out.shape} {positional_embeddings.shape}"
-        )
-
-    def forward(self, x):
-        if not self.is_built:
-            self.build(input_shape=x.shape)
-
-        self.to(x.device)
-
-        ratio = (x.shape[2]) / self.grid_patch_size
-
-        if not ratio.is_integer():
-            ceiling = int(np.ceil(ratio))
-            new_h = ceiling * self.grid_patch_size
-            new_w = ceiling * self.grid_patch_size
-            x = F.interpolate(
-                x,
-                size=(new_h, new_w),
-            )
-
-        out = x
-
-        b, c, h, w = out.shape
-
-        out = rearrange(
-            out,
-            "b f (h h1) (w w1) -> (b h w) (h1 w1 f)",
-            h1=self.grid_patch_size,
-            w1=self.grid_patch_size,
-        )
-
-        num_patches = out.shape[0] / x.shape[0]
-
-        out = self.layer_dict["stem_linear"].forward(out)
-        # b, c, h, w
-
-        out = self.layer_dict["stem_layer_normalization"].forward(out)
-
-        out = rearrange(out, "(b s) (f) -> b s f", s=int(num_patches))
-
-        position_inputs = repeat(
-            self.enumerate_patches_idx, "p -> b p", b=x.shape[0]
-        ).to(x.device)
-
-        position_inputs = rearrange(position_inputs, "b (p d) -> (b p) d", d=1)
-
-        positional_embeddings = self.layer_dict[
-            "positional_embedding_generator_network"
-        ].forward(position_inputs)
-
-        positional_embeddings = rearrange(
-            positional_embeddings,
-            "(b p) d -> b p d",
-            b=x.shape[0],
-            d=out.shape[2],
-        )
-        out = torch.cat([out, positional_embeddings], dim=2)
-
-        out = self.layer_dict["transformer_encoder"].forward(out)
-
-        return out
 
 
 class Conv1DTransformer(nn.Module):
@@ -361,7 +181,7 @@ class Conv1DTransformer(nn.Module):
         out = rearrange(out, "(b s) (f) -> b s f", b=dummy_x.shape[0])
         log.info(f"rearrange output shape {out.shape}")
 
-        self.positional_embeddings = self.positional_embeddings.to(out.device)
+        self.positional_embeddings = self.positional_embeddings.type_as(out)
 
         positional_embeddings = repeat(
             self.positional_embeddings, "p f -> b p f", b=dummy_x.shape[0]
@@ -395,10 +215,9 @@ class Conv1DTransformer(nn.Module):
 
     def forward(self, x):
         x = x.type(torch.float32)
+
         if not self.is_built:
             self.build(input_shape=x.shape)
-
-        self.to(x.device)
 
         out = x
 
@@ -414,130 +233,13 @@ class Conv1DTransformer(nn.Module):
 
         out = rearrange(out, "(b s) (f) -> b s f", b=x.shape[0])
 
-        self.positional_embeddings = self.positional_embeddings.to(out.device)
+        self.positional_embeddings = self.positional_embeddings.type_as(out)
 
         positional_embeddings = repeat(
             self.positional_embeddings, "p f -> b p f", b=x.shape[0]
         )
 
         out = out + positional_embeddings
-
-        out = self.layer_dict["transformer_encoder"].forward(out)
-
-        return out
-
-
-class TexTransformer(nn.Module):
-    def __init__(
-        self,
-        transformer_num_filters: int,
-        transformer_num_layers: int,
-        transformer_num_heads: int,
-        transformer_dim_feedforward: int,
-        vocab_size: int,
-        context_length: int,
-    ):
-        super(TexTransformer, self).__init__()
-        self.transformer_num_filters = transformer_num_filters
-        self.transformer_num_layers = transformer_num_layers
-        self.transformer_num_heads = transformer_num_heads
-        self.transformer_dim_feedforward = transformer_dim_feedforward
-        self.vocab_size = vocab_size
-        self.context_length = context_length
-        self.layer_dict = nn.ModuleDict()
-        self.layer_params = nn.ParameterDict()
-        self.is_built = False
-
-    def build(self, input_shape):
-        dummy_x = torch.zeros(input_shape).long()
-
-        out = dummy_x
-
-        self.layer_dict["token_embedding"] = nn.Embedding(
-            self.vocab_size, self.transformer_num_filters
-        )
-
-        out = self.layer_dict["token_embedding"].forward(out)
-
-        # b, l, c
-
-        self.enumerate_patches_idx = (
-            torch.arange(start=0, end=out.shape[1]) / out.shape[1]
-        )
-
-        position_inputs = repeat(
-            self.enumerate_patches_idx, "p -> b p", b=dummy_x.shape[0]
-        )
-
-        position_inputs = rearrange(position_inputs, "b (p d) -> (b p) d", d=1)
-
-        self.layer_dict["positional_embedding_generator_network"] = FCCNetwork(
-            num_hidden_features=64,
-            num_hidden_layers=2,
-            embedding_output_features=out.shape[2],
-        )
-
-        positional_embeddings = self.layer_dict[
-            "positional_embedding_generator_network"
-        ].forward(position_inputs)
-
-        positional_embeddings = rearrange(
-            positional_embeddings,
-            "(b p) d -> b p d",
-            b=dummy_x.shape[0],
-            d=out.shape[2],
-        )
-        out = torch.cat([out, positional_embeddings], dim=2)
-
-        self.layer_dict["transformer_encoder_layer"] = nn.TransformerEncoderLayer(
-            d_model=self.transformer_num_filters * 2,
-            dim_feedforward=self.transformer_dim_feedforward,
-            nhead=self.transformer_num_heads,
-            batch_first=True,
-        )
-        self.layer_dict["transformer_encoder"] = nn.TransformerEncoder(
-            encoder_layer=self.layer_dict["transformer_encoder_layer"],
-            num_layers=self.transformer_num_layers,
-        )
-
-        out = self.layer_dict["transformer_encoder"].forward(out)
-
-        self.is_built = True
-
-        log.info(
-            f"Build {self.__class__.__name__} with input shape {input_shape} with "
-            f"output shape {out.shape}"
-        )
-
-    def forward(self, x):
-        if not self.is_built:
-            self.build(input_shape=x.shape)
-
-        self.to(x.device)
-
-        out = x.long()
-
-        out = self.layer_dict["token_embedding"].forward(out)
-
-        position_inputs = repeat(
-            self.enumerate_patches_idx, "p -> b p", b=x.shape[0]
-        ).to(x.device)
-
-        position_inputs = rearrange(position_inputs, "b (p d) -> (b p) d", d=1)
-
-        positional_embeddings = F.leaky_relu(
-            self.layer_dict["positional_embedding_generator_network"].forward(
-                position_inputs
-            )
-        )
-
-        positional_embeddings = rearrange(
-            positional_embeddings,
-            "(b p) d -> b p d",
-            b=x.shape[0],
-            d=out.shape[2],
-        )
-        out = torch.cat([out, positional_embeddings], dim=2)
 
         out = self.layer_dict["transformer_encoder"].forward(out)
 
@@ -576,13 +278,9 @@ class VideoTransformer(nn.Module):
 
         out = out.view(dummy_x.shape[0], dummy_x.shape[1], -1)
 
-        self.enumerate_patches_idx = (
-            torch.arange(start=0, end=out.shape[1]) / out.shape[1]
-        )
-
-        self.positional_embeddings = torch.empty(size=(out.shape[1], out.shape[2])).to(
-            out.device
-        )
+        self.positional_embeddings = nn.Parameter(
+            torch.empty(size=(out.shape[1], out.shape[2]))
+        ).type_as(out)
 
         nn.init.normal(self.positional_embeddings)
 
@@ -613,7 +311,7 @@ class VideoTransformer(nn.Module):
         if not self.is_built:
             self.build(input_shape=x.shape)
 
-        self.to(x.device)
+        self.type_as(x)
 
         out = x.view(-1, x.shape[-3], x.shape[-2], x.shape[-1])
 
@@ -622,7 +320,7 @@ class VideoTransformer(nn.Module):
 
         out = out.view(x.shape[0], x.shape[1], -1)
 
-        self.positional_embeddings = self.positional_embeddings.to(out.device)
+        self.positional_embeddings = self.positional_embeddings.type_as(out)
 
         out = out + repeat(self.positional_embeddings, "p f -> b p f", b=out.shape[0])
 
@@ -663,8 +361,6 @@ class Averager(nn.Module):
         if not self.is_built:
             self.build(input_shape=x.shape)
 
-        self.to(x.device)
-
         out = x.view(-1, x.shape[-3], x.shape[-2], x.shape[-1])
 
         if self.image_embedding is not None:
@@ -676,72 +372,6 @@ class Averager(nn.Module):
 
     def connect_image_embedding(self, image_embedding):
         self.image_embedding = image_embedding
-
-
-class VisionTransformer(nn.Module):
-    def __init__(
-        self, patch_size: int, width: int, layers: int, heads: int, output_dim: int
-    ):
-        super().__init__()
-        self.output_dim = output_dim
-        self.width = width
-        self.patch_size = patch_size
-        self.layers = layers
-        self.heads = heads
-        self.is_built = False
-
-    def build(self, input_shape):
-        self.input_resolution = input_shape[-1]
-        self.conv1 = nn.Conv2d(
-            in_channels=3,
-            out_channels=self.width,
-            kernel_size=self.patch_size,
-            stride=self.patch_size,
-            bias=False,
-        )
-
-        scale = self.width ** -0.5
-        self.class_embedding = nn.Parameter(scale * torch.randn(self.width))
-        self.positional_embedding = nn.Parameter(
-            scale
-            * torch.randn(
-                (self.input_resolution // self.patch_size) ** 2 + 1, self.width
-            )
-        )
-        self.ln_pre = LayerNorm(self.width)
-
-        self.transformer = Transformer(self.width, self.layers, self.heads)
-
-        self.is_built = True
-
-    def forward(self, x: torch.Tensor):
-
-        if not self.is_built:
-            self.build(x.shape)
-
-        self.to(x.device)
-
-        x = self.conv1(x)  # shape = [*, width, grid, grid]
-        x = x.reshape(x.shape[0], x.shape[1], -1)  # shape = [*, width, grid ** 2]
-        x = x.permute(0, 2, 1)  # shape = [*, grid ** 2, width]
-        x = torch.cat(
-            [
-                self.class_embedding.to(x.dtype)
-                + torch.zeros(
-                    x.shape[0], 1, x.shape[-1], dtype=x.dtype, device=x.device
-                ),
-                x,
-            ],
-            dim=1,
-        )  # shape = [*, grid ** 2 + 1, width]
-        x = x + self.positional_embedding.to(x.dtype)
-        x = self.ln_pre(x)
-
-        x = x.permute(1, 0, 2)  # NLD -> LND
-        x = self.transformer(x)
-        x = x.permute(1, 0, 2)  # LND -> NLD
-
-        return x
 
 
 class AutoConv1DTransformers(BaseLinearOutputModel):

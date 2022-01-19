@@ -6,6 +6,7 @@ import cv2
 import numpy as np
 import torch
 
+log = logging.getLogger(__name__)
 
 def get_meta_data_opencv(filepath):
     vid_capture = cv2.VideoCapture(filepath)
@@ -17,7 +18,7 @@ def get_meta_data_opencv(filepath):
         return total_frames, fps, duration_in_seconds
 
     except Exception:
-        logging.exception("OpenCV reading gone wrong 🤦")
+        log.exception("OpenCV reading gone wrong 🤦")
         vid_capture.release()
         return None
 
@@ -77,7 +78,7 @@ def get_frames_opencv_cpu(
     # logging.info(f"Frames read: {frames_read}, frames collected: {frames_collected}")
 
     if len(frames) == 0:
-        logging.error(f"No frames were extracted from the video {filepath}")
+        log.error(f"No frames were extracted from the video {filepath}")
 
     return torch.from_numpy(frames)
 
@@ -163,7 +164,7 @@ def extract_video_frames_ffmpeg(
         "ffmpeg",
         "-hide_banner",
         "-loglevel",
-        "error",
+        "quiet",
         "-i",
         video_filepath,
         "-vf",
@@ -235,7 +236,7 @@ def extract_video_frames_opencv(
         "ffmpeg",
         "-hide_banner",
         "-loglevel",
-        "error",
+        "quiet",
         "-i",
         video_filepath,
         "-vf",
@@ -266,7 +267,7 @@ def extract_video_frames_opencv(
     out, err = process.communicate(None)
     retcode = process.poll()
     if retcode:
-        logging.exception("🤦")
+        log.exception("🤦")
         raise Exception(f"{retcode}")
 
     frames = np.frombuffer(out, np.uint8).reshape(-1, width, height, channels)
@@ -297,7 +298,7 @@ def extract_audio_frames_ffmpeg(video_filepath, num_channels):
         "ffmpeg",
         "-hide_banner",
         "-loglevel",
-        "error",
+        "quiet",
         "-i",
         video_filepath,
         "-f",
@@ -325,6 +326,6 @@ def extract_audio_frames_ffmpeg(video_filepath, num_channels):
 
     retcode = process.poll()
     if retcode:
-        logging.exception("🤦")
+        log.exception("🤦")
         raise Exception(f"{retcode}")
     return frames, err

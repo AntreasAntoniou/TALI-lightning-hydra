@@ -6,6 +6,7 @@ import time
 
 import numpy as np
 
+log = logging.getLogger(__name__)
 
 def timeit(method):
     def timed(*args, **kwargs):
@@ -15,7 +16,7 @@ def timeit(method):
 
         if "log_time" in kwargs:
             if kwargs["log_time"] == True:
-                logging.info(f"{method.__name__} took {te - ts:.4f} sec")
+                log.info(f"{method.__name__} took {te - ts:.4f} sec")
         return result
 
     return timed
@@ -27,7 +28,7 @@ def prevent_error_kill(method):
             result = method(*args, **kwargs)
             return result
         except Exception as e:
-            logging.exception(f"{method.__name__} error: {e}")
+            log.exception(f"{method.__name__} error: {e}")
             return None
 
     return try_catch_return
@@ -63,7 +64,7 @@ def load(
         "ffmpeg",
         "-hide_banner",
         "-loglevel",
-        "error",
+        "error" if log.level >= logging.DEBUG else "quiet",
         "-i",
         filename,
         "-ss",
@@ -85,7 +86,7 @@ def load(
     retcode = process.poll()
 
     if retcode:
-        logging.exception(f"Error loading audio file {filename}")
+        log.exception(f"Error loading audio file {filename}")
         raise Exception(
             f"{inspect.stack()[0][3]} " f"returned non-zero exit code {retcode}"
         )

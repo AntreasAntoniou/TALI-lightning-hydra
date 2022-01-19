@@ -1,15 +1,16 @@
 import logging
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Callable, Dict, List, Optional, Union
 
 import hydra.utils
 import numpy as np
 import torch
 import torch.nn.functional as F
-from pytorch_lightning import LightningModule
+from pytorch_lightning import LightningModule, LightningDataModule
 from torch import nn
-from torchmetrics import MaxMetric
+from torchmetrics import MaxMetric, Metric
 from torchmetrics.classification.accuracy import Accuracy
 
+from base import utils
 from tali.config_repository import (
     AutoAveragerConfig,
     AutoCLIPResNetConfig,
@@ -21,6 +22,8 @@ from tali.config_repository import (
 )
 from tali.utils.metric_tracking import compute_accuracy
 from tali.utils.storage import google_storage_rsync_local_to_gs
+
+log = utils.get_logger(__name__)
 
 
 def contrastive_logits_labels(logits):
@@ -125,7 +128,7 @@ class CrossModalMatchingNetwork(LightningModule):
             )
 
         if self.sub_batch_size_dict is not None:
-            embedding_dict = {}
+            embedding_feature_dict = {}
             for embedding_name, inputs in batch.items():
                 if embedding_name in self.sub_batch_size_dict:
                     sub_batch_size = self.sub_batch_size_dict[embedding_name]
@@ -144,30 +147,58 @@ class CrossModalMatchingNetwork(LightningModule):
                         current_embedding_features.append(
                             sub_batch_features_for_current_embedding
                         )
-                    embedding_dict[embedding_name] = torch.cat(
+                    embedding_feature_dict[embedding_name] = torch.cat(
                         current_embedding_features, dim=0
                     )
                 else:
-                    embedding_dict[embedding_name] = self._get_normalized_features(
-                        inputs, embedding_name
-                    )
+                    embedding_feature_dict[
+                        embedding_name
+                    ] = self._get_normalized_features(inputs, embedding_name)
         else:
-            embedding_dict = {
+            embedding_feature_dict = {
                 embedding_name: self._get_normalized_features(inputs, embedding_name)
                 for embedding_name, inputs in batch.items()
             }
 
         return (
-            embedding_dict,
-            self._compute_cross_modal_cosine_similarities(embedding_dict),
+            embedding_feature_dict,
+            self._compute_cross_modal_cosine_similarities(embedding_feature_dict),
         )
+
+
+class CrossEntropyLossMetric(Metric):
+    is_differentiable = True
+    higher_is_better = False
+
+    def __init__(
+        self,
+        dist_sync_on_step: bool = False,
+    ) -> None:
+        super().__init__(dist_sync_on_step=dist_sync_on_step)
+        self.add_state("mean", default=torch.tensor(np.inf), dist_reduce_fx="mean")
+        self.add_state("std", default=torch.tensor(0), dist_reduce_fx="mean")
+        self.add_state("cross_entropy_cache", default=[], dist_reduce_fx="cat")
+        self.criterion = nn.CrossEntropyLoss()
+
+    def update(self, preds: torch.Tensor, target: torch.Tensor):
+        # update metric states
+        current_loss = self.criterion(input=preds, target=target)
+        self.cross_entropy_cache.append(current_loss)
+
+    def compute(self):
+        # compute final result
+        self.mean = torch.mean(torch.Tensor(self.cross_entropy_cache))
+        self.std = torch.std(torch.Tensor(self.cross_entropy_cache))
+        if len(self.cross_entropy_cache) > 0:
+            return self.cross_entropy_cache[-1]
+        else:
+            return torch.tensor(np.inf)
 
 
 class ModusPrime(LightningModule):
     def __init__(
         self,
         name: str,
-        google_storage_config: GoogleStorageConfig,
         image_embedding_config: Union[
             AutoCLIPVisionTransformerConfig, AutoCLIPResNetConfig
         ],
@@ -177,11 +208,11 @@ class ModusPrime(LightningModule):
         optimizer_config: None,
         lr_scheduler_config: None,
         sub_batch_size_dict: Optional[Dict[str, int]] = None,
+        batch_size: int = 2,
         embedding_output_features: int = 512,
         logit_scale: float = 1.0,
     ):
         super(ModusPrime, self).__init__()
-        self.google_storage_config = google_storage_config
         self.system = CrossModalMatchingNetwork(
             embedding_output_features=embedding_output_features,
             modality_embeddings=nn.ModuleDict(
@@ -196,11 +227,16 @@ class ModusPrime(LightningModule):
             sub_batch_size_dict=sub_batch_size_dict,
         )
         self.sub_batch_size_dict = sub_batch_size_dict
+        self.batch_size = batch_size
         self.is_built = False
+
         self.metrics_to_track = {
-            "cross_entropy": lambda x, y: F.cross_entropy(input=x, target=y),
-            "accuracy": lambda x, y: compute_accuracy(x, y),
+            "cross_entropy": CrossEntropyLossMetric,
+            "accuracy": Accuracy,
         }
+
+        self.per_modality_metrics_computed_dict = nn.ModuleDict()
+        self.criterion = nn.CrossEntropyLoss()
         self.optimizer_config = optimizer_config
         self.lr_scheduler_config = lr_scheduler_config
         self.save_hyperparameters(logger=False)
@@ -210,6 +246,9 @@ class ModusPrime(LightningModule):
 
         self.is_built = True
         self.save_hyperparameters(logger=False)
+
+    def reset_metric_caches(self):
+        self.per_modality_metrics_computed_dict = nn.ModuleDict()
 
     def forward(self, batch):
 
@@ -221,169 +260,174 @@ class ModusPrime(LightningModule):
                 }
             )
 
-        outputs, cosine_similarities = self.system.forward(
+        embedding_feature_dict, cross_modal_cosine_similarities = self.system.forward(
             batch=batch,
         )
 
         logits, _ = contrastive_logits_labels(
-            torch.stack(list(cosine_similarities.values()))
+            torch.stack(list(cross_modal_cosine_similarities.values()))
         )
+
 
         return logits
 
-    def collect_metrics(self, logits, targets, phase_name):
-        metrics_computed = {}
+    def collect_metrics_step(self, logits, targets, phase_name):
+
         for metric_key, metric_function in self.metrics_to_track.items():
             for measurement_key, measurement_value, target_value in zip(
                 logits.keys(), logits.values(), targets
             ):
                 # logging.info(f"{measurement_value'].shape} {target_value.shape}")
-                metrics_computed[
-                    f"{phase_name}/{metric_key}_{measurement_key}"
-                ] = metric_function(measurement_value.detach(), target_value.detach())
+                cur_key = f"{phase_name}/{metric_key}_{measurement_key}"
+
+                if cur_key not in self.per_modality_metrics_computed_dict:
+                    self.per_modality_metrics_computed_dict[cur_key] = metric_function(
+                        dist_sync_on_step=True
+                    )
+
+                value = self.per_modality_metrics_computed_dict[cur_key](
+                    measurement_value.detach().cpu(), target_value.detach().cpu()
+                )
+
                 self.log(
-                    name=f"{phase_name}/{metric_key}_{measurement_key}",
-                    value=metrics_computed[
-                        f"{phase_name}/" f"{metric_key}_{measurement_key}"
-                    ],
+                    name=cur_key,
+                    value=value,
                     prog_bar=False,
                     logger=True,
                     on_step=True,
                     on_epoch=False,
+                    sync_dist=True,
                 )
 
-            metrics_computed[f"{phase_name}/overall_{metric_key}"] = metric_function(
-                torch.stack(list(logits.values())).detach(), targets.detach()
+            cur_key = f"{phase_name}/overall_{metric_key}"
+
+            if cur_key not in self.per_modality_metrics_computed_dict:
+                self.per_modality_metrics_computed_dict[cur_key] = metric_function(
+                    dist_sync_on_step=True
+                )
+
+            value = self.per_modality_metrics_computed_dict[cur_key](
+                torch.stack(list(logits.values())).detach().cpu(),
+                targets.detach().cpu(),
             )
 
             self.log(
-                name=f"{phase_name}/overall_{metric_key}",
-                value=metrics_computed[f"{phase_name}/overall_{metric_key}"],
-                prog_bar=True,
+                name=cur_key,
+                value=value,
+                prog_bar=False,
                 logger=True,
                 on_step=True,
                 on_epoch=False,
+                sync_dist=True,
             )
-            return metrics_computed
 
-    def training_step(self, batch, batch_idx):
-        # logging.info(f'{[(key, value.shape) for key, value in batch.items()]}')
-        outputs, cosine_similarities = self.system.forward(
+    def collect_metrics_epoch(self):
+
+        for key, value in self.per_modality_metrics_computed_dict.items():
+
+            if isinstance(value, Accuracy):
+                self.log(
+                    name=f"{key}/epoch",
+                    value=value.compute(),
+                    prog_bar=False,
+                    logger=True,
+                    on_step=False,
+                    on_epoch=True,
+                    sync_dist=True,
+                )
+
+            if isinstance(value, CrossEntropyLossMetric):
+                value.compute()
+                self.log(
+                    name=f"{key}/epoch_mean",
+                    value=value.mean,
+                    prog_bar=False,
+                    logger=True,
+                    on_step=False,
+                    on_epoch=True,
+                    sync_dist=True,
+                )
+
+                self.log(
+                    name=f"{key}/epoch_std",
+                    value=value.std,
+                    prog_bar=False,
+                    logger=True,
+                    on_step=False,
+                    on_epoch=True,
+                    sync_dist=True,
+                )
+
+    def step(self, batch, batch_idx):
+
+        embedding_feature_dict, cross_modal_cosine_similarities = self.system.forward(
             batch,
         )
 
         targets = torch.stack(
             [
                 contrastive_logits_labels(modality_similarities)[1]
-                for modality_similarities in cosine_similarities.values()
+                for modality_similarities in cross_modal_cosine_similarities.values()
             ],
             dim=0,
         )
 
-        logits = torch.stack(list(cosine_similarities.values()), dim=0)
+        # log.info(f'targets shape: '
+        #          f'{targets.shape}')
 
-        metrics_computed = self.collect_metrics(
-            logits=cosine_similarities, targets=targets, phase_name="training"
+        return embedding_feature_dict, cross_modal_cosine_similarities, targets
+
+    def training_step(self, batch, batch_idx):
+        # logging.info(f'{[(key, value.shape) for key, value in batch.items()]}')
+
+        embedding_feature_dict, cross_modal_cosine_similarities, targets = self.step(
+            batch=batch, batch_idx=batch_idx
         )
-        metrics_computed["loss"] = F.cross_entropy(input=logits, target=targets)
 
-        return metrics_computed
+        logits = torch.stack(list(cross_modal_cosine_similarities.values()), dim=0)
+
+        self.collect_metrics_step(
+            logits=cross_modal_cosine_similarities,
+            targets=targets,
+            phase_name="training",
+        )
+
+        return self.criterion(input=logits, target=targets)
 
     def training_epoch_end(self, outputs: List[Any]):
-
-        for metric_key in outputs[0].keys():
-            self.log(
-                name=f"{metric_key}-mean",
-                value=torch.stack([x[metric_key] for x in outputs]).mean(),
-                prog_bar=True,
-                logger=True,
-                on_step=False,
-                on_epoch=True,
-            )
-
-            self.log(
-                name=f"{metric_key}-std",
-                value=torch.stack([x[metric_key] for x in outputs]).std(dim=0),
-                prog_bar=True,
-                logger=True,
-                on_step=False,
-                on_epoch=True,
-            )
+        self.collect_metrics_epoch()
+        self.reset_metric_caches()
 
     def validation_step(self, batch, batch_idx):
         # logging.info(f'{[(key, value.shape) for key, value in batch.items()]}')
 
-        outputs, cosine_similarities = self.system.forward(batch)
-
-        targets = torch.stack(
-            [
-                contrastive_logits_labels(modality_similarities)[1]
-                for modality_similarities in cosine_similarities.values()
-            ],
-            dim=0,
+        embedding_feature_dict, cross_modal_cosine_similarities, targets = self.step(
+            batch=batch, batch_idx=batch_idx
         )
 
-        return self.collect_metrics(
-            logits=cosine_similarities, targets=targets, phase_name="validation"
+        self.collect_metrics_step(
+            logits=cross_modal_cosine_similarities,
+            targets=targets,
+            phase_name="validation",
         )
 
     def validation_epoch_end(self, outputs: List[Any]):
-
-        for metric_key in outputs[0].keys():
-            self.log(
-                name=f"{metric_key}-mean",
-                value=torch.stack([x[metric_key] for x in outputs]).mean(),
-                prog_bar=True,
-                logger=True,
-                on_step=False,
-                on_epoch=True,
-            )
-
-            self.log(
-                name=f"{metric_key}-std",
-                value=torch.stack([x[metric_key] for x in outputs]).std(dim=0),
-                prog_bar=True,
-                logger=True,
-                on_step=False,
-                on_epoch=True,
-            )
+        self.collect_metrics_epoch()
+        self.reset_metric_caches()
 
     def test_step(self, batch, batch_idx):
 
-        outputs, cosine_similarities = self.system.forward(batch)
-
-        targets = torch.stack(
-            [
-                contrastive_logits_labels(modality_similarities)[1]
-                for modality_similarities in cosine_similarities.values()
-            ],
-            dim=0,
+        embedding_feature_dict, cross_modal_cosine_similarities, targets = self.step(
+            batch=batch, batch_idx=batch_idx
         )
 
-        return self.collect_metrics(
-            logits=cosine_similarities, targets=targets, phase_name="test"
+        self.collect_metrics_step(
+            logits=cross_modal_cosine_similarities, targets=targets, phase_name="test"
         )
 
     def testing_epoch_end(self, outputs: List[Any]):
-
-        for metric_key in outputs[0].keys():
-            self.log(
-                name=f"{metric_key}-mean",
-                value=torch.stack([x[metric_key] for x in outputs]).mean(),
-                prog_bar=True,
-                logger=True,
-                on_step=False,
-                on_epoch=True,
-            )
-
-            self.log(
-                name=f"{metric_key}-std",
-                value=torch.stack([x[metric_key] for x in outputs]).std(dim=0),
-                prog_bar=True,
-                logger=True,
-                on_step=False,
-                on_epoch=True,
-            )
+        self.collect_metrics_epoch()
+        self.reset_metric_caches()
 
     def configure_optimizers(self):
         optimizer = hydra.utils.instantiate(

@@ -13,6 +13,7 @@ from pytorch_lightning import (
     seed_everything,
 )
 from pytorch_lightning.loggers import LightningLoggerBase
+from pytorch_lightning.tuner.tuning import Tuner
 
 from base import utils
 
@@ -39,42 +40,36 @@ def train_eval(config: DictConfig) -> List[Dict[str, float]]:
     if config.get("seed"):
         seed_everything(config.seed, workers=True)
 
-    if config.model.google_storage_config.from_scratch:
-        log.info("Starting from scratch")
-        shutil.rmtree(config.trainer.logger.save_dir)
-        os.makedirs(config.trainer.logger.save_dir, exist_ok=True)
+    checkpoint_path = None
 
-        if config.model.google_storage_config.use_google_storage:
-            google_storage_rsync_local_to_gs(
-                bucket_name=config.model.google_storage_config.bucket_name,
-                experiments_root_dir=f"{config.model.google_storage_config.local_experiments_root_dir}",
-                experiment_name=f"{config.model.google_storage_config.experiment_name}",
-                exclude_list=[],
-                options_list=["-r", "-d", "-u"],
-            )
+    if config.resume:
 
-    else:
         log.info("Continue from existing checkpoint")
-        if config.model.google_storage_config.use_google_storage:
-            google_storage_rsync_gs_to_local(
-                bucket_name=config.model.google_storage_config.bucket_name,
-                experiments_root_dir=f"{config.model.google_storage_config.local_experiments_root_dir}",
-                experiment_name=f"{config.model.google_storage_config.experiment_name}",
-                exclude_list=[],
-                options_list=["-r", "-d", "-u"],
-            )
 
         if not pathlib.Path(f"{config.exp_dir}").exists():
             os.makedirs(f"{config.exp_dir}", exist_ok=True)
 
-        latest_checkpoint_path = f"{config.exp_dir}/checkpoints/last.ckpt"
+        google_storage_rsync_gs_to_local(
+            bucket_name=config.callbacks.gs_file_monitor.bucket_name,
+            experiments_root_dir=config.callbacks.gs_file_monitor.experiments_root_dir,
+            experiment_name=config.callbacks.gs_file_monitor.experiment_name,
+            exclude_list=config.callbacks.gs_file_monitor.exclude_list,
+            options_list=config.callbacks.gs_file_monitor.options_list,
+        )
 
-        log.info(latest_checkpoint_path)
+        checkpoint_path = f"{config.exp_dir}/checkpoints/last.ckpt"
 
-        if pathlib.Path(latest_checkpoint_path).exists():
-            config.trainer.resume_from_checkpoint = latest_checkpoint_path
+        log.info(checkpoint_path)
 
-    log.info(f"{pretty_print_dict(dict(config))}")
+        if not pathlib.Path(checkpoint_path).exists():
+            checkpoint_path = None
+
+    else:
+
+        log.info("Starting from scratch")
+        # shutil.rmtree(config.exp_dir)
+        if not pathlib.Path(f"{config.exp_dir}").exists():
+            os.makedirs(f"{config.exp_dir}", exist_ok=True)
 
     log.info(f"Instantiating datamodule <{config.datamodule._target_}>")
     datamodule: LightningDataModule = hydra.utils.instantiate(
@@ -112,6 +107,13 @@ def train_eval(config: DictConfig) -> List[Dict[str, float]]:
         _recursive_=True,
     )
 
+    if config.trainer.auto_scale_batch_size:
+        tuner = Tuner(trainer)
+        new_batch_size = tuner.scale_batch_size(model, datamodule=datamodule,
+                                                mode='binsearch')
+        datamodule.batch_size = new_batch_size
+        config.datamodule.batch_size = new_batch_size
+
     # Send some parameters from config to all lightning loggers
     log.info("Logging hyperparameters!")
     utils.log_hyperparameters(
@@ -123,22 +125,27 @@ def train_eval(config: DictConfig) -> List[Dict[str, float]]:
         logger=logger,
     )
 
+
     if config.mode.fit:
         log.info("Starting training!")
-        trainer.fit(model=model, datamodule=datamodule)
+        trainer.fit(model=model, datamodule=datamodule, ckpt_path=checkpoint_path)
 
-    # Get metric score for hyperparameter optimization
-    optimized_metric = config.get("optimized_metric")
-    if optimized_metric and optimized_metric not in trainer.callback_metrics:
-        raise Exception(
-            "Metric for hyperparameter optimization not found! "
-            "Make sure the `optimized_metric` in `hparams_search` config is correct!"
-        )
-    score = trainer.callback_metrics.get(optimized_metric)
+    # # Get metric score for hyperparameter optimization
+    # optimized_metric = config.get("optimized_metric")
+    # if optimized_metric and optimized_metric not in trainer.callback_metrics:
+    #     raise Exception(
+    #         "Metric for hyperparameter optimization not found! "
+    #         "Make sure the `optimized_metric` in `hparams_search` config is correct!"
+    #     )
+    # score = trainer.callback_metrics.get(optimized_metric)
 
     if config.mode.test and not config.trainer.get("fast_dev_run"):
         log.info("Starting testing!")
-        trainer.test(model=model, datamodule=datamodule, ckpt_path="best")
+        trainer.test(
+            model=model,
+            datamodule=datamodule,
+            ckpt_path=trainer.checkpoint_callback.best_model_path,
+        )
 
     # Make sure everything closed properly
     log.info("Finalizing!")
@@ -156,89 +163,84 @@ def train_eval(config: DictConfig) -> List[Dict[str, float]]:
         log.info(f"Best model ckpt at {trainer.checkpoint_callback.best_model_path}")
 
     # Return metric score for hyperparameter optimization
-    return score
+    # return score
 
 
-# def multi_train_eval(config: DictConfig):
-#     ray.init(address="auto")
-#     # log.info(f"Starting search {pretty_print_dict(dict(config.ray))}")
-#     dataset_options = ["base/tali"]  # , "milli/tali", "hecta/tali"]
-#     system_options = [
-#         # "milli_modus_prime_resnet50",
-#         # "centi_modus_prime_resnet50",
-#         # "deci_modus_prime_resnet50",
-#         "base-deci-hybrid_modus_prime_resnet50",
-#         "base_modus_prime_resnet50",
-#         # "milli_modus_prime_vi-transformer16",
-#         # "centi_modus_prime_vi-transformer16",
-#         # "deci_modus_prime_vi-transformer16",
-#         "base_modus_prime_vi-transformer16",
-#     ]
-#
-#     @ray.remote(
-#         num_cpus=(config.num_cpus_per_ddp_head + config.num_cpus_per_worker)
-#         * config.num_workers,
-#         num_gpus=config.num_workers,
-#     )
-#     def remote_train_eval(config: DictConfig) -> Optional[float]:
-#         return train_eval(config)
-#
-#     configs = {}
-#     for use_image_modality in [True]:
-#         for use_audio_modality in [False, True]:
-#             for use_video_modality in [False, True]:
-#                 for use_text_modality in [False, True]:
-#                     for dataset_option in dataset_options:
-#                         for system_option in system_options:
-#                             if any(
-#                                 [
-#                                     use_text_modality,
-#                                     use_audio_modality,
-#                                     use_video_modality,
-#                                 ]
-#                             ):
-#                                 overrides = [
-#                                     f"experiment/data={dataset_option}",
-#                                     f"experiment/system={system_option}",
-#                                     f"datamodule.config."
-#                                     f"modality_config.image={use_image_modality}",
-#                                     f"datamodule.config."
-#                                     f"modality_config.audio={use_audio_modality}",
-#                                     f"datamodule.config."
-#                                     f"modality_config.text={use_text_modality}",
-#                                     f"datamodule.config."
-#                                     f"modality_config.video={use_video_modality}",
-#                                     f"datamodule.config."
-#                                     f"modality_config.name="
-#                                     f"video-{use_video_modality}"
-#                                     f"-audio-{use_audio_modality}"
-#                                     f"-text-{use_text_modality}"
-#                                     f"-image-{use_image_modality}".lower(),
-#                                 ]
-#                                 run_cfg = hydra.compose(
-#                                     config_name="default-a100-2g", overrides=overrides
-#                                 )
-#
-#                                 configs[run_cfg.name] = DictConfig(run_cfg)
-#     logging.info(
-#         f"Number of trials -------- {len(configs)}, "
-#         f"{[name for name in configs.keys()]}"
-#     )
-#
-#     resource_dict = dict(
-#         num_workers=config.num_workers,
-#         use_gpu=config.use_gpu,
-#         num_cpus_per_worker=config.num_cpus_per_worker,
-#     )
-#     log.info(f"{resource_dict} {len(configs)}")
-#     experiment_objects = []
-#     for key, value in configs.items():
-#         log.info(f"Running {key} {pretty_print_dict(dict(value))}")
-#
-#         object_experiment = remote_train_eval.remote(config=value)
-#         # object_experiment
-#         experiment_objects.append(object_experiment)
-#
-#     results = ray.get(experiment_objects)
-#
-#     log.info(f"{results}")
+def multi_train_eval(config: DictConfig):
+    import ray
+
+    ray.init(address="auto")
+    dataset_options = ["base-tali"]  # , "milli/tali", "hecta/tali"]
+    system_options = [
+        # "milli_modus_prime_resnet50",
+        # "centi_modus_prime_resnet50",
+        # "deci_modus_prime_resnet50",
+        "base-deci-hybrid_modus_prime_resnet50",
+        "base_modus_prime_resnet50",
+        # "milli_modus_prime_vi-transformer16",
+        # "centi_modus_prime_vi-transformer16",
+        # "deci_modus_prime_vi-transformer16",
+        "base_modus_prime_vi-transformer16",
+    ]
+
+    @ray.remote(
+        num_cpus=config.num_workers * config.num_cpus_per_worker,
+        num_gpus=config.num_workers * config.num_gpus_per_worker,
+    )
+    def remote_train_eval(config: DictConfig) -> List[Dict[str, float]]:
+        return train_eval(config)
+
+    configs = {}
+    for use_image_modality in [True]:
+        for use_audio_modality in [False, True]:
+            for use_video_modality in [False, True]:
+                for use_text_modality in [False, True]:
+                    for dataset_option in dataset_options:
+                        for system_option in system_options:
+                            if any(
+                                [
+                                    use_text_modality,
+                                    use_audio_modality,
+                                    use_video_modality,
+                                ]
+                            ):
+                                overrides = [
+                                    f"datamodule={dataset_option}",
+                                    f"model={system_option}",
+                                    f"datamodule.config."
+                                    f"modality_config.image={use_image_modality}",
+                                    f"datamodule.config."
+                                    f"modality_config.audio={use_audio_modality}",
+                                    f"datamodule.config."
+                                    f"modality_config.text={use_text_modality}",
+                                    f"datamodule.config."
+                                    f"modality_config.video={use_video_modality}",
+                                    f"datamodule.config."
+                                    f"modality_config.name="
+                                    f"video-{use_video_modality}"
+                                    f"-audio-{use_audio_modality}"
+                                    f"-text-{use_text_modality}"
+                                    f"-image-{use_image_modality}".lower(),
+                                ]
+                                run_cfg = hydra.compose(
+                                    config_name="ray_config", overrides=overrides
+                                )
+
+                                configs[run_cfg.name] = DictConfig(run_cfg)
+    log.info(
+        f"Number of trials -------- {len(configs)}, "
+        f"{[name for name in configs.keys()]}"
+    )
+
+    experiment_objects = []
+    for key, value in configs.items():
+        log.info(f"Running {key}")
+        # log.debug(f'{pretty_print_dict(dict(value))}')
+
+        object_experiment = remote_train_eval.remote(config=value)
+        # object_experiment
+        experiment_objects.append(object_experiment)
+
+    results = ray.get(experiment_objects)
+
+    log.info(f"{results}")

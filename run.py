@@ -4,6 +4,8 @@ from omegaconf import DictConfig
 
 # load environment variables from `.env` file if it exists
 # recursively searches for `.env` in all folders starting from work dir
+from tali.train import multi_train_eval
+
 dotenv.load_dotenv(override=True)
 
 
@@ -26,13 +28,13 @@ def main(config: DictConfig):
     if config.get("print_config"):
         utils.print_config(config, resolve=True)
 
-    # if config.ray_multi_run:
-    #     # Train multiple models using cloud compute using ray when
-    #     # given a list of search options
-    #     return multi_train_eval(config)
-    # else:
-    #     # Train model in a single run
-    return train_eval(config)
+    if config.ray_multi_run:
+        # Train multiple models using cloud compute using ray when
+        # given a list of search options
+        return multi_train_eval(config)
+    else:
+        # Train model in a single run
+        return train_eval(config)
 
 
 if __name__ == "__main__":

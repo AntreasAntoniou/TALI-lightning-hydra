@@ -1,17 +1,17 @@
 model_checkpoint_eval:
   _target_: pytorch_lightning.callbacks.ModelCheckpoint
-  monitor: "validation/overall_cross_entropy-mean" # name of the logged metric which determines when model is improving
+  monitor: validation/overall_cross_entropy/epoch_mean # name of the logged metric which determines when model is improving
   mode: "min" # "max" means higher metric value is better, can be also "min"
   save_top_k: 1 # save k best models (determined by above metric)
   save_last: True # additionaly always save model from last epoch
   verbose: False
-  dirpath: "checkpoints/"
+  dirpath: "${exp_dir}/checkpoints/"
   filename: "eval_epoch_{epoch:03d}"
   auto_insert_metric_name: False
 
 model_checkpoint_train:
   _target_: pytorch_lightning.callbacks.ModelCheckpoint
-  monitor: "training/overall_cross_entropy"
+  monitor: training/overall_cross_entropy/epoch_mean
   save_on_train_epoch_end: True
   save_top_k: 1
   save_last: true
@@ -39,5 +39,5 @@ gs_file_monitor:
   experiments_root_dir: ${exp_dir}
   experiment_name: ${name}
   exclude_list: [.git/*]
-  options_list: ['r', 'd', 'u']
-  resume: True
+  options_list: ['r', 'd', 'u', 'e']
+  resume: ${resume}

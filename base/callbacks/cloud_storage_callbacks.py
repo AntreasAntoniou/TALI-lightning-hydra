@@ -2,6 +2,7 @@ from typing import Any, Dict, List, Optional
 
 import pytorch_lightning as pl
 from pytorch_lightning import Callback
+from pytorch_lightning.utilities import rank_zero_only
 
 from tali.utils.storage import (
     google_storage_rsync_gs_to_local,
@@ -27,6 +28,7 @@ class GoogleStorageBucketRSyncClient(Callback):
         self.options_list = options_list
         self.resume = resume
 
+    @rank_zero_only
     def on_save_checkpoint(
         self,
         trainer: "pl.Trainer",
@@ -41,6 +43,7 @@ class GoogleStorageBucketRSyncClient(Callback):
             options_list=self.options_list,
         )
 
+    @rank_zero_only
     def on_load_checkpoint(
         self,
         trainer: "pl.Trainer",
@@ -50,8 +53,8 @@ class GoogleStorageBucketRSyncClient(Callback):
         if self.resume:
             google_storage_rsync_gs_to_local(
                 bucket_name=self.bucket_name,
-                experiments_root_dir=f"{self.experiments_root_dir}",
-                experiment_name=f"{self.experiment_name}",
+                experiments_root_dir=self.experiments_root_dir,
+                experiment_name=self.experiment_name,
                 exclude_list=self.exclude_list,
                 options_list=self.options_list,
             )

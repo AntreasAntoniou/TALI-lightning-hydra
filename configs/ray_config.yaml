@@ -3,7 +3,7 @@
 # specify here default training configuration
 defaults:
   - _self_
-  - trainer: default.yaml
+  - trainer: ddp.yaml
   - model: milli_modus_prime_vi-transformer16.yaml
   - datamodule: base-tali.yaml
   - callbacks: wandb.yaml
@@ -23,7 +23,10 @@ defaults:
 
 resume: True
 checkpoint_path: null
-ray_multi_run: False
+num_workers: 1
+num_cpus_per_worker: 8
+num_gpus_per_worker: 1
+ray_multi_run: True
 # pretty print config at the start of the run using Rich library
 print_config: True
 
@@ -34,7 +37,7 @@ logging_level: INFO
 # lightning chooses best weights based on metric specified in checkpoint callback
 test_after_training: True
 
-batch_size: null
+batch_size: 2
 # seed for random number generators in pytorch, numpy and python.random
 seed: 20221601
 
