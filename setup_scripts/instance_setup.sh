@@ -19,7 +19,10 @@ conda install opencv -y
 echo "export CODE_DIR=$HOME/TALI-lightning-hydra" >> $HOME/.bashrc
 echo "export TOKENIZERS_PARALLELISM=false" >> $HOME/.bashrc
 echo "conda activate tali" >> $HOME/.bashrc
+
 source $HOME/.bashrc
+
+git clone https://github.com/AntreasAntoniou/TALI-lightning-hydra.git $CODE_DIR
 
 cd $CODE_DIR
 pip install -r $CODE_DIR/requirements.txt
