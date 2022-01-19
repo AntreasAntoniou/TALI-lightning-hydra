@@ -4,5 +4,8 @@
 #SBATCH --error=nvidia-smi.err
 
 source $HOME/.bashrc
-source $CODE_DIR/setup_scripts/setup_base_experiment_disk.sh
-source $CODE_DIR/setup_scripts/setup_tali_dataset_disk.sh
+export MOUNT_DIR="/mnt/disk/filestore/"
+export EXPERIMENTS_DIR="/mnt/disk/filestore/experiments/"
+export DATASET_DIR="/mnt/disk/filestore/tali-dataset/"
+
+python cuda_info.py
