@@ -8,4 +8,4 @@ export MOUNT_DIR="/mnt/disk/filestore/"
 export EXPERIMENTS_DIR="/mnt/disk/filestore/experiments/"
 export DATASET_DIR="/mnt/disk/filestore/tali-dataset/"
 
-python cuda_info.py
+python $CODE_DIR/slurm/check_scripts/cuda_info.py
