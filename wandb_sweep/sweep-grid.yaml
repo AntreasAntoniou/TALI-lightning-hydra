@@ -10,13 +10,13 @@ parameters:
     distribution: categorical
   use_audio_modality:
     values:
-      - "true"
       - "false"
+      - "true"
     distribution: categorical
   use_video_modality:
     values:
-      - "true"
       - "false"
+      - "true"
     distribution: categorical
   use_text_modality:
     values:
