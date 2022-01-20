@@ -1,7 +1,9 @@
 #!/bin/bash
 echo "ALL HAIL THE SCRIPT"
-source /home/evolvingfungus/.bashrc
-cd /home/evolvingfungus/TALI-lightning-hydra/
+source /root/.bashrc
+cd /root/TALI-lightning-hydra/
 git pull
-bash /home/evolvingfungus/TALI-lightning-hydra/setup_scripts/startup_script.sh
+bash /root/TALI-lightning-hydra/setup_scripts/startup_script.sh
 echo "STARTUP SCRIPT DONE, hopefully"
+
+#sudo -u evolvingfungus bash -c 'bash ~/startup_script.sh'
