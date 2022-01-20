@@ -1,5 +1,7 @@
 #!/bin/bash
-source $HOME/.bashrc
-cd $CODE_DIR
+echo "ALL HAIL THE SCRIPT"
+source /home/evolvingfungus/.bashrc
+cd /home/evolvingfungus/TALI-lightning-hydra/
 git pull
-bash $CODE_DIR/setup_scripts/startup_script.sh
+bash /home/evolvingfungus/TALI-lightning-hydra/setup_scripts/startup_script.sh
+echo "STARTUP SCRIPT DONE, hopefully"
