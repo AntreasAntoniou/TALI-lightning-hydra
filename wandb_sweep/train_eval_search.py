@@ -15,7 +15,7 @@ hyperparameter_defaults = dict(
     use_audio_modality=False,
     use_text_modality=True,
     datamodule_name="base-tali",
-    model_name="centi_modus_prime_resnet50",
+    model_name="base_modus_prime_resnet50",
 )
 
 wandb.init(config=hyperparameter_defaults, project="TALI-gcp-sweep")
