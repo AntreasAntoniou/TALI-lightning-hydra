@@ -37,9 +37,12 @@ test_after_training: True
 batch_size: null
 # seed for random number generators in pytorch, numpy and python.random
 seed: 20221601
-
+trainer:
+  logger:
+    wandb:
+      project: 'TALI-gcp-sweep-0'
 # name of the run, should be used along with experiment mode
-name: ${datamodule.config.dataset_name}-${model.name}-${datamodule.config.modality_config.name}-${seed}
+name: ${trainer.logger.wandb.project}${datamodule.config.dataset_name}-${model.name}-${datamodule.config.modality_config.name}-${seed}
 
 code_dir: ${hydra:runtime.cwd}
 root_log_dir: /mnt/disk/filestore/experiments

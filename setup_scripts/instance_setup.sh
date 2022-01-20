@@ -26,11 +26,12 @@ echo "conda activate tali" >> $HOME/.bashrc
 
 source $HOME/.bashrc
 ########################################################################################
+cd $HOME
 git clone https://github.com/AntreasAntoniou/TALI-lightning-hydra.git $CODE_DIR
 cd $CODE_DIR
 
 pip install -r $CODE_DIR/requirements.txt
-pip install -e .
+pip install -e $CODE_DIR
 
 cd $HOME
 git clone https://huggingface.co/openai/clip-vit-base-patch32
