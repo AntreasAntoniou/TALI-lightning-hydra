@@ -27,7 +27,7 @@ def main():
     template_command = (
         f"python $CODE_DIR/run.py hydra.verbose=True trainer=default "
         f"resume=True batch_size={torch.cuda.device_count() * 2}"
-        f" wandb_project_name=TALI-gcp-sweep-0 "
+        f" wandb_project_name=TALI-gcp-sweep-1 "
         f"trainer.gpus=-1 "
         f"trainer.auto_scale_batch_size=True "
         f"model={config.model_name} datamodule={config.datamodule_name} "
