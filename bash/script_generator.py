@@ -20,8 +20,9 @@ def main():
         dict(model_name="deci_modus_prime_resnet50", batch_size=10, num_gpus=1),
         # dict(model_name="base-deci-hybrid_modus_prime_resnet50", batch_size=4, num_gpus=1),
         dict(model_name="base_modus_prime_resnet50", batch_size=10, num_gpus=1),
-
-        dict(model_name="milli_modus_prime_vi-transformer16", batch_size=16, num_gpus=1),
+        dict(
+            model_name="milli_modus_prime_vi-transformer16", batch_size=16, num_gpus=1
+        ),
         dict(model_name="centi_modus_prime_vi-transformer16", batch_size=8, num_gpus=1),
         dict(model_name="deci_modus_prime_vi-transformer16", batch_size=4, num_gpus=1),
         dict(model_name="base_modus_prime_vi-transformer16", batch_size=2, num_gpus=1),
@@ -40,9 +41,9 @@ def main():
                                     use_video_modality,
                                 ]
                             ):
-                                batch_size = model_options['batch_size']
-                                num_gpus = model_options['num_gpus']
-                                model_name = model_options['model_name']
+                                batch_size = model_options["batch_size"]
+                                num_gpus = model_options["num_gpus"]
+                                model_name = model_options["model_name"]
                                 template_command = (
                                     f"python run.py hydra.verbose=True trainer=default "
                                     f"resume=True batch_size={batch_size} "

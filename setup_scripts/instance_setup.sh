@@ -12,15 +12,17 @@ conda activate tali
 
 conda install -c conda-forge git-lfs -y
 conda install pytorch torchvision torchaudio cudatoolkit=11.3 -c pytorch-nightly -y
-conda install google-cloud-sdk -y
 conda install opencv -y
 
 ########################################################################################
 echo "export CODE_DIR=$HOME/TALI-lightning-hydra" >> $HOME/.bashrc
+echo "export MOUNT_DIR=/mnt/disk/filestore/" >> $HOME/.bashrc
+echo "export EXPERIMENTS_DIR=/mnt/disk/filestore/experiments/" >> $HOME/.bashrc
+echo "export DATASET_DIR=/mnt/disk/filestore/tali-dataset/" >> $HOME/.bashrc
 echo "export TOKENIZERS_PARALLELISM=false" >> $HOME/.bashrc
+
 echo "source $CONDA_DIR/bin/activate" >> $HOME/.bashrc
 echo "conda activate tali" >> $HOME/.bashrc
-
 
 source $HOME/.bashrc
 ########################################################################################
@@ -33,3 +35,7 @@ pip install -e .
 cd $HOME
 git clone https://huggingface.co/openai/clip-vit-base-patch32
 
+########################################################################################
+conda install gh --channel conda-forge
+sudo apt install htop nvtop
+conda install google-cloud-sdk bat micro -y

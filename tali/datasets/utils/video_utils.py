@@ -8,6 +8,7 @@ import torch
 
 log = logging.getLogger(__name__)
 
+
 def get_meta_data_opencv(filepath):
     vid_capture = cv2.VideoCapture(filepath)
     try:

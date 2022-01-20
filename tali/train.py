@@ -27,6 +27,8 @@ from tali.utils.storage import (
 )
 
 torch.cuda.is_available()
+
+
 def train_eval(config: DictConfig) -> List[Dict[str, float]]:
     """Contains training pipeline.
     Instantiates all PyTorch Lightning objects from config.
@@ -110,8 +112,9 @@ def train_eval(config: DictConfig) -> List[Dict[str, float]]:
 
     if config.trainer.auto_scale_batch_size:
         tuner = Tuner(trainer)
-        new_batch_size = tuner.scale_batch_size(model, datamodule=datamodule,
-                                                mode='binsearch')
+        new_batch_size = tuner.scale_batch_size(
+            model, datamodule=datamodule, mode="binsearch"
+        )
         datamodule.batch_size = new_batch_size
         config.datamodule.batch_size = new_batch_size
 
@@ -125,7 +128,6 @@ def train_eval(config: DictConfig) -> List[Dict[str, float]]:
         callbacks=callbacks,
         logger=logger,
     )
-
 
     if config.mode.fit:
         log.info("Starting training!")

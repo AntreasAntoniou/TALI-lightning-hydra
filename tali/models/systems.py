@@ -5,7 +5,7 @@ import hydra.utils
 import numpy as np
 import torch
 import torch.nn.functional as F
-from pytorch_lightning import LightningModule, LightningDataModule
+from pytorch_lightning import LightningDataModule, LightningModule
 from torch import nn
 from torchmetrics import MaxMetric, Metric
 from torchmetrics.classification.accuracy import Accuracy
@@ -267,7 +267,6 @@ class ModusPrime(LightningModule):
         logits, _ = contrastive_logits_labels(
             torch.stack(list(cross_modal_cosine_similarities.values()))
         )
-
 
         return logits
 

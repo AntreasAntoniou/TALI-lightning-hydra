@@ -8,6 +8,7 @@ import numpy as np
 
 log = logging.getLogger(__name__)
 
+
 def timeit(method):
     def timed(*args, **kwargs):
         ts = time.time()
