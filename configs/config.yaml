@@ -40,7 +40,7 @@ seed: 20221601
 
 wandb_project_name: 'TALI-gcp-sweep-0'
 # name of the run, should be used along with experiment mode
-name: ${wandb-project-name}${datamodule.config.dataset_name}-${model.name}-${datamodule.config.modality_config.name}-${seed}
+name: ${wandb_project_name}${datamodule.config.dataset_name}-${model.name}-${datamodule.config.modality_config.name}-${seed}
 
 code_dir: ${hydra:runtime.cwd}
 root_log_dir: /mnt/disk/filestore/experiments
