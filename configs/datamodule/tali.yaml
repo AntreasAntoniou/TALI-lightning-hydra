@@ -9,7 +9,7 @@ config:
     video: true
     text: true
     name: video-${datamodule.config.modality_config.video}-audio-${datamodule.config.modality_config.video}-text-${datamodule.config.modality_config.video}-image-${datamodule.config.modality_config.video}
-  rescan_paths: false
+  rescan_paths: true
   num_video_frames_per_datapoint: 4
   num_audio_frames_per_datapoint: 88200
   num_audio_sample_rate: 44100
