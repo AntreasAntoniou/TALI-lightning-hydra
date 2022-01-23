@@ -23,7 +23,7 @@ defaults:
 
 resume: True
 checkpoint_path: null
-ray_multi_run: False
+debug_data: True
 # pretty print config at the start of the run using Rich library
 print_config: True
 

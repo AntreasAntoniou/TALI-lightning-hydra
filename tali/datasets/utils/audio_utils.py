@@ -65,7 +65,7 @@ def load(
         "ffmpeg",
         "-hide_banner",
         "-loglevel",
-        "error" if log.level >= logging.DEBUG else "quiet",
+        "error",# if log.level >= logging.DEBUG else "quiet",
         "-i",
         filename,
         "-ss",
@@ -94,19 +94,18 @@ def load(
 
     audio = np.frombuffer(out, dtype=in_type).astype(out_type)
 
-    loading_shape = audio.shape
 
     audio = audio.reshape(-1, channels)
 
-    reshape_shape = audio.shape
 
-    frames_to_collect = np.array(frames_to_collect)
 
-    frames_to_collect_original_shape = frames_to_collect.shape
 
-    frames_to_collect = frames_to_collect[frames_to_collect < audio.shape[0]]
 
     if frames_to_collect is not None:
+        frames_to_collect = np.array(frames_to_collect)
+
+        frames_to_collect = frames_to_collect[frames_to_collect < audio.shape[0]]
+
         audio = audio[frames_to_collect]
 
     # logging.info(f'{audio.shape}, {loading_shape}, {reshape_shape}, '

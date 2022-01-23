@@ -47,20 +47,19 @@ def verify_video(path: pathlib.Path):
 
 
 def verify_audio(path: pathlib.Path):
-    result = False
     audio_filepath = os.fspath(path.resolve())
-
     try:
-        result = load(
-            filename=audio_filepath,
-            sr=44100,
-            mono=False,
-            normalize=False,
-            in_type=np.float32,
-            out_type=np.float32,
-            log_time=False,
-            duration_in_seconds=1,
-        )
+        load(filename=audio_filepath,
+                      start_point_in_seconds=1,
+                      duration_in_seconds=7,
+                      sr=44100,
+                      mono=False,
+                      normalize=False,
+                      in_type=np.float32,
+                      out_type=np.float32,
+                      log_time=False,
+                      frames_to_collect=None)
+        result = True
 
     except Exception:
         result = False
@@ -72,15 +71,16 @@ def verify_audio(path: pathlib.Path):
 
 
 def verify_pairs(path: pathlib.Path):
-    if "mp4" in path.suffixes:
+    if ".mp4" in path.suffixes:
         pair_path = path.with_suffix(".aac")
-    elif "aac" in path.suffixes:
+    elif ".aac" in path.suffixes:
         pair_path = path.with_suffix(".mp4")
     else:
         return path, False
 
     if pair_path.exists() and path.exists():
         return path, True
+
     delete_file_if_exists(path)
     delete_file_if_exists(pair_path)
     return path, False
@@ -110,27 +110,27 @@ if __name__ == "__main__":
         logging.info(f"Checking {num_samples}  {file_type} files")
         target_func = verify_video if file_type == ".mp4" else verify_audio
         with concurrent.futures.ProcessPoolExecutor(
-            max_workers=args.num_processes
+                max_workers=args.num_processes
         ) as executor:
             with tqdm.tqdm(total=num_samples, smoothing=0.0) as pbar:
                 for job_idx, (file_path, result) in enumerate(
-                    executor.map(target_func, matching_files[file_type]),
-                    start=1,
+                        executor.map(target_func, matching_files[file_type]),
+                        start=1,
                 ):
                     pbar.update(1)
 
-    num_samples = len(matching_files[target_file_types[0]])
-    logging.info(f"Checking {num_samples}  {target_file_types[0]} files")
-    target_func = verify_video if file_type == ".mp4" else verify_audio
-    with concurrent.futures.ProcessPoolExecutor(
-        max_workers=args.num_processes
-    ) as executor:
-        with tqdm.tqdm(total=num_samples, smoothing=0.0) as pbar:
-            for job_idx, (file_path, result) in enumerate(
-                executor.map(verify_pairs, matching_files[target_file_types[0]]),
-                start=1,
-            ):
-                pbar.update(1)
+    for file_type in target_file_types:
+        num_samples = len(matching_files[file_type])
+        logging.info(f"Checking {num_samples}  {file_type} files")
+        with concurrent.futures.ProcessPoolExecutor(
+                max_workers=args.num_processes
+        ) as executor:
+            with tqdm.tqdm(total=num_samples, smoothing=0.0) as pbar:
+                for job_idx, (file_path, result) in enumerate(
+                        executor.map(verify_pairs, matching_files[file_type]),
+                        start=1,
+                ):
+                    pbar.update(1)
 
     logging.info("Done")
     logging.error(f"Jobs failed {pprint.pformat(failed_jobs)}")

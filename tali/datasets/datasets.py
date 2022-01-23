@@ -176,9 +176,7 @@ class TALIMultiModalDataset(Dataset):
 
                 frames_dict.image = frames_dict.image[0].permute([2, 0, 1])
 
-        data_dict.update(frames_dict)
-
-        return data_dict
+        return frames_dict
 
     def get_text_data_tensors(
         self,
@@ -278,31 +276,35 @@ class TALIMultiModalDataset(Dataset):
                 duration_in_seconds,
             )
 
-            data_dict.text = self.apply_transforms_if_available(
-                modality_name="text", data=data_dict.text
-            )
+            if data_dict.text is not None:
+                data_dict.text = self.apply_transforms_if_available(
+                    modality_name="text", data=data_dict.text
+                )
 
-            data_dict.text = data_dict.text.type(torch.int32)
+                data_dict.text = data_dict.text.type(torch.int32)
 
-        data_dict = self.get_frames(
+        frames_dict = self.get_frames(
             data_dict=data_dict, filepath=video_data_filepath, rng=rng
         )
 
-        if self.config.modality_config.video:
+        if frames_dict is not None:
+            data_dict.update(frames_dict)
+
+        if self.config.modality_config.video and data_dict.video is not None:
             data_dict.video = self.apply_transforms_if_available(
                 modality_name="video", data=data_dict.video
             )
 
             data_dict.video = data_dict.video.type(torch.float32)
 
-        if self.config.modality_config.image:
+        if self.config.modality_config.image and data_dict.image is not None:
             data_dict.image = self.apply_transforms_if_available(
                 modality_name="image", data=data_dict.image
             )
 
             data_dict.image = data_dict.image.type(torch.float32)
 
-        if self.config.modality_config.audio:
+        if self.config.modality_config.audio and data_dict.audio is not None:
             data_dict.audio = self.apply_transforms_if_available(
                 modality_name="audio", data=data_dict.audio
             )
