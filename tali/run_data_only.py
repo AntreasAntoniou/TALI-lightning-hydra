@@ -38,9 +38,30 @@ def sample_datamodule(config: DictConfig):
         config.datamodule, _recursive_=False
     )
     datamodule.setup(stage="fit")
+    datamodule.setup(stage='test')
     total_valid = 0
     total_invalid = 0
     for _ in range(config.trainer.max_epochs):
+        with tqdm.tqdm(total=len(datamodule.val_dataloader())) as pbar:
+            for item_batch, none_count in datamodule.val_dataloader():
+                total_valid += len(item_batch)
+                total_invalid += none_count
+                pbar.update(1)
+                pbar.set_description(f'valid count: {total_valid}, '
+                                     f'invalid count: {total_invalid},'
+                                     f'percentage of invalid: '
+                                     f'{total_invalid / (total_valid + total_invalid)}')
+
+        with tqdm.tqdm(total=len(datamodule.test_dataloader())) as pbar:
+            for item_batch, none_count in datamodule.test_dataloader():
+                total_valid += len(item_batch)
+                total_invalid += none_count
+                pbar.update(1)
+                pbar.set_description(f'valid count: {total_valid}, '
+                                     f'invalid count: {total_invalid},'
+                                     f'percentage of invalid: '
+                                     f'{total_invalid / (total_valid + total_invalid)}')
+
         with tqdm.tqdm(total=len(datamodule.train_dataloader())) as pbar:
             for item_batch, none_count in datamodule.train_dataloader():
                 total_valid += len(item_batch)
@@ -50,6 +71,8 @@ def sample_datamodule(config: DictConfig):
                                      f'invalid count: {total_invalid},'
                                      f'percentage of invalid: '
                                      f'{total_invalid / (total_valid + total_invalid)}')
+
+
             # log.info(item_batch)
 
             # grid = make_grid(
