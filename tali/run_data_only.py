@@ -42,7 +42,7 @@ def sample_datamodule(config: DictConfig):
     total_valid = 0
     total_invalid = 0
     for _ in range(config.trainer.max_epochs):
-        with tqdm.tqdm(total=len(datamodule.val_dataloader())) as pbar:
+        with tqdm.tqdm(total=len(datamodule.val_dataloader()), smoothing=0.0) as pbar:
             for item_batch, none_count in datamodule.val_dataloader():
                 total_valid += len(item_batch)
                 total_invalid += none_count
@@ -52,7 +52,7 @@ def sample_datamodule(config: DictConfig):
                                      f'percentage of invalid: '
                                      f'{total_invalid / (total_valid + total_invalid)}')
 
-        with tqdm.tqdm(total=len(datamodule.test_dataloader())) as pbar:
+        with tqdm.tqdm(total=len(datamodule.test_dataloader()), smoothing=0.0) as pbar:
             for item_batch, none_count in datamodule.test_dataloader():
                 total_valid += len(item_batch)
                 total_invalid += none_count
@@ -62,7 +62,7 @@ def sample_datamodule(config: DictConfig):
                                      f'percentage of invalid: '
                                      f'{total_invalid / (total_valid + total_invalid)}')
 
-        with tqdm.tqdm(total=len(datamodule.train_dataloader())) as pbar:
+        with tqdm.tqdm(total=len(datamodule.train_dataloader()), smoothing=0.0) as pbar:
             for item_batch, none_count in datamodule.train_dataloader():
                 total_valid += len(item_batch)
                 total_invalid += none_count
