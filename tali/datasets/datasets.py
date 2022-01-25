@@ -322,11 +322,25 @@ class TALIMultiModalDataset(Dataset):
             )
             data_dict.audio = data_dict.audio.type(torch.float32)
 
-        return {
+        data_dict = {
             key: value
             for key, value in data_dict.items()
             if isinstance(value, torch.Tensor)
         }
+
+        if self.config.modality_config.image and 'image' not in data_dict:
+            return None
+
+        if self.config.modality_config.video and 'video' not in data_dict:
+            return None
+
+        if self.config.modality_config.audio and 'audio' not in data_dict:
+            return None
+
+        if self.config.modality_config.text and 'text' not in data_dict:
+            return None
+
+        return data_dict
 
     def __len__(self):
 
