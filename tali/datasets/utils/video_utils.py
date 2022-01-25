@@ -5,6 +5,7 @@ import subprocess
 import cv2
 import numpy as np
 import torch
+import pathlib
 
 log = logging.getLogger(__name__)
 
@@ -82,6 +83,10 @@ def get_frames_opencv_cpu(
     # logging.info(f"Frames read: {frames_read}, frames collected: {frames_collected}")
 
     if len(frames) == 0:
+        video_path = pathlib.Path(filepath)
+        audio_path = video_path.with_suffix(".aac")
+        video_path.unlink()
+        audio_path.unlink()
         log.error(f"No frames were extracted from the video {filepath}")
 
     return torch.from_numpy(frames)

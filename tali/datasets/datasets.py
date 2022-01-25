@@ -130,6 +130,13 @@ class TALIMultiModalDataset(Dataset):
         frames_dict.audio = None
         frames_dict.image = None
 
+        if len(video_frames_to_collect) == 0:
+            video_path = pathlib.Path(filepath)
+            audio_path = video_path.with_suffix(".aac")
+            video_path.unlink()
+            audio_path.unlink()
+            log.error(f'No video frames found in {filepath}')
+
         if self.config.modality_config.video:
             frames_dict.video = get_frames_opencv_cpu(
                 filepath=filepath,
