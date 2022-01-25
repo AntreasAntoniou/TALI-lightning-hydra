@@ -49,8 +49,6 @@ def verify_video(path: pathlib.Path):
     except Exception:
         video_path = pathlib.Path(video_filepath)
         audio_path = video_path.with_suffix(".aac")
-        video_path.unlink()
-        audio_path.unlink()
         vid_capture.release()
         delete_file_if_exists(video_path)
         delete_file_if_exists(audio_path)
