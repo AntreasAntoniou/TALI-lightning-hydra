@@ -47,7 +47,7 @@ def sample_datamodule(config: DictConfig):
             for item_batch, none_count in datamodule.val_dataloader():
                 sleep(0.5)
                 total_valid += len(item_batch['image'])
-                total_invalid += none_count
+                total_invalid += len(none_count)
                 pbar.update(1)
                 pbar.set_description(f'valid count: {total_valid}, '
                                      f'invalid count: {total_invalid}, '
@@ -58,7 +58,7 @@ def sample_datamodule(config: DictConfig):
             for item_batch, none_count in datamodule.test_dataloader():
                 sleep(0.5)
                 total_valid += len(item_batch['image'])
-                total_invalid += none_count
+                total_invalid += len(none_count)
                 pbar.update(1)
                 pbar.set_description(f'valid count: {total_valid}, '
                                      f'invalid count: {total_invalid}, '
@@ -69,7 +69,7 @@ def sample_datamodule(config: DictConfig):
             for item_batch, none_count in datamodule.train_dataloader():
                 sleep(0.5)
                 total_valid += len(item_batch['image'])
-                total_invalid += none_count
+                total_invalid += len(none_count)
                 pbar.update(1)
                 pbar.set_description(f'valid count: {total_valid}, '
                                      f'invalid count: {total_invalid}, '

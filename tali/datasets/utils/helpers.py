@@ -366,6 +366,6 @@ def collect_files(args):
 
 
 def collate_resample_none(batch):
-    none_count = len(list(filter(lambda x: x is None, batch)))
+    none_batch = list(filter(lambda x: x is None, batch))
     batch = list(filter(lambda x: x is not None, batch))
-    return dataloader.default_collate(batch), none_count
+    return dataloader.default_collate(batch), dataloader.default_collate(none_batch)
