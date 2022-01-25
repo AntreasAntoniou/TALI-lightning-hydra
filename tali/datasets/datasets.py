@@ -89,7 +89,6 @@ class TALIMultiModalDataset(Dataset):
             clip_duration_in_seconds,
         ) = get_meta_data_opencv(filepath)
 
-        log.info(f'{get_meta_data_opencv(filepath)}')
 
         (
             start_point_in_seconds,
