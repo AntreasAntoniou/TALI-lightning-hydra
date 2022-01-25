@@ -38,10 +38,24 @@ def delete_file_if_exists(path: pathlib.Path):
 
 def verify_video(path: pathlib.Path):
     video_filepath = os.fspath(path.resolve())
-    result = cv2.VideoCapture(video_filepath).isOpened()
+    vid_capture = cv2.VideoCapture(video_filepath)
+    try:
+        total_frames = vid_capture.get(cv2.CAP_PROP_FRAME_COUNT)
+        fps = vid_capture.get(cv2.CAP_PROP_FPS)
+        duration_in_seconds = total_frames / fps
+        vid_capture.release()
+        result = True
 
-    if not result:
-        delete_file_if_exists(path)
+    except Exception:
+        video_path = pathlib.Path(video_filepath)
+        audio_path = video_path.with_suffix(".aac")
+        video_path.unlink()
+        audio_path.unlink()
+        vid_capture.release()
+        delete_file_if_exists(video_path)
+        delete_file_if_exists(audio_path)
+        result = False
+
 
     return video_filepath, result
 
