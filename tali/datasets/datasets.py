@@ -11,9 +11,10 @@ from typing import Callable, Dict, List, Union
 import numpy as np
 import torch
 import tqdm
+from base import utils
 from torch.utils.data import Dataset
 
-from tali.config_repository import TALIDatasetConfig
+from tali.configs.config_repository import TALIDatasetConfig
 from tali.datasets.utils import audio_utils
 from tali.datasets.utils.audio_utils import prevent_error_kill
 from tali.datasets.utils.helpers import (
@@ -26,6 +27,7 @@ from tali.datasets.utils.video_utils import get_frames_opencv_cpu, get_meta_data
 from tali.utils.arg_parsing import DictWithDotNotation
 from tali.utils.storage import load_json, save_json
 
+log = utils.get_logger(__name__)
 
 class TALIMultiModalDataset(Dataset):
     def __init__(
@@ -86,6 +88,8 @@ class TALIMultiModalDataset(Dataset):
             video_frames_per_second,
             clip_duration_in_seconds,
         ) = get_meta_data_opencv(filepath)
+
+        log.info(f'{get_meta_data_opencv(filepath)}')
 
         (
             start_point_in_seconds,
