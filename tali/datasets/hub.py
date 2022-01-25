@@ -51,6 +51,7 @@ class TALIDataModule(BaseDataModule):
         pin_memory: bool = True,
         prefetch_factor: int = 2,
         batch_size: int = 32,
+        num_workers: int = mp.cpu_count()
     ):
         super(TALIDataModule, self).__init__()
         self.save_hyperparameters(logger=False)
@@ -59,6 +60,7 @@ class TALIDataModule(BaseDataModule):
         self.persistent_workers = persistent_workers
         self.pin_memory = pin_memory
         self.prefetch_factor = prefetch_factor
+        self.num_workers = num_workers
         self.tokenizer = HuggingFaceBPETokenizer(
             context_length=config.text_context_length
         )
@@ -132,7 +134,7 @@ class TALIDataModule(BaseDataModule):
             self.train_set,
             batch_size=self.batch_size,
             shuffle=False,
-            num_workers=int(mp.cpu_count() / 2),
+            num_workers=self.num_workers,
             pin_memory=self.pin_memory,
             prefetch_factor=self.prefetch_factor,
             collate_fn=tali.datasets.utils.helpers.collate_resample_none,
@@ -145,7 +147,7 @@ class TALIDataModule(BaseDataModule):
             dataset=self.train_set,
             batch_size=self.batch_size,
             shuffle=True,
-            num_workers=int(mp.cpu_count() / 2),
+            num_workers=self.num_workers,
             pin_memory=self.pin_memory,
             prefetch_factor=self.prefetch_factor,
             collate_fn=tali.datasets.utils.helpers.collate_resample_none,
@@ -158,7 +160,7 @@ class TALIDataModule(BaseDataModule):
             dataset=self.val_set,
             batch_size=self.batch_size,
             shuffle=False,
-            num_workers=int(mp.cpu_count() / 2),
+            num_workers=self.num_workers,
             pin_memory=self.pin_memory,
             prefetch_factor=self.prefetch_factor,
             collate_fn=tali.datasets.utils.helpers.collate_resample_none,
@@ -171,7 +173,7 @@ class TALIDataModule(BaseDataModule):
             dataset=self.test_set,
             batch_size=self.batch_size,
             shuffle=False,
-            num_workers=int(mp.cpu_count() / 2),
+            num_workers=self.num_workers,
             pin_memory=self.pin_memory,
             prefetch_factor=self.prefetch_factor,
             collate_fn=tali.datasets.utils.helpers.collate_resample_none,

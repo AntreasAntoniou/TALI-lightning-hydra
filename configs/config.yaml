@@ -24,6 +24,8 @@ defaults:
 resume: True
 checkpoint_path: null
 debug_data: False
+
+data_loader_num_workers: 56
 # pretty print config at the start of the run using Rich library
 print_config: True
 
