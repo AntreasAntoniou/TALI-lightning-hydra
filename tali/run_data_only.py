@@ -1,4 +1,5 @@
 import logging
+from time import sleep
 
 import hydra
 import torch
@@ -44,6 +45,7 @@ def sample_datamodule(config: DictConfig):
     for _ in range(config.trainer.max_epochs):
         with tqdm.tqdm(total=len(datamodule.val_dataloader()), smoothing=0.0) as pbar:
             for item_batch, none_count in datamodule.val_dataloader():
+                sleep(0.5)
                 total_valid += len(item_batch)
                 total_invalid += none_count
                 pbar.update(1)
@@ -54,6 +56,7 @@ def sample_datamodule(config: DictConfig):
 
         with tqdm.tqdm(total=len(datamodule.test_dataloader()), smoothing=0.0) as pbar:
             for item_batch, none_count in datamodule.test_dataloader():
+                sleep(0.5)
                 total_valid += len(item_batch)
                 total_invalid += none_count
                 pbar.update(1)
@@ -64,6 +67,7 @@ def sample_datamodule(config: DictConfig):
 
         with tqdm.tqdm(total=len(datamodule.train_dataloader()), smoothing=0.0) as pbar:
             for item_batch, none_count in datamodule.train_dataloader():
+                sleep(0.5)
                 total_valid += len(item_batch)
                 total_invalid += none_count
                 pbar.update(1)
