@@ -20,6 +20,11 @@ def get_meta_data_opencv(filepath):
         return total_frames, fps, duration_in_seconds
 
     except Exception:
+        video_path = pathlib.Path(filepath)
+        audio_path = video_path.with_suffix(".aac")
+        video_path.unlink()
+        audio_path.unlink()
+        log.error(f"No frames were extracted from the video {filepath}")
         log.exception("OpenCV reading gone wrong 🤦")
         vid_capture.release()
         return None
@@ -156,150 +161,6 @@ def get_frames_opencv_gpu(
     # Release the video capture object
     video_capture.release()
     return frames
-
-
-def extract_video_frames_ffmpeg(
-    video_filepath,
-    start_timestamp,
-    duration_to_extract,
-    num_frames_to_extract,
-    width,
-    height,
-    channels,
-    total_fps,
-    selected_fps,
-):
-    command_args = [
-        "ffmpeg",
-        "-hide_banner",
-        "-loglevel",
-        "quiet",
-        "-i",
-        video_filepath,
-        "-vf",
-        f"scale={height}:{width}",
-        "-ss",
-        f"{datetime.timedelta(0, start_timestamp)}",
-        "-t",
-        f"{datetime.timedelta(0, duration_to_extract)}",
-        "-frames:v",
-        str(num_frames_to_extract),
-        "-pix_fmt",
-        "rgb24",
-        "-vsync",
-        "vfr",
-        "-f",
-        "rawvideo",
-        "-",
-    ]
-
-    process = subprocess.Popen(
-        command_args,
-        stdin=None,
-        stdout=subprocess.PIPE,
-        stderr=None,
-        cwd=None,
-    )
-
-    out, err = process.communicate(None)
-    retcode = process.poll()
-    if retcode:
-        logging.exception("🤦")
-        raise Exception(f"{retcode}")
-
-    frames = np.frombuffer(out, np.uint8).reshape(-1, width, height, channels)
-
-    frames = frames[
-        [i for i in range(num_frames_to_extract) if i % (total_fps - selected_fps) == 0]
-    ]
-
-    if frames.shape[0] < num_frames_to_extract:
-        frames = np.concatenate(
-            [
-                frames,
-                np.zeros(
-                    (num_frames_to_extract - frames.shape[0], width, height, channels)
-                ),
-            ],
-            axis=0,
-        )
-
-    if frames.shape[0] > num_frames_to_extract:
-        frames = frames[:num_frames_to_extract]
-
-    return frames, err
-
-
-def extract_video_frames_opencv(
-    video_filepath,
-    start_timestamp,
-    duration_to_extract,
-    num_frames_to_extract,
-    width,
-    height,
-    channels,
-    total_fps,
-    selected_fps,
-):
-    command_args = [
-        "ffmpeg",
-        "-hide_banner",
-        "-loglevel",
-        "quiet",
-        "-i",
-        video_filepath,
-        "-vf",
-        f"scale={height}:{width}",
-        "-ss",
-        f"{datetime.timedelta(0, start_timestamp)}",
-        "-t",
-        f"{datetime.timedelta(0, duration_to_extract)}",
-        "-frames:v",
-        str(num_frames_to_extract),
-        "-pix_fmt",
-        "rgb24",
-        "-vsync",
-        "vfr",
-        "-f",
-        "rawvideo",
-        "-",
-    ]
-
-    process = subprocess.Popen(
-        command_args,
-        stdin=None,
-        stdout=subprocess.PIPE,
-        stderr=None,
-        cwd=None,
-    )
-
-    out, err = process.communicate(None)
-    retcode = process.poll()
-    if retcode:
-        log.exception("🤦")
-        raise Exception(f"{retcode}")
-
-    frames = np.frombuffer(out, np.uint8).reshape(-1, width, height, channels)
-
-    frames = frames[
-        [i for i in range(num_frames_to_extract) if i % (total_fps - selected_fps) == 0]
-    ]
-
-    if frames.shape[0] < num_frames_to_extract:
-        frames = np.concatenate(
-            [
-                frames,
-                np.zeros(
-                    (num_frames_to_extract - frames.shape[0], width, height, channels)
-                ),
-            ],
-            axis=0,
-        )
-
-    if frames.shape[0] > num_frames_to_extract:
-        frames = frames[:num_frames_to_extract]
-
-    return frames, err
 
 
 def extract_audio_frames_ffmpeg(video_filepath, num_channels):
