@@ -31,7 +31,7 @@ def get_base_arguments():
 
 
 def delete_file_if_exists(path: pathlib.Path):
-    logging.error(f"Delete {path}")
+    logging.error(f"Deleting {path}")
     if path.exists():
         path.unlink()
 
