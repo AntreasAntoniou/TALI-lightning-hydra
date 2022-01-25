@@ -45,9 +45,12 @@ def get_frames_opencv_cpu(
 
     frames_collected = 0
     frames_read = 0
-    if frame_indexes_to_collect[0] > 0:
-        vid_capture.set(cv2.CAP_PROP_POS_FRAMES, frame_indexes_to_collect[0])
-        frames_read = frame_indexes_to_collect[0]
+    if len(frame_indexes_to_collect) > 0:
+        if frame_indexes_to_collect[0] > 0:
+            vid_capture.set(cv2.CAP_PROP_POS_FRAMES, frame_indexes_to_collect[0])
+            frames_read = frame_indexes_to_collect[0]
+    else:
+        log.info(f'{get_meta_data_opencv(filepath)}')
 
     while (
         frame_successfully_acquired
