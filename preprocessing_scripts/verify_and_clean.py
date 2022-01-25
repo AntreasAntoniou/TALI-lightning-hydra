@@ -10,6 +10,7 @@ import multiprocessing as mp
 import os
 import pathlib
 import pprint
+import random
 import sys
 from collections import defaultdict
 
@@ -116,6 +117,9 @@ if __name__ == "__main__":
             for file in pathlib.Path(args.source_filepath).glob(f"**/*{file_type}"):
                 matching_files[file_type].append(file)
                 pbar.update(1)
+
+    for file_type in target_file_types:
+        random.shuffle(matching_files[file_type])
 
     for file_type in target_file_types:
         num_samples = len(matching_files[file_type])
