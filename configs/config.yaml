@@ -23,7 +23,7 @@ defaults:
 
 resume: True
 checkpoint_path: null
-debug_data: True
+debug_data: False
 # pretty print config at the start of the run using Rich library
 print_config: True
 
