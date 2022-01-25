@@ -12,9 +12,9 @@ import numpy as np
 import torch
 import tqdm
 from base import utils
+from tali.config_repository import TALIDatasetConfig
 from torch.utils.data import Dataset
 
-from tali.configs.config_repository import TALIDatasetConfig
 from tali.datasets.utils import audio_utils
 from tali.datasets.utils.audio_utils import prevent_error_kill
 from tali.datasets.utils.helpers import (
