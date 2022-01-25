@@ -143,6 +143,16 @@ class TALIDataModule(BaseDataModule):
         )
 
     def train_dataloader(self):
+        config_temp = dict(dataset=self.train_set,
+            batch_size=self.batch_size,
+            shuffle=True,
+            num_workers=self.num_workers,
+            pin_memory=self.pin_memory,
+            prefetch_factor=self.prefetch_factor,
+            collate_fn=tali.datasets.utils.helpers.collate_resample_none,
+            persistent_workers=self.persistent_workers,
+            drop_last=True)
+        log.info(f'Starting train data loader with config {config_temp}')
         return DataLoader(
             dataset=self.train_set,
             batch_size=self.batch_size,
@@ -156,6 +166,16 @@ class TALIDataModule(BaseDataModule):
         )
 
     def val_dataloader(self):
+        config_temp = dict(dataset=self.train_set,
+                           batch_size=self.batch_size,
+                           shuffle=True,
+                           num_workers=self.num_workers,
+                           pin_memory=self.pin_memory,
+                           prefetch_factor=self.prefetch_factor,
+                           collate_fn=tali.datasets.utils.helpers.collate_resample_none,
+                           persistent_workers=self.persistent_workers,
+                           drop_last=True)
+        log.info(f'Starting val data loader with config {config_temp}')
         return DataLoader(
             dataset=self.val_set,
             batch_size=self.batch_size,
@@ -169,6 +189,16 @@ class TALIDataModule(BaseDataModule):
         )
 
     def test_dataloader(self):
+        config_temp = dict(dataset=self.train_set,
+                           batch_size=self.batch_size,
+                           shuffle=True,
+                           num_workers=self.num_workers,
+                           pin_memory=self.pin_memory,
+                           prefetch_factor=self.prefetch_factor,
+                           collate_fn=tali.datasets.utils.helpers.collate_resample_none,
+                           persistent_workers=self.persistent_workers,
+                           drop_last=True)
+        log.info(f'Starting testing data loader with config {config_temp}')
         return DataLoader(
             dataset=self.test_set,
             batch_size=self.batch_size,
