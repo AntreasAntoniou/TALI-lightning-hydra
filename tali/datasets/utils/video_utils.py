@@ -22,9 +22,10 @@ def get_meta_data_opencv(filepath):
     except Exception:
         video_path = pathlib.Path(filepath)
         audio_path = video_path.with_suffix(".aac")
-        video_path.unlink()
-        audio_path.unlink()
-        log.error(f"No frames were extracted from the video {filepath}")
+        if video_path.exists():
+            video_path.unlink()
+        if audio_path.exists():
+            audio_path.unlink()
         log.exception("OpenCV reading gone wrong 🤦")
         vid_capture.release()
         return None
@@ -90,8 +91,10 @@ def get_frames_opencv_cpu(
     if len(frames) == 0:
         video_path = pathlib.Path(filepath)
         audio_path = video_path.with_suffix(".aac")
-        video_path.unlink()
-        audio_path.unlink()
+        if video_path.exists():
+            video_path.unlink()
+        if audio_path.exists():
+            audio_path.unlink()
         log.error(f"No frames were extracted from the video {filepath}")
 
     return torch.from_numpy(frames)
