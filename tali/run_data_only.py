@@ -43,33 +43,39 @@ def sample_datamodule(config: DictConfig):
     total_valid = 0
     total_invalid = 0
     for _ in range(config.trainer.max_epochs):
+        total_samples = len(datamodule.val_dataloader()) * config.batch_size
         with tqdm.tqdm(total=len(datamodule.val_dataloader()), smoothing=0.0) as pbar:
-            for item_batch, none_count in datamodule.val_dataloader():
+            for idx, item_batch in enumerate(datamodule.val_dataloader()):
                 sleep(0.5)
                 total_valid += len(item_batch['image'])
-                total_invalid += len(none_count)
+                total = (idx + 1) * config.batch_size
+                total_invalid = total - total_valid
                 pbar.update(1)
                 pbar.set_description(f'valid count: {total_valid}, '
                                      f'invalid count: {total_invalid}, '
                                      f'percentage of invalid: '
                                      f'{total_invalid / (total_valid + total_invalid)}')
 
-        with tqdm.tqdm(total=len(datamodule.test_dataloader()), smoothing=0.0) as pbar:
-            for item_batch, none_count in datamodule.test_dataloader():
-                sleep(0.5)
-                total_valid += len(item_batch['image'])
-                total_invalid += len(none_count)
-                pbar.update(1)
-                pbar.set_description(f'valid count: {total_valid}, '
-                                     f'invalid count: {total_invalid}, '
-                                     f'percentage of invalid: '
-                                     f'{total_invalid / (total_valid + total_invalid)}')
-
+        total_samples = len(datamodule.train_dataloader()) * config.batch_size
         with tqdm.tqdm(total=len(datamodule.train_dataloader()), smoothing=0.0) as pbar:
-            for item_batch, none_count in datamodule.train_dataloader():
+            for idx, item_batch in enumerate(datamodule.train_dataloader()):
                 sleep(0.5)
                 total_valid += len(item_batch['image'])
-                total_invalid += len(none_count)
+                total = (idx + 1) * config.batch_size
+                total_invalid = total - total_valid
+                pbar.update(1)
+                pbar.set_description(f'valid count: {total_valid}, '
+                                     f'invalid count: {total_invalid}, '
+                                     f'percentage of invalid: '
+                                     f'{total_invalid / (total_valid + total_invalid)}')
+
+        total_samples = len(datamodule.test_dataloader()) * config.batch_size
+        with tqdm.tqdm(total=len(datamodule.test_dataloader()), smoothing=0.0) as pbar:
+            for idx, item_batch in enumerate(datamodule.test_dataloader()):
+                sleep(0.5)
+                total_valid += len(item_batch['image'])
+                total = (idx + 1) * config.batch_size
+                total_invalid = total - total_valid
                 pbar.update(1)
                 pbar.set_description(f'valid count: {total_valid}, '
                                      f'invalid count: {total_invalid}, '
