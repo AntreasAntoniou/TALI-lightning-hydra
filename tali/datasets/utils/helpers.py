@@ -366,6 +366,6 @@ def collect_files(args):
 
 
 def collate_resample_none(batch):
-    none_count = np.sum([1 for item in batch if item is None])
+    none_count = np.sum([1 for item in batch['image'] if item is None])
     batch = list(filter(lambda x: x is not None, batch))
     return dataloader.default_collate(batch), none_count
