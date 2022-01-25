@@ -144,7 +144,9 @@ def train_eval(config: DictConfig) -> List[Dict[str, float]]:
     # score = trainer.callback_metrics.get(optimized_metric)
 
     if config.mode.test and not config.trainer.get("fast_dev_run"):
+        datamodule.setup(stage="test")
         log.info("Starting testing!")
+
         trainer.test(
             model=model,
             datamodule=datamodule,
