@@ -64,7 +64,8 @@ class TALIMultiModalDataset(Dataset):
         if self._check_if_paths_already_scanned():
             self.path_dict = load_json(self.pre_scanned_dataset_json_filepath)
         else:
-            self.path_dict = self._scan_paths_return_dict()
+            self.path_dict = self._scan_paths_return_dict(
+                training_set_fraction_value=self.training_set_fraction_value)
             save_json(
                 filepath=self.pre_scanned_dataset_json_filepath,
                 metrics_dict=self.path_dict,
@@ -76,11 +77,11 @@ class TALIMultiModalDataset(Dataset):
             f"files found"
         )
 
-        self.index_to_key = list(self.path_dict.keys())
+        self.index_to_video_path = [video_path
+                             for folder_list in self.path_dict.values()
+                             for video_path in folder_list]
 
-        logging.info(f"full key_list: {len(self.index_to_key)}")
-
-        logging.info(f"fraction of key list to be used {len(self.index_to_key)}")
+        logging.info(f"num video paths: {len(self.index_to_video_path)}")
 
     def get_frames(self, data_dict, filepath, rng):
         (
@@ -231,7 +232,6 @@ class TALIMultiModalDataset(Dataset):
 
         return data_dict.text
 
-    @timeout(15)
     @prevent_error_kill
     def __getitem__(self, index):
         # we have:
@@ -248,11 +248,13 @@ class TALIMultiModalDataset(Dataset):
         torch_rng = torch.Generator()
         torch_rng.manual_seed(current_time_rng)
 
-        video_key = self.index_to_key[index]
-        sub_video_idx = rng.choice(len((self.path_dict[video_key])))
-        (video_data_filepath, audio_data_filepath, meta_data_filepath) = self.path_dict[
-            video_key
-        ][sub_video_idx]
+        (video_data_filepath,
+         audio_data_filepath,
+         meta_data_filepath) = self.index_to_video_path[index]
+        # sub_video_idx = rng.choice(len((self.path_dict[video_key])))
+        # (video_data_filepath, audio_data_filepath, meta_data_filepath) = self.path_dict[
+        #     video_key
+        # ][sub_video_idx]
 
         video_segment_idx = int(
             re.match(
@@ -328,7 +330,7 @@ class TALIMultiModalDataset(Dataset):
 
     def __len__(self):
 
-        return len(self.index_to_key)
+        return len(self.index_to_video_path)
 
     def apply_transforms_if_available(self, modality_name, data):
         if self.transforms[modality_name]:
@@ -347,7 +349,7 @@ class TALIMultiModalDataset(Dataset):
 
         return pathlib.Path(self.pre_scanned_dataset_json_filepath).exists()
 
-    def _scan_paths_return_dict(self):
+    def _scan_paths_return_dict(self, training_set_fraction_value):
 
         path_dict = {}
         # caption_store_dict = {}
@@ -360,7 +362,7 @@ class TALIMultiModalDataset(Dataset):
         logging.info(f"Found {len(matched_meta_data_files)} matched meta_data files")
 
         args = [
-            (item, self.training_set_fraction_value) for item in matched_meta_data_files
+            (item, training_set_fraction_value) for item in matched_meta_data_files
         ]
 
         logging.info(f"Scanning folders for media files")
