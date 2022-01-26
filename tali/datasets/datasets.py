@@ -140,7 +140,7 @@ class TALIMultiModalDataset(Dataset):
                 video_frame_idx_list=video_frame_idx_list,
                 total_video_frames=total_frames,
             )
-            frames_dict.audio = torch.from_numpy(frames_dict.audio).view(-1, 2)
+            frames_dict.audio = frames_dict.audio.view(-1, 2)
             frames_dict.audio = frames_dict.audio.permute([1, 0])
 
         if self.config.modality_config.image:

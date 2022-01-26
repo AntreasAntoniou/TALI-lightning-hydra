@@ -1,0 +1,39 @@
+job_logging:
+  version: 1
+  formatters:
+    simple:
+      level: 'INFO'
+      format: "%(message)s"
+      datefmt: "[%X]"
+  handlers:
+    rich:
+      class: rich.logging.RichHandler
+      formatter: simple
+
+  root:
+    handlers: [rich]
+    level: 'INFO'
+
+  disable_existing_loggers: false
+
+hydra_logging:
+  version: 1
+  formatters:
+    simple:
+      level: 'INFO'
+      format: '[HYDRA] %(message)s'
+      datefmt: "[%X]"
+  handlers:
+    rich:
+      class: rich.logging.RichHandler
+      formatter: simple
+  root:
+    level: INFO
+    handlers:
+      - rich
+  loggers:
+    logging_example:
+      level: INFO
+  disable_existing_loggers: false
+
+

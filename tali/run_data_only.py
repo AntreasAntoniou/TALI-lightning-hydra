@@ -59,6 +59,40 @@ def sample_datamodule(config: DictConfig):
                     f"{total_invalid / (total_valid + total_invalid)}"
                 )
 
+                # grid = make_grid(
+                #     torch.cat(
+                #         [
+                #             item_batch["image"],
+                #             item_batch["video"].view(
+                #                 -1,
+                #                 *item_batch["video"].shape[2:],
+                #             ),
+                #         ],
+                #         dim=0,
+                #     ),
+                #     normalize=True,
+                #     value_range=None,
+                #     scale_each=True,
+                #     pad_value=0,
+                #     nrow=item_batch["video"].shape[0] + 1,
+                # )
+                #
+                # for item_idx, audio_item in enumerate(item_batch["audio"]):
+                #     logging.info(f'{torch.mean(audio_item), torch.std(audio_item)}, ')
+                #     # torchaudio.save(
+                #     #     f"save_example_default_{item_idx}.wav",
+                #     #     audio_item.permute([1, 0]),
+                #     #     44100,
+                #     # )
+                #     for channel in range(2):
+                #         fig = plot_with_spectrum(audio_item[channel], rate=44100)
+                #         fig.savefig(f"{config.exp_dir}/{item_idx}_{channel}.png")
+                #         plt.close()
+                #
+                # plt.imshow(grid.permute([1, 2, 0]).cpu().numpy())
+                # plt.show()
+                # input('Press enter key to continue 🎹')
+
         total_samples = len(datamodule.test_dataloader()) * config.batch_size
         total_valid = 0
         with tqdm.tqdm(total=len(datamodule.test_dataloader()), smoothing=0.0) as pbar:

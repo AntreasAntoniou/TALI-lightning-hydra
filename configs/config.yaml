@@ -13,8 +13,7 @@ defaults:
   - mode: default.yaml
 
   # enable color logging
-  - override hydra/hydra_logging: colorlog
-  - override hydra/job_logging: colorlog
+  - hydra: logging.yaml
 
 # path to original working directory
 # hydra hijacks working directory by changing it to the new log directory
