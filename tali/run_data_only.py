@@ -47,7 +47,7 @@ def sample_datamodule(config: DictConfig):
         total_valid = 0
         with tqdm.tqdm(total=len(datamodule.train_dataloader()), smoothing=0.0) as pbar:
             for idx, item_batch in enumerate(datamodule.train_dataloader()):
-                sleep(0.5)
+                # sleep(0.5)
                 total_valid += len(item_batch['image'])
                 total = (idx + 1) * config.batch_size
                 total_invalid = total - total_valid
@@ -61,7 +61,7 @@ def sample_datamodule(config: DictConfig):
         total_valid = 0
         with tqdm.tqdm(total=len(datamodule.test_dataloader()), smoothing=0.0) as pbar:
             for idx, item_batch in enumerate(datamodule.test_dataloader()):
-                sleep(0.5)
+                # sleep(0.5)
                 total_valid += len(item_batch['image'])
                 total = (idx + 1) * config.batch_size
                 total_invalid = total - total_valid
@@ -74,7 +74,7 @@ def sample_datamodule(config: DictConfig):
         total_valid = 0
         with tqdm.tqdm(total=len(datamodule.val_dataloader()), smoothing=0.0) as pbar:
             for idx, item_batch in enumerate(datamodule.val_dataloader()):
-                sleep(0.5)
+                # sleep(0.5)
                 total_valid += len(item_batch['image'])
                 total = (idx + 1) * config.batch_size
                 total_invalid = total - total_valid
