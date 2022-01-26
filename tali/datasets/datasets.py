@@ -134,11 +134,10 @@ class TALIMultiModalDataset(Dataset):
                 filename=audio_filepath,
                 sr=self.config.num_audio_sample_rate,
                 mono=False,
-                normalize=False,
                 in_type=np.float32,
                 out_type=np.float32,
-                log_time=False,
                 video_frame_idx_list=video_frame_idx_list,
+                total_video_frames=total_frames
             )
             frames_dict.audio = torch.from_numpy(frames_dict.audio).view(-1, 2)
             frames_dict.audio = frames_dict.audio.permute([1, 0])
