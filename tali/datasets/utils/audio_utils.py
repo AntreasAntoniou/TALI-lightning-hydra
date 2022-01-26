@@ -115,6 +115,7 @@ def load(
                 audio[audio_frame_idx_range[0] : audio_frame_idx_range[1]]
             )
         audio = np.array(audio_frames_collected)
+        log.info(audio.shape)
         if audio.shape[0] < num_audio_frames_per_datapoint:
             audio = torch.cat(
                 [
