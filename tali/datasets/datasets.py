@@ -329,15 +329,31 @@ class TALIMultiModalDataset(Dataset):
         }
 
         if self.config.modality_config.image and 'image' not in data_dict:
+            video_path = pathlib.Path(video_data_filepath)
+            audio_path = video_path.with_suffix(".aac")
+            video_path.unlink()
+            audio_path.unlink()
             return None
 
         if self.config.modality_config.video and 'video' not in data_dict:
+            video_path = pathlib.Path(video_data_filepath)
+            audio_path = video_path.with_suffix(".aac")
+            video_path.unlink()
+            audio_path.unlink()
             return None
 
         if self.config.modality_config.audio and 'audio' not in data_dict:
+            video_path = pathlib.Path(video_data_filepath)
+            audio_path = video_path.with_suffix(".aac")
+            video_path.unlink()
+            audio_path.unlink()
             return None
 
         if self.config.modality_config.text and 'text' not in data_dict:
+            video_path = pathlib.Path(video_data_filepath)
+            audio_path = video_path.with_suffix(".aac")
+            video_path.unlink()
+            audio_path.unlink()
             return None
 
         return data_dict
