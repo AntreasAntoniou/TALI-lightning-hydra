@@ -39,15 +39,12 @@ def prevent_error_kill(method):
 @timeit
 def load(
     filename: str,
-    start_point_in_seconds: int,
-    duration_in_seconds: int,
     sr: int = 44100,
     mono: bool = False,
-    normalize=True,
     in_type=np.int16,
     out_type=np.float32,
-    log_time=True,
-    frames_to_collect=None,
+    video_frame_idx_list=None,
+    total_video_frames=1
 ):
     # logging.info(
     #     f'load "{filename}", start_point_in_seconds: {start_point_in_seconds}, duration_in_seconds: {duration_in_seconds}, sr: {sr}, mono: {mono}, normalize: {normalize}, in_type: {in_type}, out_type: {out_type}, log_time: {log_time}, frames_to_collect: {len(frames_to_collect)}'
@@ -68,10 +65,10 @@ def load(
         "error",# if log.level >= logging.DEBUG else "quiet",
         "-i",
         filename,
-        "-ss",
-        f"{datetime.timedelta(0, start_point_in_seconds)}",
-        "-t",
-        f"{datetime.timedelta(0, duration_in_seconds)}",
+        # "-ss",
+        # f"{datetime.timedelta(0, start_point_in_seconds)}",
+        # "-t",
+        # f"{datetime.timedelta(0, duration_in_seconds)}",
         "-f",
         format_string,
         "-acodec",
@@ -84,9 +81,8 @@ def load(
     ]
     process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=None, stdin=None)
     out, err = process.communicate(None)
-    retcode = process.poll()
 
-    if retcode:
+    if retcode := process.poll():
         log.exception(f"Error loading audio file {filename}")
         raise Exception(
             f"{inspect.stack()[0][3]} " f"returned non-zero exit code {retcode}"
@@ -94,22 +90,20 @@ def load(
 
     audio = np.frombuffer(out, dtype=in_type).astype(out_type)
 
-
     audio = audio.reshape(-1, channels)
 
+    num_audio_frames = audio.shape[0]
+
+    audio_frames_per_video_frame = int(np.floor(num_audio_frames / total_video_frames))
+
+    if video_frame_idx_list is not None:
+        audio_frames_collected = []
+        for video_frame_idx in video_frame_idx_list:
+            audio_frame_idx_range = (video_frame_idx * audio_frames_per_video_frame,
+                                     (video_frame_idx + 1) * audio_frames_per_video_frame)
+            audio_frames_collected.extend(audio[audio_frame_idx_range[0]:
+                                                audio_frame_idx_range[1]])
+        audio = np.array(audio_frames_collected,)
 
 
-
-
-    if frames_to_collect is not None:
-        frames_to_collect = np.array(frames_to_collect)
-
-        frames_to_collect = frames_to_collect[frames_to_collect < audio.shape[0]]
-
-        audio = audio[frames_to_collect]
-
-    # logging.info(f'{audio.shape}, {loading_shape}, {reshape_shape}, '
-    #              f'{frames_to_collect.shape}, {frames_to_collect_original_shape}')
-
-    # logging.debug(f"{filename} loaded into array of shape {audio.shape}")
     return audio

@@ -63,15 +63,15 @@ def verify_audio(path: pathlib.Path):
     audio_filepath = os.fspath(path.resolve())
     try:
         load(filename=audio_filepath,
-                      start_point_in_seconds=1,
-                      duration_in_seconds=7,
-                      sr=44100,
-                      mono=False,
-                      normalize=False,
-                      in_type=np.float32,
-                      out_type=np.float32,
-                      log_time=False,
-                      frames_to_collect=None)
+             start_point_in_seconds=1,
+             duration_in_seconds=7,
+             sr=44100,
+             mono=False,
+             normalize=False,
+             in_type=np.float32,
+             out_type=np.float32,
+             log_time=False,
+             video_frame_idx_list=None)
         result = True
 
     except Exception:

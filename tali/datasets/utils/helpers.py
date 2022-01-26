@@ -56,8 +56,8 @@ class SubSampleVideoFrames(torch.nn.Module):
             )[0]
 
             sequence_of_frames = sequence_of_frames[
-                choose_start_point : choose_start_point + self.num_frames
-            ]
+                                 choose_start_point: choose_start_point + self.num_frames
+                                 ]
 
         # log.debug(sequence_of_frames.shape)
 
@@ -95,7 +95,7 @@ class SubSampleAudioFrames(torch.nn.Module):
         total_num_frames = sequence_of_audio_frames.shape[1]
 
         if self.num_frames <= total_num_frames:
-            return sequence_of_audio_frames[:, 0 : self.num_frames]
+            return sequence_of_audio_frames[:, 0: self.num_frames]
 
         padding_size = self.num_frames - total_num_frames
 
@@ -180,7 +180,7 @@ def load_text_into_language_time_stamps(filepath):
             if item.tag == "p" and children_text:
                 timestamp_to_caption_dict[
                     float(item.attrib["t"]) / 1000
-                ] = children_text
+                    ] = children_text
 
         elif selected_key == "en":
             if item.tag == "p" and len(item.items()) == 2:
@@ -224,13 +224,13 @@ def get_text_tokens(meta_data_filepath, start_timestamp, end_timestamp):
 
 
 def get_text_tokens_from_store(
-    caption_store_dict, video_id, start_timestamp, end_timestamp
+        caption_store_dict, video_id, start_timestamp, end_timestamp
 ):
     caption_item = caption_store_dict[video_id]
 
     caption_store_time_indexes = caption_item["time_idx_to_caption_store_idx"][
-        start_timestamp:end_timestamp
-    ]
+                                 start_timestamp:end_timestamp
+                                 ]
 
     return "".join(
         [caption_item["captions"][key] for key in set(caption_store_time_indexes)]
@@ -238,109 +238,29 @@ def get_text_tokens_from_store(
 
 
 def sample_frame_indexes_to_collect(
-    video_length_in_frames,
-    video_fps,
-    num_video_frames_per_datapoint,
-    num_audio_frames_per_datapoint,
-    num_audio_sample_rate,
-    start_point_in_seconds=None,
-    end_point_in_seconds=None,
-    rng=None,
+        video_length_in_frames,
+        num_video_frames_per_datapoint,
+        rng=None,
 ):
-    # sourcery skip: or-if-exp-identity
-
     if rng is None:
         rng = np.random.RandomState()
 
-    clip_start_point_in_seconds = 0
-    clip_end_point_in_seconds = int(np.floor(video_length_in_frames / video_fps))
+    replace = num_video_frames_per_datapoint > video_length_in_frames
 
-    if clip_end_point_in_seconds == 0:
-        clip_end_point_in_seconds = 1
-
-    # logging.info(f'Init {clip_start_point_in_seconds} {clip_end_point_in_seconds}, '
-    #              f'{start_point_in_seconds} {end_point_in_seconds}')
-
-    start_point_in_seconds = (
-        start_point_in_seconds
-        if start_point_in_seconds is not None
-        else rng.randint(
-            low=clip_start_point_in_seconds,
-            high=clip_end_point_in_seconds,
-        )
-    )
-    end_point_in_seconds = (
-        end_point_in_seconds
-        if end_point_in_seconds is not None
-        else rng.randint(
-            low=start_point_in_seconds + 1,
-            high=clip_end_point_in_seconds + 1,
-        )
-    )
-
-    duration = end_point_in_seconds - start_point_in_seconds
-
-    start_video_frame = int(start_point_in_seconds * video_fps)
-
-    end_video_frame = int(end_point_in_seconds * video_fps)
-
-    # logging.info(f'{start_point_in_seconds} {end_point_in_seconds}'
-    #              f' {start_video_frame} {end_video_frame}')
-
-    possible_frames = list(range(start_video_frame, end_video_frame))
-
-    if len(possible_frames) < num_video_frames_per_datapoint:
-        video_frames_to_collect = possible_frames
-    else:
-        video_frames_to_collect = sorted(
-            list(
-                rng.choice(
-                    possible_frames,
-                    size=(num_video_frames_per_datapoint,),
-                    replace=False,
-                )
+    return sorted(
+        list(
+            rng.choice(
+                video_length_in_frames,
+                size=(num_video_frames_per_datapoint,),
+                replace=replace,
             )
         )
-
-    # logging.info(f'video_frames_to_collect: {video_frames_to_collect}, '
-    #              f'{video_length_in_frames} '
-    #              f'{start_point_in_seconds}'
-    #              f' {end_point_in_seconds}')
-
-    # logging.info(f'video_frames_to_collect: {video_frames_to_collect} {start_video_frame}, {end_video_frame}')
-
-    total_audio_frames_in_selected_time_clip = duration * num_audio_sample_rate
-
-    audio_frame_collection_interval = int(
-        np.floor(
-            total_audio_frames_in_selected_time_clip / num_audio_frames_per_datapoint
-        )
+    ), rng.choice(
+        video_length_in_frames,
+        size=(1,),
+        replace=False,
     )
 
-    start_audio_frame = int(start_point_in_seconds * num_audio_sample_rate)
-
-    duration_audio_frame = duration * num_audio_sample_rate
-
-    audio_frames_to_collect = list(
-        range(
-            0,
-            int(duration_audio_frame),
-            int(audio_frame_collection_interval)
-            if int(audio_frame_collection_interval) > 0
-            else 1,
-        )
-    )[:num_audio_frames_per_datapoint]
-
-    return (
-        start_point_in_seconds,
-        end_point_in_seconds,
-        start_video_frame,
-        end_video_frame,
-        video_frames_to_collect,
-        start_audio_frame,
-        duration_audio_frame,
-        audio_frames_to_collect,
-    )
 
 
 def collect_files(args):
@@ -354,9 +274,9 @@ def collect_files(args):
         meta_data_filepath = os.fspath(json_file_path.resolve())
 
         if (
-            pathlib.Path(video_data_filepath).exists()
-            and pathlib.Path(meta_data_filepath).exists()
-            and pathlib.Path(audio_data_filepath).exists()
+                pathlib.Path(video_data_filepath).exists()
+                and pathlib.Path(meta_data_filepath).exists()
+                and pathlib.Path(audio_data_filepath).exists()
         ) and np.random.random() <= training_set_size_fraction_value:
             folder_list.append(
                 (video_data_filepath, audio_data_filepath, meta_data_filepath)

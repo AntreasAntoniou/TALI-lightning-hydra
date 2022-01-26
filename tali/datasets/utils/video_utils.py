@@ -33,18 +33,14 @@ def get_meta_data_opencv(filepath):
 
 def get_frames_opencv_cpu(
     filepath,
-    frame_indexes_to_collect,
+    video_frame_idx_list,
     image_height,
     image_width,
     **kwargs,
 ):
     # Create a video capture object, in this case we are reading the video from a file
     frames = (
-        np.zeros(shape=(len(frame_indexes_to_collect), image_height, image_width, 3))
-        # if np.random.randint(0, 2) == 0
-        # else np.random.normal(
-        #     size=(len(frame_indexes_to_collect), image_height, image_width, 3)
-        # )
+        np.zeros(shape=(len(video_frame_idx_list), image_height, image_width, 3))
     )
     vid_capture = cv2.VideoCapture(filepath)
 
@@ -52,41 +48,33 @@ def get_frames_opencv_cpu(
 
     frames_collected = 0
     frames_read = 0
-    if len(frame_indexes_to_collect) > 0:
-        if frame_indexes_to_collect[0] > 0:
-            vid_capture.set(cv2.CAP_PROP_POS_FRAMES, frame_indexes_to_collect[0])
-            frames_read = frame_indexes_to_collect[0]
+    if len(video_frame_idx_list) > 0:
+        if video_frame_idx_list[0] > 0:
+            vid_capture.set(cv2.CAP_PROP_POS_FRAMES, video_frame_idx_list[0])
+            frames_read = video_frame_idx_list[0]
     else:
         log.info(f'{get_meta_data_opencv(filepath)}')
 
     while (
-        frame_successfully_acquired
-        and frames_collected <= len(frame_indexes_to_collect) - 1
+            frame_successfully_acquired
+            and frames_collected <= len(video_frame_idx_list) - 1
     ):
         frame_successfully_acquired, image = vid_capture.read()
 
-        # logging.info(f'{frame_successfully_acquired} '
-        #              f'{frames_collected <= len(frame_indexes_to_collect) - 1}, '
-        #              f'frames_read {frames_read}')
-        # logging.info(
-        #     f'{np.mean(image)}, {np.std(image)}, {np.max(image)}, {np.min(image)}')
-
         if (
             frame_successfully_acquired
-            and frames_read == frame_indexes_to_collect[frames_collected]
+            and frames_read == video_frame_idx_list[frames_collected]
         ):
             img_frame = cv2.resize(
                 image, (image_height, image_width), interpolation=cv2.INTER_CUBIC
             )
             frames[frames_collected] = img_frame / 255.0
-            # logging.info(f'here')
 
             frames_collected += 1
         frames_read += 1
 
     vid_capture.release()
 
-    # logging.info(f"Frames read: {frames_read}, frames collected: {frames_collected}")
 
     if len(frames) == 0:
         video_path = pathlib.Path(filepath)

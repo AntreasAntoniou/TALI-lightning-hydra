@@ -84,6 +84,7 @@ class TALIMultiModalDataset(Dataset):
         logging.info(f"num video paths: {len(self.index_to_video_path)}")
 
     def get_frames(self, data_dict, filepath, rng):
+
         (
             total_frames,
             video_frames_per_second,
@@ -92,38 +93,19 @@ class TALIMultiModalDataset(Dataset):
 
 
         (
-            start_point_in_seconds,
-            end_point_in_seconds,
-            start_video_frame,
-            end_video_frame,
-            video_frames_to_collect,
-            start_audio_frame,
-            duration_audio_frame,
-            audio_frames_to_collect,
+            video_frame_idx_list, image_frame_idx
         ) = sample_frame_indexes_to_collect(
             video_length_in_frames=total_frames,
-            video_fps=video_frames_per_second,
             num_video_frames_per_datapoint=self.config.num_video_frames_per_datapoint,
-            num_audio_frames_per_datapoint=self.config.num_audio_frames_per_datapoint,
-            num_audio_sample_rate=self.config.num_audio_sample_rate,
-            start_point_in_seconds=data_dict.start_point_in_seconds,
-            end_point_in_seconds=data_dict.end_point_in_seconds,
-            rng=rng,
+            rng=rng
         )
 
         frames_dict = DictWithDotNotation(
             dict(
                 total_frames=total_frames,
                 video_frames_per_second=video_frames_per_second,
-                clip_duration_in_seconds=clip_duration_in_seconds,
-                start_point_in_seconds=start_point_in_seconds,
-                end_point_in_seconds=end_point_in_seconds,
-                start_video_frame=start_video_frame,
-                end_video_frame=end_video_frame,
-                video_frames_to_collect=video_frames_to_collect,
-                start_audio_frame=end_video_frame,
-                duration_audio_frame=duration_audio_frame,
-                audio_frames_to_collect=audio_frames_to_collect,
+                video_frame_idx_list=video_frame_idx_list,
+                image_frame_idx=image_frame_idx,
             )
         )
 
@@ -131,17 +113,10 @@ class TALIMultiModalDataset(Dataset):
         frames_dict.audio = None
         frames_dict.image = None
 
-        if len(video_frames_to_collect) == 0:
-            video_path = pathlib.Path(filepath)
-            audio_path = video_path.with_suffix(".aac")
-            video_path.unlink()
-            audio_path.unlink()
-            log.error(f'No video frames found in {filepath}')
-
         if self.config.modality_config.video:
             frames_dict.video = get_frames_opencv_cpu(
                 filepath=filepath,
-                frame_indexes_to_collect=video_frames_to_collect,
+                video_frame_idx_list=video_frame_idx_list,
                 image_height=self.config.image_shape.height,
                 image_width=self.config.image_shape.width,
                 image_channels=self.config.image_shape.channels,
@@ -163,29 +138,21 @@ class TALIMultiModalDataset(Dataset):
                 in_type=np.float32,
                 out_type=np.float32,
                 log_time=False,
-                start_point_in_seconds=start_point_in_seconds,
-                duration_in_seconds=duration_audio_frame
-                / self.config.num_audio_sample_rate,
-                frames_to_collect=audio_frames_to_collect,
+                video_frame_idx_list=video_frame_idx_list,
             )
             frames_dict.audio = torch.from_numpy(frames_dict.audio).view(-1, 2)
             frames_dict.audio = frames_dict.audio.permute([1, 0])
 
         if self.config.modality_config.image:
-            if frames_dict.video is not None:
-                frames_dict.image = frames_dict.video[
-                    rng.choice(len(video_frames_to_collect))
-                ]
-            else:
-                frames_dict.image = get_frames_opencv_cpu(
-                    filepath=filepath,
-                    frame_indexes_to_collect=[rng.choice(video_frames_to_collect)],
-                    image_height=self.config.image_shape.height,
-                    image_width=self.config.image_shape.width,
-                    image_channels=self.config.image_shape.channels,
-                )
+            frames_dict.image = get_frames_opencv_cpu(
+                filepath=filepath,
+                video_frame_idx_list=image_frame_idx,
+                image_height=self.config.image_shape.height,
+                image_width=self.config.image_shape.width,
+                image_channels=self.config.image_shape.channels,
+            )
 
-                frames_dict.image = frames_dict.image[0].permute([2, 0, 1])
+            frames_dict.image = frames_dict.image[0].permute([2, 0, 1])
 
         return frames_dict
 
@@ -269,8 +236,6 @@ class TALIMultiModalDataset(Dataset):
         start_time_relative_to_full_video = int(video_segment_idx * 10)
 
         data_dict = DictWithDotNotation()
-        data_dict.start_point_in_seconds = None
-        data_dict.end_point_in_seconds = None
         data_dict.text = None
         data_dict.video = None
         data_dict.audio = None
@@ -395,7 +360,7 @@ class TALIMultiModalDataset(Dataset):
             (item, training_set_fraction_value) for item in matched_meta_data_files
         ]
 
-        logging.info(f"Scanning folders for media files")
+        logging.info('Scanning folders for media files')
 
         with concurrent.futures.ProcessPoolExecutor(
             max_workers=mp.cpu_count()
