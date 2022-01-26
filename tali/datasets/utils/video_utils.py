@@ -11,6 +11,7 @@ log = logging.getLogger(__name__)
 
 
 def get_meta_data_opencv(filepath):
+    vid_capture = False
     try:
         vid_capture = cv2.VideoCapture(filepath)
         total_frames = vid_capture.get(cv2.CAP_PROP_FRAME_COUNT)
@@ -27,7 +28,8 @@ def get_meta_data_opencv(filepath):
         if audio_path.exists():
             audio_path.unlink()
         log.exception("OpenCV reading gone wrong 🤦")
-        vid_capture.release()
+        if vid_capture:
+            vid_capture.release()
         return None
 
 def silent_error_handler(status, func_name, err_msg, file_name, line):
