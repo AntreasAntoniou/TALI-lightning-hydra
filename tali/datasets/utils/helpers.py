@@ -246,7 +246,7 @@ def sample_frame_indexes_to_collect(
         rng = np.random.RandomState()
 
     replace = num_video_frames_per_datapoint > video_length_in_frames
-
+    video_length_in_frames = int(np.floor(video_length_in_frames))
     return sorted(
         list(
             rng.choice(
