@@ -30,6 +30,8 @@ def get_meta_data_opencv(filepath):
         vid_capture.release()
         return None
 
+def silent_error_handler(status, func_name, err_msg, file_name, line):
+    pass
 
 def get_frames_opencv_cpu(
     filepath,
@@ -38,6 +40,7 @@ def get_frames_opencv_cpu(
     image_width,
     **kwargs,
 ):
+    cv2.redirectError(silent_error_handler)
     # Create a video capture object, in this case we are reading the video from a file
     frames = np.zeros(shape=(len(video_frame_idx_list), image_height, image_width, 3))
     vid_capture = cv2.VideoCapture(filepath)
@@ -46,12 +49,11 @@ def get_frames_opencv_cpu(
 
     frames_collected = 0
     frames_read = 0
-    # if len(video_frame_idx_list) > 0:
-    #     if video_frame_idx_list[0] > 0:
-    #         vid_capture.set(cv2.CAP_PROP_POS_FRAMES, video_frame_idx_list[0])
-    #         frames_read = video_frame_idx_list[0]
-    # else:
-    #     log.info(f"{get_meta_data_opencv(filepath)}")
+
+    if len(video_frame_idx_list) > 0 and video_frame_idx_list[0] > 0:
+        vid_capture.set(cv2.CAP_PROP_POS_FRAMES, video_frame_idx_list[0])
+        frames_read = video_frame_idx_list[0]
+
 
     while (
         frame_successfully_acquired
