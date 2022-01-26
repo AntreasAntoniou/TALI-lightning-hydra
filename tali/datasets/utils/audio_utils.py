@@ -103,7 +103,7 @@ def load(
     audio_frames_per_video_frame_to_sample = int(
         np.floor(num_audio_frames_per_datapoint / len(video_frame_idx_list))
     )
-
+    log.info(f'{audio.shape}')
     if video_frame_idx_list is not None:
         audio_frames_collected = []
         for video_frame_idx in video_frame_idx_list:
