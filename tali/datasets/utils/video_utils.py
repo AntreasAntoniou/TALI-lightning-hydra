@@ -11,8 +11,8 @@ log = logging.getLogger(__name__)
 
 
 def get_meta_data_opencv(filepath):
-    vid_capture = cv2.VideoCapture(filepath)
     try:
+        vid_capture = cv2.VideoCapture(filepath)
         total_frames = vid_capture.get(cv2.CAP_PROP_FRAME_COUNT)
         fps = vid_capture.get(cv2.CAP_PROP_FPS)
         duration_in_seconds = total_frames / fps
