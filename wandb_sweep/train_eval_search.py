@@ -7,8 +7,10 @@ Designed to show wandb integration with pytorch.
 """
 
 import os
-import wandb
+
 import torch
+
+import wandb
 
 hyperparameter_defaults = dict(
     use_image_modality=True,

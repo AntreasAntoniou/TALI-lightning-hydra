@@ -56,8 +56,8 @@ class SubSampleVideoFrames(torch.nn.Module):
             )[0]
 
             sequence_of_frames = sequence_of_frames[
-                                 choose_start_point: choose_start_point + self.num_frames
-                                 ]
+                choose_start_point : choose_start_point + self.num_frames
+            ]
 
         # log.debug(sequence_of_frames.shape)
 
@@ -95,7 +95,7 @@ class SubSampleAudioFrames(torch.nn.Module):
         total_num_frames = sequence_of_audio_frames.shape[1]
 
         if self.num_frames <= total_num_frames:
-            return sequence_of_audio_frames[:, 0: self.num_frames]
+            return sequence_of_audio_frames[:, 0 : self.num_frames]
 
         padding_size = self.num_frames - total_num_frames
 
@@ -180,7 +180,7 @@ def load_text_into_language_time_stamps(filepath):
             if item.tag == "p" and children_text:
                 timestamp_to_caption_dict[
                     float(item.attrib["t"]) / 1000
-                    ] = children_text
+                ] = children_text
 
         elif selected_key == "en":
             if item.tag == "p" and len(item.items()) == 2:
@@ -224,13 +224,13 @@ def get_text_tokens(meta_data_filepath, start_timestamp, end_timestamp):
 
 
 def get_text_tokens_from_store(
-        caption_store_dict, video_id, start_timestamp, end_timestamp
+    caption_store_dict, video_id, start_timestamp, end_timestamp
 ):
     caption_item = caption_store_dict[video_id]
 
     caption_store_time_indexes = caption_item["time_idx_to_caption_store_idx"][
-                                 start_timestamp:end_timestamp
-                                 ]
+        start_timestamp:end_timestamp
+    ]
 
     return "".join(
         [caption_item["captions"][key] for key in set(caption_store_time_indexes)]
@@ -238,9 +238,9 @@ def get_text_tokens_from_store(
 
 
 def sample_frame_indexes_to_collect(
-        video_length_in_frames,
-        num_video_frames_per_datapoint,
-        rng=None,
+    video_length_in_frames,
+    num_video_frames_per_datapoint,
+    rng=None,
 ):
     if rng is None:
         rng = np.random.RandomState()
@@ -262,7 +262,6 @@ def sample_frame_indexes_to_collect(
     )
 
 
-
 def collect_files(args):
     json_file_path, training_set_size_fraction_value = args
     video_files = list(pathlib.Path(json_file_path.parent).glob("**/*.mp4"))
@@ -274,9 +273,9 @@ def collect_files(args):
         meta_data_filepath = os.fspath(json_file_path.resolve())
 
         if (
-                pathlib.Path(video_data_filepath).exists()
-                and pathlib.Path(meta_data_filepath).exists()
-                and pathlib.Path(audio_data_filepath).exists()
+            pathlib.Path(video_data_filepath).exists()
+            and pathlib.Path(meta_data_filepath).exists()
+            and pathlib.Path(audio_data_filepath).exists()
         ) and np.random.random() <= training_set_size_fraction_value:
             folder_list.append(
                 (video_data_filepath, audio_data_filepath, meta_data_filepath)

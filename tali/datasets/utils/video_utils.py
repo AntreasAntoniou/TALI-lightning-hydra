@@ -1,11 +1,11 @@
 import datetime
 import logging
+import pathlib
 import subprocess
 
 import cv2
 import numpy as np
 import torch
-import pathlib
 
 log = logging.getLogger(__name__)
 
@@ -39,9 +39,7 @@ def get_frames_opencv_cpu(
     **kwargs,
 ):
     # Create a video capture object, in this case we are reading the video from a file
-    frames = (
-        np.zeros(shape=(len(video_frame_idx_list), image_height, image_width, 3))
-    )
+    frames = np.zeros(shape=(len(video_frame_idx_list), image_height, image_width, 3))
     vid_capture = cv2.VideoCapture(filepath)
 
     frame_successfully_acquired = True
@@ -53,11 +51,11 @@ def get_frames_opencv_cpu(
             vid_capture.set(cv2.CAP_PROP_POS_FRAMES, video_frame_idx_list[0])
             frames_read = video_frame_idx_list[0]
     else:
-        log.info(f'{get_meta_data_opencv(filepath)}')
+        log.info(f"{get_meta_data_opencv(filepath)}")
 
     while (
-            frame_successfully_acquired
-            and frames_collected <= len(video_frame_idx_list) - 1
+        frame_successfully_acquired
+        and frames_collected <= len(video_frame_idx_list) - 1
     ):
         frame_successfully_acquired, image = vid_capture.read()
 

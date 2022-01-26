@@ -22,8 +22,9 @@ class HuggingFaceBPETokenizer(nn.Module):
     def __init__(self, context_length):
         super(HuggingFaceBPETokenizer, self).__init__()
         os.environ["TOKENIZERS_PARALLELISM"] = "false"
-        self.tokenizer = CLIPTokenizerFast.\
-            from_pretrained("openai/clip-vit-base-patch16")
+        self.tokenizer = CLIPTokenizerFast.from_pretrained(
+            "openai/clip-vit-base-patch16"
+        )
         self.context_length = context_length
 
     def forward(self, x):

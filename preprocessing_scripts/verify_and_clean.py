@@ -55,23 +55,24 @@ def verify_video(path: pathlib.Path):
         delete_file_if_exists(audio_path)
         result = False
 
-
     return video_filepath, result
 
 
 def verify_audio(path: pathlib.Path):
     audio_filepath = os.fspath(path.resolve())
     try:
-        load(filename=audio_filepath,
-             start_point_in_seconds=1,
-             duration_in_seconds=7,
-             sr=44100,
-             mono=False,
-             normalize=False,
-             in_type=np.float32,
-             out_type=np.float32,
-             log_time=False,
-             video_frame_idx_list=None)
+        load(
+            filename=audio_filepath,
+            start_point_in_seconds=1,
+            duration_in_seconds=7,
+            sample_rate=44100,
+            mono=False,
+            normalize=False,
+            in_type=np.float32,
+            out_type=np.float32,
+            log_time=False,
+            video_frame_idx_list=None,
+        )
         result = True
 
     except Exception:
@@ -126,12 +127,12 @@ if __name__ == "__main__":
         logging.info(f"Checking {num_samples}  {file_type} files")
         target_func = verify_video if file_type == ".mp4" else verify_audio
         with concurrent.futures.ProcessPoolExecutor(
-                max_workers=args.num_processes
+            max_workers=args.num_processes
         ) as executor:
             with tqdm.tqdm(total=num_samples, smoothing=0.0) as pbar:
                 for job_idx, (file_path, result) in enumerate(
-                        executor.map(target_func, matching_files[file_type]),
-                        start=1,
+                    executor.map(target_func, matching_files[file_type]),
+                    start=1,
                 ):
                     pbar.update(1)
 
@@ -139,12 +140,12 @@ if __name__ == "__main__":
         num_samples = len(matching_files[file_type])
         logging.info(f"Checking {num_samples}  {file_type} files")
         with concurrent.futures.ProcessPoolExecutor(
-                max_workers=args.num_processes
+            max_workers=args.num_processes
         ) as executor:
             with tqdm.tqdm(total=num_samples, smoothing=0.0) as pbar:
                 for job_idx, (file_path, result) in enumerate(
-                        executor.map(verify_pairs, matching_files[file_type]),
-                        start=1,
+                    executor.map(verify_pairs, matching_files[file_type]),
+                    start=1,
                 ):
                     pbar.update(1)
 

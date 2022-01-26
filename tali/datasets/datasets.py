@@ -11,10 +11,10 @@ from typing import Callable, Dict, List, Union
 import numpy as np
 import torch
 import tqdm
-from base import utils
-from tali.config_repository import TALIDatasetConfig
 from torch.utils.data import Dataset
 
+from base import utils
+from tali.config_repository import TALIDatasetConfig
 from tali.datasets.utils import audio_utils
 from tali.datasets.utils.audio_utils import prevent_error_kill
 from tali.datasets.utils.helpers import (
@@ -28,6 +28,7 @@ from tali.utils.arg_parsing import DictWithDotNotation
 from tali.utils.storage import load_json, save_json
 
 log = utils.get_logger(__name__)
+
 
 class TALIMultiModalDataset(Dataset):
     def __init__(
@@ -65,7 +66,8 @@ class TALIMultiModalDataset(Dataset):
             self.path_dict = load_json(self.pre_scanned_dataset_json_filepath)
         else:
             self.path_dict = self._scan_paths_return_dict(
-                training_set_fraction_value=self.training_set_fraction_value)
+                training_set_fraction_value=self.training_set_fraction_value
+            )
             save_json(
                 filepath=self.pre_scanned_dataset_json_filepath,
                 metrics_dict=self.path_dict,
@@ -77,9 +79,11 @@ class TALIMultiModalDataset(Dataset):
             f"files found"
         )
 
-        self.index_to_video_path = [video_path
-                             for folder_list in self.path_dict.values()
-                             for video_path in folder_list]
+        self.index_to_video_path = [
+            video_path
+            for folder_list in self.path_dict.values()
+            for video_path in folder_list
+        ]
 
         logging.info(f"num video paths: {len(self.index_to_video_path)}")
 
@@ -91,13 +95,10 @@ class TALIMultiModalDataset(Dataset):
             clip_duration_in_seconds,
         ) = get_meta_data_opencv(filepath)
 
-
-        (
-            video_frame_idx_list, image_frame_idx
-        ) = sample_frame_indexes_to_collect(
+        (video_frame_idx_list, image_frame_idx) = sample_frame_indexes_to_collect(
             video_length_in_frames=total_frames,
             num_video_frames_per_datapoint=self.config.num_video_frames_per_datapoint,
-            rng=rng
+            rng=rng,
         )
 
         frames_dict = DictWithDotNotation(
@@ -132,12 +133,12 @@ class TALIMultiModalDataset(Dataset):
 
             frames_dict.audio = audio_utils.load(
                 filename=audio_filepath,
-                sr=self.config.num_audio_sample_rate,
+                sample_rate=self.config.num_audio_sample_rate,
                 mono=False,
                 in_type=np.float32,
                 out_type=np.float32,
                 video_frame_idx_list=video_frame_idx_list,
-                total_video_frames=total_frames
+                total_video_frames=total_frames,
             )
             frames_dict.audio = torch.from_numpy(frames_dict.audio).view(-1, 2)
             frames_dict.audio = frames_dict.audio.permute([1, 0])
@@ -214,9 +215,11 @@ class TALIMultiModalDataset(Dataset):
         torch_rng = torch.Generator()
         torch_rng.manual_seed(current_time_rng)
 
-        (video_data_filepath,
-         audio_data_filepath,
-         meta_data_filepath) = self.index_to_video_path[index]
+        (
+            video_data_filepath,
+            audio_data_filepath,
+            meta_data_filepath,
+        ) = self.index_to_video_path[index]
         # sub_video_idx = rng.choice(len((self.path_dict[video_key])))
         # (video_data_filepath, audio_data_filepath, meta_data_filepath) = self.path_dict[
         #     video_key
@@ -292,28 +295,28 @@ class TALIMultiModalDataset(Dataset):
             if isinstance(value, torch.Tensor)
         }
 
-        if self.config.modality_config.image and 'image' not in data_dict:
+        if self.config.modality_config.image and "image" not in data_dict:
             video_path = pathlib.Path(video_data_filepath)
             audio_path = video_path.with_suffix(".aac")
             video_path.unlink()
             audio_path.unlink()
             return None
 
-        if self.config.modality_config.video and 'video' not in data_dict:
+        if self.config.modality_config.video and "video" not in data_dict:
             video_path = pathlib.Path(video_data_filepath)
             audio_path = video_path.with_suffix(".aac")
             video_path.unlink()
             audio_path.unlink()
             return None
 
-        if self.config.modality_config.audio and 'audio' not in data_dict:
+        if self.config.modality_config.audio and "audio" not in data_dict:
             video_path = pathlib.Path(video_data_filepath)
             audio_path = video_path.with_suffix(".aac")
             video_path.unlink()
             audio_path.unlink()
             return None
 
-        if self.config.modality_config.text and 'text' not in data_dict:
+        if self.config.modality_config.text and "text" not in data_dict:
             video_path = pathlib.Path(video_data_filepath)
             audio_path = video_path.with_suffix(".aac")
             video_path.unlink()
@@ -355,11 +358,9 @@ class TALIMultiModalDataset(Dataset):
 
         logging.info(f"Found {len(matched_meta_data_files)} matched meta_data files")
 
-        args = [
-            (item, training_set_fraction_value) for item in matched_meta_data_files
-        ]
+        args = [(item, training_set_fraction_value) for item in matched_meta_data_files]
 
-        logging.info('Scanning folders for media files')
+        logging.info("Scanning folders for media files")
 
         with concurrent.futures.ProcessPoolExecutor(
             max_workers=mp.cpu_count()

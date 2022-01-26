@@ -2,13 +2,13 @@ import logging
 from time import sleep
 
 import hydra
+import matplotlib.pyplot as plt
+import numpy as np
 import torch
 import tqdm
 from omegaconf import DictConfig
-import matplotlib.pyplot as plt
-from pytorch_lightning import seed_everything, LightningDataModule
+from pytorch_lightning import LightningDataModule, seed_everything
 from torchvision.utils import make_grid
-import numpy as np
 
 from tali.utils.storage import pretty_print_dict
 
@@ -39,7 +39,7 @@ def sample_datamodule(config: DictConfig):
         config.datamodule, _recursive_=False
     )
     datamodule.setup(stage="fit")
-    datamodule.setup(stage='test')
+    datamodule.setup(stage="test")
     total_valid = 0
     total_invalid = 0
     for _ in range(config.trainer.max_epochs):
@@ -48,44 +48,47 @@ def sample_datamodule(config: DictConfig):
         with tqdm.tqdm(total=len(datamodule.train_dataloader()), smoothing=0.0) as pbar:
             for idx, item_batch in enumerate(datamodule.train_dataloader()):
                 # sleep(0.5)
-                total_valid += len(item_batch['image'])
+                total_valid += len(item_batch["image"])
                 total = (idx + 1) * config.batch_size
                 total_invalid = total - total_valid
                 pbar.update(1)
-                pbar.set_description(f'valid count: {total_valid}, '
-                                     f'invalid count: {total_invalid}, '
-                                     f'percentage of invalid: '
-                                     f'{total_invalid / (total_valid + total_invalid)}')
+                pbar.set_description(
+                    f"valid count: {total_valid}, "
+                    f"invalid count: {total_invalid}, "
+                    f"percentage of invalid: "
+                    f"{total_invalid / (total_valid + total_invalid)}"
+                )
 
         total_samples = len(datamodule.test_dataloader()) * config.batch_size
         total_valid = 0
         with tqdm.tqdm(total=len(datamodule.test_dataloader()), smoothing=0.0) as pbar:
             for idx, item_batch in enumerate(datamodule.test_dataloader()):
                 # sleep(0.5)
-                total_valid += len(item_batch['image'])
+                total_valid += len(item_batch["image"])
                 total = (idx + 1) * config.batch_size
                 total_invalid = total - total_valid
                 pbar.update(1)
-                pbar.set_description(f'valid count: {total_valid}, '
-                                     f'invalid count: {total_invalid}, '
-                                     f'percentage of invalid: '
-                                     f'{total_invalid / (total_valid + total_invalid)}')
+                pbar.set_description(
+                    f"valid count: {total_valid}, "
+                    f"invalid count: {total_invalid}, "
+                    f"percentage of invalid: "
+                    f"{total_invalid / (total_valid + total_invalid)}"
+                )
         total_samples = len(datamodule.val_dataloader()) * config.batch_size
         total_valid = 0
         with tqdm.tqdm(total=len(datamodule.val_dataloader()), smoothing=0.0) as pbar:
             for idx, item_batch in enumerate(datamodule.val_dataloader()):
                 # sleep(0.5)
-                total_valid += len(item_batch['image'])
+                total_valid += len(item_batch["image"])
                 total = (idx + 1) * config.batch_size
                 total_invalid = total - total_valid
                 pbar.update(1)
-                pbar.set_description(f'valid count: {total_valid}, '
-                                     f'invalid count: {total_invalid}, '
-                                     f'percentage of invalid: '
-                                     f'{total_invalid / (total_valid + total_invalid)}')
-
-
-
+                pbar.set_description(
+                    f"valid count: {total_valid}, "
+                    f"invalid count: {total_invalid}, "
+                    f"percentage of invalid: "
+                    f"{total_invalid / (total_valid + total_invalid)}"
+                )
 
             # log.info(item_batch)
 

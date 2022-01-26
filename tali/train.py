@@ -113,8 +113,10 @@ def train_eval(config: DictConfig) -> List[Dict[str, float]]:
     if config.trainer.auto_scale_batch_size:
         tuner = Tuner(trainer)
         new_batch_size = tuner.scale_batch_size(
-            model, datamodule=datamodule, mode="binsearch",
-            init_val=2 * torch.cuda.device_count()
+            model,
+            datamodule=datamodule,
+            mode="binsearch",
+            init_val=2 * torch.cuda.device_count(),
         )
         datamodule.batch_size = new_batch_size
         config.datamodule.batch_size = new_batch_size

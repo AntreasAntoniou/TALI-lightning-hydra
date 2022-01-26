@@ -51,7 +51,7 @@ class TALIDataModule(BaseDataModule):
         pin_memory: bool = True,
         prefetch_factor: int = 2,
         batch_size: int = 32,
-        num_workers: int = mp.cpu_count()
+        num_workers: int = mp.cpu_count(),
     ):
         super(TALIDataModule, self).__init__()
         self.save_hyperparameters(logger=False)
@@ -144,7 +144,8 @@ class TALIDataModule(BaseDataModule):
 
     def train_dataloader(self):
 
-        config_temp = dict(dataset=self.train_set,
+        config_temp = dict(
+            dataset=self.train_set,
             batch_size=self.batch_size,
             shuffle=True,
             num_workers=self.num_workers,
@@ -152,9 +153,10 @@ class TALIDataModule(BaseDataModule):
             prefetch_factor=self.prefetch_factor,
             collate_fn=tali.datasets.utils.helpers.collate_resample_none,
             persistent_workers=self.persistent_workers,
-            drop_last=True)
+            drop_last=True,
+        )
 
-        log.info(f'Starting train data loader with config {config_temp}')
+        log.info(f"Starting train data loader with config {config_temp}")
 
         return DataLoader(
             dataset=self.train_set,
@@ -170,17 +172,19 @@ class TALIDataModule(BaseDataModule):
 
     def val_dataloader(self):
 
-        config_temp = dict(dataset=self.train_set,
-                           batch_size=self.batch_size,
-                           shuffle=True,
-                           num_workers=self.num_workers,
-                           pin_memory=self.pin_memory,
-                           prefetch_factor=self.prefetch_factor,
-                           collate_fn=tali.datasets.utils.helpers.collate_resample_none,
-                           persistent_workers=self.persistent_workers,
-                           drop_last=True)
+        config_temp = dict(
+            dataset=self.train_set,
+            batch_size=self.batch_size,
+            shuffle=True,
+            num_workers=self.num_workers,
+            pin_memory=self.pin_memory,
+            prefetch_factor=self.prefetch_factor,
+            collate_fn=tali.datasets.utils.helpers.collate_resample_none,
+            persistent_workers=self.persistent_workers,
+            drop_last=True,
+        )
 
-        log.info(f'Starting val data loader with config {config_temp}')
+        log.info(f"Starting val data loader with config {config_temp}")
 
         return DataLoader(
             dataset=self.val_set,
@@ -196,17 +200,19 @@ class TALIDataModule(BaseDataModule):
 
     def test_dataloader(self):
 
-        config_temp = dict(dataset=self.train_set,
-                           batch_size=self.batch_size,
-                           shuffle=True,
-                           num_workers=self.num_workers,
-                           pin_memory=self.pin_memory,
-                           prefetch_factor=self.prefetch_factor,
-                           collate_fn=tali.datasets.utils.helpers.collate_resample_none,
-                           persistent_workers=self.persistent_workers,
-                           drop_last=True)
+        config_temp = dict(
+            dataset=self.train_set,
+            batch_size=self.batch_size,
+            shuffle=True,
+            num_workers=self.num_workers,
+            pin_memory=self.pin_memory,
+            prefetch_factor=self.prefetch_factor,
+            collate_fn=tali.datasets.utils.helpers.collate_resample_none,
+            persistent_workers=self.persistent_workers,
+            drop_last=True,
+        )
 
-        log.info(f'Starting testing data loader with config {config_temp}')
+        log.info(f"Starting testing data loader with config {config_temp}")
 
         return DataLoader(
             dataset=self.test_set,
