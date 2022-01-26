@@ -4,6 +4,8 @@ wget https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge
 
 CONDA_DIR=$HOME/conda/
 
+echo "export "CONDA_DIR=${CONDA_DIR}"" >> $HOME/.bashrc
+
 source $CONDA_DIR/bin/activate
 ########################################################################################
 
@@ -15,7 +17,7 @@ conda install pytorch torchvision torchaudio cudatoolkit=11.3 -c pytorch-nightly
 conda install opencv -y
 
 ########################################################################################
-echo "export CODE_DIR=$HOME/TALI-lightning-hydra" >> $HOME/.bashrc
+echo "export CODE_DIR=$HOME/target_codebase" >> $HOME/.bashrc
 echo "export MOUNT_DIR=/mnt/disk/filestore/" >> $HOME/.bashrc
 echo "export EXPERIMENTS_DIR=/mnt/disk/filestore/experiments/" >> $HOME/.bashrc
 echo "export DATASET_DIR=/mnt/disk/filestore/tali-dataset/" >> $HOME/.bashrc
@@ -33,10 +35,10 @@ cd $CODE_DIR
 pip install -r $CODE_DIR/requirements.txt
 pip install -e $CODE_DIR
 
-cd $HOME
-git clone https://huggingface.co/openai/clip-vit-base-patch32
+#cd $HOME
+#git clone https://huggingface.co/openai/clip-vit-base-patch32
 
 ########################################################################################
-conda install gh --channel conda-forge
-sudo apt install htop nvtop
+conda install gh --channel conda-forge -y
+apt install htop nvtop -y
 conda install google-cloud-sdk bat micro -y
