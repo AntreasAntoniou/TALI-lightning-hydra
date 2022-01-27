@@ -17,7 +17,7 @@ hyperparameter_defaults = dict(
     use_video_modality=False,
     use_audio_modality=False,
     use_text_modality=True,
-    datamodule_name="base-tali",
+    datamodule_name="base",
     model_name="base_modus_prime_resnet50",
 )
 
@@ -34,7 +34,8 @@ def main():
         f"trainer.auto_scale_batch_size=True "
         f"datamodule.config.rescan_paths=True datamodule.prefetch_factor=3 "
         f"datamodule.num_workers=96 "
-        f"model={config.model_name} datamodule={config.datamodule_name} "
+        f"model={config.model_name} "
+        f"datamodule.config.training_set_size_identifier={config.datamodule_name} "
         f"datamodule.config.modality_config.image={config.use_image_modality} "
         f"datamodule.config.modality_config.text={config.use_text_modality} "
         f"datamodule.config.modality_config.audio={config.use_audio_modality} "

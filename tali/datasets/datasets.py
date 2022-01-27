@@ -44,13 +44,10 @@ class TALIMultiModalDataset(Dataset):
         self.set_name = set_name
         self.transforms = transforms
         self.training_set_fraction_value = {
-            "micro": 1 / 2 ** 8,
-            "milli": 1 / 2 ** 5,
-            "centi": 1 / 2 ** 4,
-            "deci": 1 / 2 ** 3,
-            "base": 1 / 2 ** 2,
-            "deka": 1 / 2 ** 1,
-            "hecta": 1 / 2 ** 0,
+            "milli": 1 / 10 ** 3,
+            "centi": 1 / 10 ** 2,
+            "deci": 1 / 10 ** 1,
+            "base": 1 / 10 ** 0,
         }[self.config.training_set_size_identifier]
 
         self.dataset_dir = os.path.join(self.dataset_root, self.set_name)
