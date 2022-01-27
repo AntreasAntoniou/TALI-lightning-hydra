@@ -1,5 +1,6 @@
 # Byte-compiled / optimized / DLL files
 __pycache__/
+setup_scripts/startup_call.sh
 *.py[cod]
 *$py.class
 
