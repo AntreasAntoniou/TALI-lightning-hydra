@@ -1,4 +1,4 @@
-export MOUNT_DIR="/mnt/disk/tali/"
+export MOUNT_DIR="/mnt/disk/tali"
 export EXPERIMENTS_DIR="$MOUNT_DIR/experiments"
 export DATASET_DIR="$MOUNT_DIR/dataset"
 
