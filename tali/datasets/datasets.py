@@ -48,7 +48,7 @@ class TALIMultiModalDataset(Dataset):
             "centi": 1 / 10 ** 2,
             "deci": 1 / 10 ** 1,
             "base": 1 / 10 ** 0,
-        }[self.config.training_set_size_identifier]
+        }[self.config.training_set_size_identifier] if set_name == "train" else 1
 
         self.dataset_dir = os.path.join(self.dataset_root, self.set_name)
 
