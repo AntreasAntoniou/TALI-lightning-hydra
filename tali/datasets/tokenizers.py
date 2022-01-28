@@ -31,21 +31,23 @@ class HuggingFaceBPETokenizer(nn.Module):
 
     def forward(self, x):
         tokenized_words = self.tokenizer(x[: self.context_length])["input_ids"]
-        if len(tokenized_words) > self.context_length:
-            return torch.Tensor(tokenized_words[: self.context_length])
+
         tokenized_tensor = torch.Tensor(tokenized_words)
         preshape = tokenized_tensor.shape
         if len(tokenized_tensor.shape) == 2:
             tokenized_tensor = tokenized_tensor.view(-1)
         postshape = tokenized_tensor.shape
 
+        if len(tokenized_tensor) > self.context_length:
+            return tokenized_tensor[: self.context_length]
+
         diff_length = self.context_length - len(tokenized_tensor)
         try:
             padding_tensor = torch.zeros(diff_length)
+            return torch.cat([tokenized_tensor, padding_tensor], dim=0)
         except Exception:
-            log.info(f'Error bro {preshape} {postshape}.')
+            log.error(f'Error bro {preshape} {postshape}.')
         # logging.info(f'{x} {tokenized_words} {torch.Tensor(tokenized_words).shape} {padding_tensor}')
-        return torch.cat([tokenized_tensor, padding_tensor], dim=0)
 
     def batch_decode(self, x):
         return self.tokenizer.batch_decode(x)
