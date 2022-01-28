@@ -248,8 +248,8 @@ class ModusPrime(LightningModule):
         self.save_hyperparameters(logger=False)
 
     def reset_metric_caches(self, phase_name):
-        per_modality_metrics_computed_dict_copy = (
-            self.per_modality_metrics_computed_dict.clone()
+        per_modality_metrics_computed_dict_copy = nn.ModuleDict(
+            self.per_modality_metrics_computed_dict
         )
         for key in self.per_modality_metrics_computed_dict.keys():
             if phase_name in key:
