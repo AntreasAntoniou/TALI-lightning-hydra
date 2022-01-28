@@ -19,7 +19,7 @@ model_checkpoint_train:
   mode: "min"
   verbose: False
   dirpath: "${current_experiment_dir}/checkpoints/"
-  filename: "train_epoch_{epoch:03d}"
+  filename: "last"
   auto_insert_metric_name: False
 
 model_summary:
