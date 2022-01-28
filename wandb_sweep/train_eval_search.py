@@ -7,10 +7,11 @@ Designed to show wandb integration with pytorch.
 """
 
 import os
-
 import torch
-
 import wandb
+from base import utils
+
+log = utils.get_logger(__name__)
 
 hyperparameter_defaults = dict(
     use_image_modality=True,
@@ -41,9 +42,8 @@ def main():
         f"datamodule.config.modality_config.audio={config.use_audio_modality} "
         f"datamodule.config.modality_config.video={config.use_video_modality}\n\n"
     )
-
+    log.info(template_command)
     os.system(template_command)
-
 
 if __name__ == "__main__":
     main()
