@@ -28,10 +28,10 @@ config = wandb.config
 def main():
     template_command = (
         f"python $CODE_DIR/run.py hydra.verbose=True trainer=default "
-        f"resume=True batch_size=16 "
+        f"resume=True batch_size=64 "
         f"wandb_project_name=TALI-gcp-sweep-1 "
         f"trainer.gpus=-1 "
-        f"trainer.auto_scale_batch_size=True "
+        f"trainer.auto_scale_batch_size=False "
         f"datamodule.config.rescan_paths=True datamodule.prefetch_factor=3 "
         f"datamodule.num_workers=96 "
         f"model={config.model_name} "
