@@ -123,12 +123,12 @@ def load(
                 idx * audio_frames_per_video_frame_to_sample,
                 (idx + 1) * audio_frames_per_video_frame_to_sample,
             )
-            log.debug(
-                f"{audio.shape}, "
-                f"{audio_temp_idx_range}, {audio_frame_idx_range}, "
-                f"{audio_temp[audio_temp_idx_range[0]: audio_temp_idx_range[1]].shape}, "
-                f"{audio[audio_frame_idx_range[0]: audio_frame_idx_range[1]].shape}"
-            )
+            # log.debug(
+            #     f"{audio.shape}, "
+            #     f"{audio_temp_idx_range}, {audio_frame_idx_range}, "
+            #     f"{audio_temp[audio_temp_idx_range[0]: audio_temp_idx_range[1]].shape}, "
+            #     f"{audio[audio_frame_idx_range[0]: audio_frame_idx_range[1]].shape}"
+            # )
 
             audio_chunk = audio[audio_frame_idx_range[0] : audio_frame_idx_range[1]]
 
@@ -155,6 +155,6 @@ def load(
                 dim=0,
             )
 
-    log.debug(f"{audio.shape}")
+    # log.debug(f"{audio.shape}")
 
     return audio
