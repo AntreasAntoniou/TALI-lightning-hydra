@@ -1,5 +1,5 @@
-export MOUNT_DIR="/mnt/disk/filestore/"
-export DATASET_DIR="/mnt/disk/filestore/tali-dataset/"
+export MOUNT_DIR="/mnt/disk/tali/"
+export DATASET_DIR="/mnt/disk/tali"
 
 if [ ! -d "$DATASET_DIR" ]; then
   mkdir -p $DATASET_DIR
