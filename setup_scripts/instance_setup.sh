@@ -18,9 +18,9 @@ conda install opencv -y
 
 ########################################################################################
 echo "export CODE_DIR=$HOME/target_codebase" >> $HOME/.bashrc
-echo "export MOUNT_DIR=/mnt/disk/filestore/" >> $HOME/.bashrc
-echo "export EXPERIMENTS_DIR=/mnt/disk/filestore/experiments/" >> $HOME/.bashrc
-echo "export DATASET_DIR=/mnt/disk/filestore/tali-dataset/" >> $HOME/.bashrc
+echo "export MOUNT_DIR=/mnt/disk/tali/" >> $HOME/.bashrc
+echo "export EXPERIMENTS_DIR=/mnt/disk/tali/experiments/" >> $HOME/.bashrc
+echo "export DATASET_DIR=/mnt/disk/tali/dataset/" >> $HOME/.bashrc
 echo "export TOKENIZERS_PARALLELISM=false" >> $HOME/.bashrc
 echo "export FFREPORT=file=ffreport.log:level=32" >> $HOME/.bashrc
 echo 'export OPENCV_LOG_LEVEL="SILENT"' >> $HOME/.bashrc

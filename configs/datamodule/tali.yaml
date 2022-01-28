@@ -1,6 +1,6 @@
 _target_: tali.datasets.hub.TALIDataModule
 config:
-  dataset_root: '/mnt/disk/filestore/tali-dataset'
+  dataset_root: ${data_dir}
   training_set_size_identifier: base
   dataset_name: ${datamodule.config.training_set_size_identifier}-tali
   modality_config:

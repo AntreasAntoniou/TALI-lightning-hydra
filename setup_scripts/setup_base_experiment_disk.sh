@@ -1,5 +1,5 @@
 export MOUNT_DIR="/mnt/disk/tali/"
-export EXPERIMENTS_DIR="/mnt/disk/tali/experiments/"
+export EXPERIMENTS_DIR="$MOUNT_DIR/experiments"
 
 if [ ! -d "$MOUNT_DIR" ]; then
   mkdir -p $MOUNT_DIR
