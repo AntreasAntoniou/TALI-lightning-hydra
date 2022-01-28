@@ -20,9 +20,11 @@ hyperparameter_defaults = dict(
     use_text_modality=True,
     datamodule_name="base",
     model_name="base_modus_prime_resnet50",
+    num_gpus=8,
+    batch_size=64
 )
 
-wandb.init(config=hyperparameter_defaults, project="TALI-gcp-sweep")
+wandb.init(config=hyperparameter_defaults, project="TALI-gcp-sweep-1")
 config = wandb.config
 
 
@@ -30,12 +32,12 @@ def main():
     template_command = (
         f"fuser -k /dev/nvidia*; "
         f"python $CODE_DIR/run.py hydra.verbose=True trainer=default "
-        f"resume=True batch_size=64 "
+        f"resume=True batch_size={config.batch_size} "
         f"wandb_project_name=TALI-gcp-sweep-1 "
-        f"trainer.gpus=-1 "
+        f"trainer.gpus={config.num_gpus} "
         f"trainer.auto_scale_batch_size=False "
         f"datamodule.config.rescan_paths=True datamodule.prefetch_factor=3 "
-        f"datamodule.num_workers=96 "
+        f"datamodule.num_workers={config.num_workers} "
         f"model={config.model_name} "
         f"datamodule.config.training_set_size_identifier={config.datamodule_name} "
         f"datamodule.config.modality_config.image={config.use_image_modality} "

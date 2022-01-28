@@ -6,7 +6,9 @@ from transformers import CLIPTokenizerFast
 
 from tali.datasets.utils.simple_tokenizer import SimpleTokenizer
 from tali.datasets.utils.tokenizers import tokenize
+from base import utils
 
+log = utils.get_logger(__name__)
 
 class BPETokenizer(nn.Module):
     def __init__(self, context_length):
@@ -32,9 +34,10 @@ class HuggingFaceBPETokenizer(nn.Module):
         if len(tokenized_words) > self.context_length:
             return torch.Tensor(tokenized_words[: self.context_length])
         tokenized_tensor = torch.Tensor(tokenized_words)
-
+        log.info(tokenized_tensor.shape)
         if len(tokenized_tensor.shape) == 2:
             tokenized_tensor = tokenized_tensor.view(-1)
+        log.info(tokenized_tensor.shape)
 
         diff_length = self.context_length - len(tokenized_tensor)
         padding_tensor = torch.zeros(diff_length)
