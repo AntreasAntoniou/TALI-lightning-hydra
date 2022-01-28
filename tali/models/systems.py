@@ -438,4 +438,5 @@ class ModusPrime(LightningModule):
         lr_scheduler = hydra.utils.instantiate(
             config=self.lr_scheduler_config, optimizer=optimizer
         )
-        return {"optimizer": optimizer, "lr_scheduler": lr_scheduler}
+        return {"optimizer": optimizer, "lr_scheduler": {"scheduler": lr_scheduler,
+                                                         "interval": "step"}}
