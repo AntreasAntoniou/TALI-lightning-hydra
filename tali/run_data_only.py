@@ -86,7 +86,7 @@ def sample_datamodule(config: DictConfig):
                 #     # )
                 #     for channel in range(2):
                 #         fig = plot_with_spectrum(audio_item[channel], rate=44100)
-                #         fig.savefig(f"{config.exp_dir}/{item_idx}_{channel}.png")
+                #         fig.savefig(f"{config.current_experiment_dir}/{item_idx}_{channel}.png")
                 #         plt.close()
                 #
                 # plt.imshow(grid.permute([1, 2, 0]).cpu().numpy())
@@ -153,7 +153,7 @@ def sample_datamodule(config: DictConfig):
             #     # )
             #     for channel in range(2):
             #         fig = plotWithSpectrum(audio_item[channel], rate=44100)
-            #         fig.savefig(f"{config.exp_dir}/{item_idx}_{channel}.png")
+            #         fig.savefig(f"{config.current_experiment_dir}/{item_idx}_{channel}.png")
             #         plt.close()
             #
             # plt.imshow(grid.permute([1, 2, 0]).cpu().numpy())

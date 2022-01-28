@@ -4,7 +4,7 @@ gpus: -1
 
 enable_checkpointing: true
 strategy: dp
-default_root_dir: ${exp_dir}
+default_root_dir: ${current_experiment_dir}
 progress_bar_refresh_rate: 1
 enable_progress_bar: True
 check_val_every_n_epoch: 1

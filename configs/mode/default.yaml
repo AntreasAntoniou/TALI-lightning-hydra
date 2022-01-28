@@ -7,7 +7,7 @@ mode:
 
 hydra:
   run:
-    dir: ${exp_dir}/hydra-run//${now:%Y-%m-%d_%H-%M-%S}
+    dir: ${current_experiment_dir}/hydra-run//${now:%Y-%m-%d_%H-%M-%S}
   sweep:
-    dir: ${exp_dir}/hydra-multirun//${now:%Y-%m-%d_%H-%M-%S}
+    dir: ${current_experiment_dir}/hydra-multirun//${now:%Y-%m-%d_%H-%M-%S}
     subdir: ${hydra.job.num}

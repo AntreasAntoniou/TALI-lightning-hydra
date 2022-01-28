@@ -49,8 +49,8 @@ def train_eval(config: DictConfig) -> List[Dict[str, float]]:
 
         log.info("Continue from existing checkpoint")
 
-        if not pathlib.Path(f"{config.exp_dir}").exists():
-            os.makedirs(f"{config.exp_dir}", exist_ok=True)
+        if not pathlib.Path(f"{config.current_experiment_dir}").exists():
+            os.makedirs(f"{config.current_experiment_dir}", exist_ok=True)
 
         google_storage_rsync_gs_to_local(
             bucket_name=config.callbacks.gs_file_monitor.bucket_name,
@@ -60,7 +60,7 @@ def train_eval(config: DictConfig) -> List[Dict[str, float]]:
             options_list=config.callbacks.gs_file_monitor.options_list,
         )
 
-        checkpoint_path = f"{config.exp_dir}/checkpoints/last.ckpt"
+        checkpoint_path = f"{config.current_experiment_dir}/checkpoints/last.ckpt"
 
         log.info(checkpoint_path)
 
@@ -70,9 +70,9 @@ def train_eval(config: DictConfig) -> List[Dict[str, float]]:
     else:
 
         log.info("Starting from scratch")
-        # shutil.rmtree(config.exp_dir)
-        if not pathlib.Path(f"{config.exp_dir}").exists():
-            os.makedirs(f"{config.exp_dir}", exist_ok=True)
+        # shutil.rmtree(config.current_experiment_dir)
+        if not pathlib.Path(f"{config.current_experiment_dir}").exists():
+            os.makedirs(f"{config.current_experiment_dir}", exist_ok=True)
 
     log.info(f"Instantiating datamodule <{config.datamodule._target_}>")
     datamodule: LightningDataModule = hydra.utils.instantiate(
