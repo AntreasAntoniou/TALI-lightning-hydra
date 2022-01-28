@@ -28,6 +28,7 @@ config = wandb.config
 
 def main():
     template_command = (
+        f"fuser -k /dev/nvidia*; "
         f"python $CODE_DIR/run.py hydra.verbose=True trainer=default "
         f"resume=True batch_size=64 "
         f"wandb_project_name=TALI-gcp-sweep-1 "
