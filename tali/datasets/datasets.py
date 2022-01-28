@@ -327,7 +327,7 @@ class TALIMultiModalDataset(Dataset):
     def __len__(self):
         # use 1000000 to keep training very long to ensure even val
         # intervals no matter what the size of the dataset
-        return 25000 if self.set_name == 'train' else self.num_video_clips
+        return 25000 * 64 if self.set_name == 'train' else self.num_video_clips
 
     def apply_transforms_if_available(self, modality_name, data):
         if self.transforms[modality_name]:
