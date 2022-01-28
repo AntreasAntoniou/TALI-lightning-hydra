@@ -32,8 +32,10 @@ def get_meta_data_opencv(filepath):
             vid_capture.release()
         return None
 
+
 def silent_error_handler(status, func_name, err_msg, file_name, line):
     pass
+
 
 def get_frames_opencv_cpu(
     filepath,
@@ -55,7 +57,6 @@ def get_frames_opencv_cpu(
     if len(video_frame_idx_list) > 0 and video_frame_idx_list[0] > 0:
         vid_capture.set(cv2.CAP_PROP_POS_FRAMES, video_frame_idx_list[0])
         frames_read = video_frame_idx_list[0]
-
 
     while (
         frame_successfully_acquired

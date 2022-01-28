@@ -7,8 +7,10 @@ Designed to show wandb integration with pytorch.
 """
 
 import os
+
 import torch
 import wandb
+
 from base import utils
 
 log = utils.get_logger(__name__)
@@ -21,7 +23,7 @@ hyperparameter_defaults = dict(
     datamodule_name="base",
     model_name="base_modus_prime_resnet50",
     num_gpus=8,
-    batch_size=64
+    batch_size=64,
 )
 
 wandb.init(config=hyperparameter_defaults, project="TALI-gcp-sweep-1")
@@ -47,6 +49,7 @@ def main():
     )
     log.info(template_command)
     os.system(template_command)
+
 
 if __name__ == "__main__":
     main()

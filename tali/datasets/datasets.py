@@ -43,12 +43,16 @@ class TALIMultiModalDataset(Dataset):
         self.dataset_root = config.dataset_root
         self.set_name = set_name
         self.transforms = transforms
-        self.training_set_fraction_value = {
-            "milli": 1 / 10 ** 3,
-            "centi": 1 / 10 ** 2,
-            "deci": 1 / 10 ** 1,
-            "base": 1 / 10 ** 0,
-        }[self.config.training_set_size_identifier] if set_name == "train" else 1
+        self.training_set_fraction_value = (
+            {
+                "milli": 1 / 10 ** 3,
+                "centi": 1 / 10 ** 2,
+                "deci": 1 / 10 ** 1,
+                "base": 1 / 10 ** 0,
+            }[self.config.training_set_size_identifier]
+            if set_name == "train"
+            else 1
+        )
 
         self.dataset_dir = os.path.join(self.dataset_root, self.set_name)
 
@@ -327,7 +331,7 @@ class TALIMultiModalDataset(Dataset):
     def __len__(self):
         # use 25000 to keep training very long to ensure even val
         # intervals no matter what the size of the dataset
-        return 25000 * 64 if self.set_name == 'train' else self.num_video_clips
+        return 25000 * 64 if self.set_name == "train" else self.num_video_clips
 
     def apply_transforms_if_available(self, modality_name, data):
         if self.transforms[modality_name]:
