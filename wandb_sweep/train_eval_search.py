@@ -28,7 +28,7 @@ config = wandb.config
 def main():
     template_command = (
         f"python $CODE_DIR/run.py hydra.verbose=True trainer=default "
-        f"resume=True batch_size=8 "
+        f"resume=True batch_size=16 "
         f"wandb_project_name=TALI-gcp-sweep-1 "
         f"trainer.gpus=-1 "
         f"trainer.auto_scale_batch_size=True "
