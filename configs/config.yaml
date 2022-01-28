@@ -43,7 +43,7 @@ wandb_project_name: 'TALI-gcp-sweep-1'
 name: ${wandb_project_name}-${datamodule.config.dataset_name}-${model.name}-${datamodule.config.modality_config.name}-${seed}
 
 code_dir: ${hydra:runtime.cwd}
-root_log_dir: ${env:EXPERIMENT_DIR}
+root_log_dir: ${env:EXPERIMENTS_DIR}
 exp_dir: ${root_log_dir}/${name}/
 # path to folder with data
 data_dir: ${env:DATASET_DIR}
