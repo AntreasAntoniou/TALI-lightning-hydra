@@ -13,4 +13,4 @@ bash $CODE_DIR/setup_scripts/setup_tali_dataset_disk.sh
 
 
 cd $CODE_DIR
-wandb agent evolvingfungus/TALI-gcp-sweep-1/pi5mfetp
+wandb agent evolvingfungus/TALI-gcp-sweep-1/dz03qxp8
