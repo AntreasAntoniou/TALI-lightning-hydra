@@ -1,6 +1,7 @@
 #!/bin/bash
 echo "Running admin defined startup script"
 export MY_WANDB_API_KEY="NOT-AVAILABLE"
+export WANDB_SWEEP_ID=iwvr8q67
 export CODE_DIR=/root/target_codebase
 git clone https://github.com/AntreasAntoniou/TALI-lightning-hydra.git $CODE_DIR
 
