@@ -247,8 +247,10 @@ class ModusPrime(LightningModule):
         self.is_built = True
         self.save_hyperparameters(logger=False)
 
-    def reset_metric_caches(self):
-        self.per_modality_metrics_computed_dict = nn.ModuleDict()
+    def reset_metric_caches(self, phase_name):
+        for key in self.per_modality_metrics_computed_dict.keys():
+            if phase_name in key:
+                del self.per_modality_metrics_computed_dict[key]
 
     def forward(self, batch):
 
@@ -320,42 +322,42 @@ class ModusPrime(LightningModule):
                 sync_dist=True,
             )
 
-    def collect_metrics_epoch(self):
+    def collect_metrics_epoch(self, phase_name):
 
         for key, value in self.per_modality_metrics_computed_dict.items():
+            if phase_name in key:
+                if isinstance(value, Accuracy):
+                    self.log(
+                        name=f"{key}/epoch",
+                        value=value.compute(),
+                        prog_bar=False,
+                        logger=True,
+                        on_step=False,
+                        on_epoch=True,
+                        sync_dist=True,
+                    )
 
-            if isinstance(value, Accuracy):
-                self.log(
-                    name=f"{key}/epoch",
-                    value=value.compute(),
-                    prog_bar=False,
-                    logger=True,
-                    on_step=False,
-                    on_epoch=True,
-                    sync_dist=True,
-                )
+                if isinstance(value, CrossEntropyLossMetric):
+                    value.compute()
+                    self.log(
+                        name=f"{key}/epoch_mean",
+                        value=value.mean,
+                        prog_bar=False,
+                        logger=True,
+                        on_step=False,
+                        on_epoch=True,
+                        sync_dist=True,
+                    )
 
-            if isinstance(value, CrossEntropyLossMetric):
-                value.compute()
-                self.log(
-                    name=f"{key}/epoch_mean",
-                    value=value.mean,
-                    prog_bar=False,
-                    logger=True,
-                    on_step=False,
-                    on_epoch=True,
-                    sync_dist=True,
-                )
-
-                self.log(
-                    name=f"{key}/epoch_std",
-                    value=value.std,
-                    prog_bar=False,
-                    logger=True,
-                    on_step=False,
-                    on_epoch=True,
-                    sync_dist=True,
-                )
+                    self.log(
+                        name=f"{key}/epoch_std",
+                        value=value.std,
+                        prog_bar=False,
+                        logger=True,
+                        on_step=False,
+                        on_epoch=True,
+                        sync_dist=True,
+                    )
 
     def step(self, batch, batch_idx):
 
@@ -394,7 +396,7 @@ class ModusPrime(LightningModule):
         return self.criterion(input=logits, target=targets)
 
     def training_epoch_end(self, outputs: List[Any]):
-        self.collect_metrics_epoch()
+        self.collect_metrics_epoch(phase_name='training')
         self.reset_metric_caches()
 
     def validation_step(self, batch, batch_idx):
@@ -411,7 +413,7 @@ class ModusPrime(LightningModule):
         )
 
     def validation_epoch_end(self, outputs: List[Any]):
-        self.collect_metrics_epoch()
+        self.collect_metrics_epoch(phase_name='validation')
         self.reset_metric_caches()
 
     def test_step(self, batch, batch_idx):
@@ -425,7 +427,7 @@ class ModusPrime(LightningModule):
         )
 
     def testing_epoch_end(self, outputs: List[Any]):
-        self.collect_metrics_epoch()
+        self.collect_metrics_epoch(phase_name='test')
         self.reset_metric_caches()
 
     def configure_optimizers(self):
