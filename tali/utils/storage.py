@@ -320,8 +320,11 @@ def google_storage_rsync_gs_to_local(
         else ""
     )
     command_string = f"gsutil -m rsync -{options_string} {exclude_string} gs://{bucket_name}/{experiment_name}/ {experiments_root_dir}/"
-    log.debug(command_string + "\n\n\n\n\n")
-    os.system(command_string)
+
+    screen_command_string = f'screen -dmS gsutil-update bash -c ' \
+                            f'"{command_string}; exec bash"'
+    log.debug(screen_command_string + "\n\n\n\n\n")
+    os.system(screen_command_string)
 
 
 def google_storage_rsync_local_to_gs(
@@ -334,8 +337,12 @@ def google_storage_rsync_local_to_gs(
         else ""
     )
     command_string = f"gsutil -m rsync -{options_string} {exclude_string} {experiments_root_dir}/ gs://{bucket_name}/{experiment_name}/"
-    log.debug(command_string + "\n\n\n\n\n")
-    os.system(command_string)
+
+    screen_command_string = f'screen -dmS gsutil-update bash -c ' \
+                            f'"{command_string}; exec bash"'
+
+    log.debug(screen_command_string + "\n\n\n\n\n")
+    os.system(screen_command_string)
 
 
 class GoogleStorageClient(object):
