@@ -82,7 +82,8 @@ class TALIMultiModalDataset(Dataset):
             for video_path in folder_list
         ]
 
-        logging.info(f"num video paths: {len(self.index_to_video_path)}")
+        self.num_video_clips = len(self.index_to_video_path)
+        logging.info(f"num video clips: {self.num_video_clips}")
 
     def get_frames(self, data_dict, filepath, rng):
 
@@ -207,6 +208,7 @@ class TALIMultiModalDataset(Dataset):
         # video_key, value_idx = self.index_to_item_address[
         #     index % len(self.index_to_item_address)
         # ]
+        actual_index = index % self.num_video_clips
         current_time_rng = int(time.time_ns() % 100000)
         rng = np.random.RandomState(current_time_rng)
         torch_rng = torch.Generator()
@@ -216,7 +218,7 @@ class TALIMultiModalDataset(Dataset):
             video_data_filepath,
             audio_data_filepath,
             meta_data_filepath,
-        ) = self.index_to_video_path[index]
+        ) = self.index_to_video_path[actual_index]
         # sub_video_idx = rng.choice(len((self.path_dict[video_key])))
         # (video_data_filepath, audio_data_filepath, meta_data_filepath) = self.path_dict[
         #     video_key
@@ -324,7 +326,7 @@ class TALIMultiModalDataset(Dataset):
 
     def __len__(self):
 
-        return len(self.index_to_video_path)
+        return 1000000
 
     def apply_transforms_if_available(self, modality_name, data):
         if self.transforms[modality_name]:
