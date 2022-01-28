@@ -34,13 +34,16 @@ class HuggingFaceBPETokenizer(nn.Module):
         if len(tokenized_words) > self.context_length:
             return torch.Tensor(tokenized_words[: self.context_length])
         tokenized_tensor = torch.Tensor(tokenized_words)
-        log.info(tokenized_tensor.shape)
+        preshape = tokenized_tensor.shape
         if len(tokenized_tensor.shape) == 2:
             tokenized_tensor = tokenized_tensor.view(-1)
-        log.info(tokenized_tensor.shape)
+        postshape = tokenized_tensor.shape
 
         diff_length = self.context_length - len(tokenized_tensor)
-        padding_tensor = torch.zeros(diff_length)
+        try:
+            padding_tensor = torch.zeros(diff_length)
+        except Exception:
+            log.info(f'Error bro {preshape} {postshape}.')
         # logging.info(f'{x} {tokenized_words} {torch.Tensor(tokenized_words).shape} {padding_tensor}')
         return torch.cat([tokenized_tensor, padding_tensor], dim=0)
 
