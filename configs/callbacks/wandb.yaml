@@ -11,10 +11,10 @@ upload_code_as_artifact:
   code_dir: ${code_dir}/
   use_git: False
 
-upload_ckpts_as_artifact:
-  _target_: base.callbacks.wandb_callbacks.UploadCheckpointsAsArtifact
-  ckpt_dir: "{current_experiment_dir}/checkpoints/"
-  upload_best_only: True
+#upload_ckpts_as_artifact:
+#  _target_: base.callbacks.wandb_callbacks.UploadCheckpointsAsArtifact
+#  ckpt_dir: "{current_experiment_dir}/checkpoints/"
+#  upload_best_only: True
 
 #log_f1_precision_recall_heatmap:
 #  _target_: base.callbacks.wandb_callbacks.LogF1PrecRecHeatmap
