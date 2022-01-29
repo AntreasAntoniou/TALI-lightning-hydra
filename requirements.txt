@@ -50,3 +50,4 @@ tqdm
 testresources
 # --------scaling up on the cloud ----------#
 ray
+GPUtil

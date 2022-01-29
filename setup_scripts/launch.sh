@@ -6,6 +6,8 @@ conda activate tali
 
 cd $CODE_DIR
 git pull
+pip install -r $CODE_DIR/requirements.txt
+
 
 bash $CODE_DIR/setup_scripts/setup_base_experiment_disk.sh
 bash $CODE_DIR/setup_scripts/setup_wandb_credentials.sh
