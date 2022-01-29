@@ -49,7 +49,7 @@ def main():
         "base_modus_prime_resnet50",
         "base_modus_prime_vi-transformer16",
     ]:
-        score = np.sum([config.use_text_modality, config.use_audio_modality])
+        score = np.sum(np.array([config.use_text_modality, config.use_audio_modality]).astype(np.int32))
 
         num_gpus = 8 if config.use_video_modality else 2 * score
 
@@ -57,7 +57,7 @@ def main():
         "centi_modus_prime_resnet50",
         "centi_modus_prime_vi-transformer16",
     ]:
-        score = np.sum([config.use_text_modality, config.use_audio_modality])
+        score = np.sum(np.array([config.use_text_modality, config.use_audio_modality]).astype(np.int32))
 
         num_gpus = 2 if config.use_video_modality else 1
     else:
