@@ -38,7 +38,7 @@ batch_size: null
 # seed for random number generators in pytorch, numpy and python.random
 seed: 20221601
 
-wandb_project_name: 'TALI-gcp-sweep-1'
+wandb_project_name: ${env:WANDB_PROJECT}
 # name of the run, should be used along with experiment mode
 name: ${wandb_project_name}-${datamodule.config.dataset_name}-${model.name}-${datamodule.config.modality_config.name}-${seed}
 
@@ -47,6 +47,3 @@ root_experiment_dir: ${env:EXPERIMENTS_DIR}
 current_experiment_dir: ${root_experiment_dir}/${name}/
 # path to folder with data
 data_dir: ${env:DATASET_DIR}
-callbacks:
-  model_checkpoint_train:
-    every_n_train_steps: 2500

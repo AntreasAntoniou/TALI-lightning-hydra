@@ -32,7 +32,7 @@ datamodule.config.training_set_size_identifier=milli \
 datamodule.config.modality_config.image=True \
 datamodule.config.modality_config.text=True \
 datamodule.config.modality_config.audio=True \
-datamodule.config.modality_config.video=True \
+datamodule.config.modality_config.video=False \
 callbacks.model_checkpoint_train.every_n_train_steps=2500
 
 #for i in {0..9}
