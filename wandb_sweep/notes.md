@@ -22,3 +22,5 @@
 ````
 /mnt/disk/tali/experiments//TALI-gcp-sweep-1-milli-tali-centi_modus_prime_resnet50-video-False-audio-True-text-True-image-True-20221601//checkpoints/
 ````
+
+Write script that generates scripts that include the target command in the startup script of an instance, and also starts said instance. This is probably by far the easiest and most well controlled way of doing what we need without many bells or whistles.

@@ -7,7 +7,7 @@
 # datamodule.config.modality_config.text=False
 # datamodule.config.modality_config.video=False
 # datamodule.config.modality_config.audio=True
-
+import numpy as np
 
 def main():
     # batch_size and gpus should be set by model
@@ -37,6 +37,37 @@ def main():
                                 batch_size = system_config["batch_size"]
                                 num_gpus = system_config["num_gpus"]
                                 model_name = system_config["model_name"]
+
+                                if model_name in [
+                                    "base_modus_prime_resnet50",
+                                    "base_modus_prime_vi-transformer16",
+                                ]:
+                                    score = np.sum(np.array([use_text_modality,
+                                                             use_audio_modality]).astype(
+                                        np.int32))
+
+                                    num_gpus = 8 if use_video_modality else 2 * score
+
+                                elif model_name in [
+                                    "centi_modus_prime_resnet50",
+                                    "centi_modus_prime_vi-transformer16",
+                                ]:
+                                    score = np.sum(np.array([use_text_modality,
+                                                             use_audio_modality]).astype(
+                                        np.int32))
+
+                                    num_gpus = 2 if use_video_modality else 1
+                                else:
+                                    raise NotImplementedError(
+                                        f"Given config does not fall into "
+                                        f"the expected patterns "
+                                        f"dataset_name: {dataset_name} "
+                                        f"system_config: {system_config} "
+                                        f"use_audio_modality: {use_audio_modality} "
+                                        f"use_image_modality: {use_image_modality} "
+                                        f"use_video_modality: {use_video_modality} "
+                                        f"use_text_modality: {use_text_modality}")
+
                                 template_command = (
                                     f"fuser -k /dev/nvidia*; \\\n"
                                     f"python $CODE_DIR/run.py \\\n"
