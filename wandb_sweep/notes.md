@@ -6,7 +6,7 @@
 
 - centi + image + text = 1g for 64 batch size (can probably fit 256)
 - centi + image + text + audio = 1g for 64 batch size
-- centi + image + text + audio + video = 4g for 64 batch size (can probably fit 96+)
+- centi + image + text + audio + video = 2g for 64 batch size (70% memory utilized can probably fit 96)
 
 ### ViTransformer16
 
@@ -16,7 +16,7 @@
 
 - centi + image + text = 1g for 64 batch size (can probably fit 256)
 - centi + image + text + audio = 1g for 64 batch size <-
-- centi + image + text + audio + video = 4g for 64 batch size (can probably fit 96+)
+- centi + image + text + audio + video = 2g for 64 batch size 
 
 
 ````

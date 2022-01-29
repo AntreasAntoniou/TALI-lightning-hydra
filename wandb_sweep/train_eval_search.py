@@ -7,13 +7,27 @@ Designed to show wandb integration with pytorch.
 """
 
 import os
+import random
+from time import sleep
 
 import torch
+import numpy as np
+import GPUtil
 import wandb
 
 from base import utils
 
 log = utils.get_logger(__name__)
+
+# write remote script that interfaces with wandb to launch a machine with specific GPUs
+# and run single experiment, then kill machine
+
+
+# single_gpu_config=[dict(use_image_modality=True,
+#                         use_audio_modality=[True, False],
+#                         use_text_modality=[True, False],
+#                         use_video_modality=False)]
+
 
 hyperparameter_defaults = dict(
     use_image_modality=True,
@@ -22,7 +36,6 @@ hyperparameter_defaults = dict(
     use_text_modality=True,
     datamodule_name="base",
     model_name="base_modus_prime_resnet50",
-    num_gpus=8,
     batch_size=64,
 )
 
@@ -31,15 +44,43 @@ config = wandb.config
 
 
 def main():
+
+    if config.model_name in [
+        "base_modus_prime_resnet50",
+        "base_modus_prime_vi-transformer16",
+    ]:
+        score = np.sum([config.use_text_modality, config.use_audio_modality])
+
+        num_gpus = 8 if config.use_video_modality else 2 * score
+
+    elif config.model_name in [
+        "centi_modus_prime_resnet50",
+        "centi_modus_prime_vi-transformer16",
+    ]:
+        score = np.sum([config.use_text_modality, config.use_audio_modality])
+
+        num_gpus = 2 if config.use_video_modality else 1
+    else:
+        raise NotImplementedError(f"Given config does not fall into "
+                                  f"the expected patterns {config}")
+
+    deviceIDs = []
+
+    while len(deviceIDs) < num_gpus:
+        sleep(random.randint(0, 60))
+        deviceIDs = GPUtil.getAvailable(order='first', limit=8, maxLoad=0.001,
+                                        maxMemory=0.001, includeNan=False, excludeID=[],
+                                        excludeUUID=[])
+
     template_command = (
         f"fuser -k /dev/nvidia*; "
         f"python $CODE_DIR/run.py hydra.verbose=True trainer=default "
         f"resume=True batch_size={config.batch_size} "
         f"wandb_project_name=TALI-gcp-sweep-1 "
-        f"trainer.gpus={config.num_gpus} "
+        f"trainer.gpus={num_gpus} "
         f"trainer.auto_scale_batch_size=False "
         f"datamodule.config.rescan_paths=True datamodule.prefetch_factor=3 "
-        f"datamodule.num_workers={config.num_workers} "
+        f"datamodule.num_workers={int(num_gpus * 12)} "
         f"model={config.model_name} "
         f"datamodule.config.training_set_size_identifier={config.datamodule_name} "
         f"datamodule.config.modality_config.image={config.use_image_modality} "

@@ -7,8 +7,6 @@ parameters:
     distribution: categorical
     values:
     - milli
-#    - centi
-#    - deci
     - base
   model_options:
     distribution: categorical
@@ -37,3 +35,4 @@ parameters:
     - "false"
     - "true"
 program: wandb_sweep/train_eval_search.py
+
