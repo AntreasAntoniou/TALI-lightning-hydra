@@ -68,7 +68,7 @@ def main():
 
     while len(deviceIDs) < num_gpus:
         log.info(f'Need {num_gpus} GPUs, but have access to {len(deviceIDs)} 🏋🖥\n'
-                 f'Waiting for GPUs to become available..🪑')
+                 f'Waiting for GPUs to become available..🐈🪑')
         sleep(random.randint(0, 60))
         deviceIDs = GPUtil.getAvailable(order='first', limit=8, maxLoad=0.001,
                                         maxMemory=0.001, includeNan=False, excludeID=[],
