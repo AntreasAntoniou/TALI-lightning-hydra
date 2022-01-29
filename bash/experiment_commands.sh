@@ -1,252 +1,1064 @@
-python run.py hydra.verbose=True trainer=default resume=True batch_size=16 trainer.gpus=1 trainer.auto_scale_batch_size=True model=milli_modus_prime_resnet50 datamodule=base-tali datamodule.config.modality_config.image=True datamodule.config.modality_config.text=True datamodule.config.modality_config.audio=False datamodule.config.modality_config.video=False
-
-python run.py hydra.verbose=True trainer=default resume=True batch_size=8 trainer.gpus=1 trainer.auto_scale_batch_size=True model=centi_modus_prime_resnet50 datamodule=base-tali datamodule.config.modality_config.image=True datamodule.config.modality_config.text=True datamodule.config.modality_config.audio=True datamodule.config.modality_config.video=True
-
-python run.py hydra.verbose=True trainer=default resume=True batch_size=10 trainer.gpus=1 trainer.auto_scale_batch_size=True model=deci_modus_prime_resnet50 datamodule=base-tali datamodule.config.modality_config.image=True datamodule.config.modality_config.text=True datamodule.config.modality_config.audio=False datamodule.config.modality_config.video=False
-
-python run.py hydra.verbose=True trainer=default resume=True batch_size=4 trainer.gpus=1 trainer.auto_scale_batch_size=True model=base-deci-hybrid_modus_prime_resnet50 datamodule=base-tali datamodule.config.modality_config.image=True datamodule.config.modality_config.text=True datamodule.config.modality_config.audio=False datamodule.config.modality_config.video=False
-
-python run.py hydra.verbose=True trainer=default resume=True batch_size=10 trainer.gpus=2 trainer.auto_scale_batch_size=True model=base_modus_prime_resnet50 datamodule=base-tali datamodule.config.modality_config.image=True datamodule.config.modality_config.text=True datamodule.config.modality_config.audio=False datamodule.config.modality_config.video=False
-
-python run.py hydra.verbose=True trainer=default resume=True batch_size=16 trainer.gpus=1 trainer.auto_scale_batch_size=True model=milli_modus_prime_vi-transformer16 datamodule=base-tali datamodule.config.modality_config.image=True datamodule.config.modality_config.text=True datamodule.config.modality_config.audio=False datamodule.config.modality_config.video=False
-
-python run.py hydra.verbose=True trainer=default resume=True batch_size=8 trainer.gpus=1 trainer.auto_scale_batch_size=True model=centi_modus_prime_vi-transformer16 datamodule=base-tali datamodule.config.modality_config.image=True datamodule.config.modality_config.text=True datamodule.config.modality_config.audio=False datamodule.config.modality_config.video=False
-
-python run.py hydra.verbose=True trainer=default resume=True batch_size=4 trainer.gpus=1 trainer.auto_scale_batch_size=True model=deci_modus_prime_vi-transformer16 datamodule=base-tali datamodule.config.modality_config.image=True datamodule.config.modality_config.text=True datamodule.config.modality_config.audio=False datamodule.config.modality_config.video=False
-
-python run.py hydra.verbose=True trainer=default resume=True batch_size=2 trainer.gpus=1 trainer.auto_scale_batch_size=True model=base_modus_prime_vi-transformer16 datamodule=base-tali datamodule.config.modality_config.image=True datamodule.config.modality_config.text=True datamodule.config.modality_config.audio=False datamodule.config.modality_config.video=False
-
-python run.py hydra.verbose=True trainer=default resume=True batch_size=16 trainer.gpus=1 trainer.auto_scale_batch_size=True model=milli_modus_prime_resnet50 datamodule=hecta-tali datamodule.config.modality_config.image=True datamodule.config.modality_config.text=True datamodule.config.modality_config.audio=False datamodule.config.modality_config.video=False
-
-python run.py hydra.verbose=True trainer=default resume=True batch_size=8 trainer.gpus=1 trainer.auto_scale_batch_size=True model=centi_modus_prime_resnet50 datamodule=hecta-tali datamodule.config.modality_config.image=True datamodule.config.modality_config.text=True datamodule.config.modality_config.audio=False datamodule.config.modality_config.video=False
-
-python run.py hydra.verbose=True trainer=default resume=True batch_size=10 trainer.gpus=1 trainer.auto_scale_batch_size=True model=deci_modus_prime_resnet50 datamodule=hecta-tali datamodule.config.modality_config.image=True datamodule.config.modality_config.text=True datamodule.config.modality_config.audio=False datamodule.config.modality_config.video=False
-
-python run.py hydra.verbose=True trainer=default resume=True batch_size=4 trainer.gpus=1 trainer.auto_scale_batch_size=True model=base-deci-hybrid_modus_prime_resnet50 datamodule=hecta-tali datamodule.config.modality_config.image=True datamodule.config.modality_config.text=True datamodule.config.modality_config.audio=False datamodule.config.modality_config.video=False
-
-python run.py hydra.verbose=True trainer=default resume=True batch_size=10 trainer.gpus=2 trainer.auto_scale_batch_size=True model=base_modus_prime_resnet50 datamodule=hecta-tali datamodule.config.modality_config.image=True datamodule.config.modality_config.text=True datamodule.config.modality_config.audio=False datamodule.config.modality_config.video=False
-
-python run.py hydra.verbose=True trainer=default resume=True batch_size=16 trainer.gpus=1 trainer.auto_scale_batch_size=True model=milli_modus_prime_vi-transformer16 datamodule=hecta-tali datamodule.config.modality_config.image=True datamodule.config.modality_config.text=True datamodule.config.modality_config.audio=False datamodule.config.modality_config.video=False
-
-python run.py hydra.verbose=True trainer=default resume=True batch_size=8 trainer.gpus=1 trainer.auto_scale_batch_size=True model=centi_modus_prime_vi-transformer16 datamodule=hecta-tali datamodule.config.modality_config.image=True datamodule.config.modality_config.text=True datamodule.config.modality_config.audio=False datamodule.config.modality_config.video=False
-
-python run.py hydra.verbose=True trainer=default resume=True batch_size=4 trainer.gpus=1 trainer.auto_scale_batch_size=True model=deci_modus_prime_vi-transformer16 datamodule=hecta-tali datamodule.config.modality_config.image=True datamodule.config.modality_config.text=True datamodule.config.modality_config.audio=False datamodule.config.modality_config.video=False
-
-python run.py hydra.verbose=True trainer=default resume=True batch_size=2 trainer.gpus=1 trainer.auto_scale_batch_size=True model=base_modus_prime_vi-transformer16 datamodule=hecta-tali datamodule.config.modality_config.image=True datamodule.config.modality_config.text=True datamodule.config.modality_config.audio=False datamodule.config.modality_config.video=False
-
-python run.py hydra.verbose=True trainer=default resume=True batch_size=16 trainer.gpus=1 trainer.auto_scale_batch_size=True model=milli_modus_prime_resnet50 datamodule=base-tali datamodule.config.modality_config.image=True datamodule.config.modality_config.text=False datamodule.config.modality_config.audio=False datamodule.config.modality_config.video=True
-
-python run.py hydra.verbose=True trainer=default resume=True batch_size=8 trainer.gpus=1 trainer.auto_scale_batch_size=True model=centi_modus_prime_resnet50 datamodule=base-tali datamodule.config.modality_config.image=True datamodule.config.modality_config.text=False datamodule.config.modality_config.audio=False datamodule.config.modality_config.video=True
-
-python run.py hydra.verbose=True trainer=default resume=True batch_size=10 trainer.gpus=1 trainer.auto_scale_batch_size=True model=deci_modus_prime_resnet50 datamodule=base-tali datamodule.config.modality_config.image=True datamodule.config.modality_config.text=False datamodule.config.modality_config.audio=False datamodule.config.modality_config.video=True
-
-python run.py hydra.verbose=True trainer=default resume=True batch_size=4 trainer.gpus=1 trainer.auto_scale_batch_size=True model=base-deci-hybrid_modus_prime_resnet50 datamodule=base-tali datamodule.config.modality_config.image=True datamodule.config.modality_config.text=False datamodule.config.modality_config.audio=False datamodule.config.modality_config.video=True
-
-python run.py hydra.verbose=True trainer=default resume=True batch_size=10 trainer.gpus=2 trainer.auto_scale_batch_size=True model=base_modus_prime_resnet50 datamodule=base-tali datamodule.config.modality_config.image=True datamodule.config.modality_config.text=False datamodule.config.modality_config.audio=False datamodule.config.modality_config.video=True
-
-python run.py hydra.verbose=True trainer=default resume=True batch_size=16 trainer.gpus=1 trainer.auto_scale_batch_size=True model=milli_modus_prime_vi-transformer16 datamodule=base-tali datamodule.config.modality_config.image=True datamodule.config.modality_config.text=False datamodule.config.modality_config.audio=False datamodule.config.modality_config.video=True
-
-python run.py hydra.verbose=True trainer=default resume=True batch_size=8 trainer.gpus=1 trainer.auto_scale_batch_size=True model=centi_modus_prime_vi-transformer16 datamodule=base-tali datamodule.config.modality_config.image=True datamodule.config.modality_config.text=False datamodule.config.modality_config.audio=False datamodule.config.modality_config.video=True
-
-python run.py hydra.verbose=True trainer=default resume=True batch_size=4 trainer.gpus=1 trainer.auto_scale_batch_size=True model=deci_modus_prime_vi-transformer16 datamodule=base-tali datamodule.config.modality_config.image=True datamodule.config.modality_config.text=False datamodule.config.modality_config.audio=False datamodule.config.modality_config.video=True
-
-python run.py hydra.verbose=True trainer=default resume=True batch_size=2 trainer.gpus=1 trainer.auto_scale_batch_size=True model=base_modus_prime_vi-transformer16 datamodule=base-tali datamodule.config.modality_config.image=True datamodule.config.modality_config.text=False datamodule.config.modality_config.audio=False datamodule.config.modality_config.video=True
-
-python run.py hydra.verbose=True trainer=default resume=True batch_size=16 trainer.gpus=1 trainer.auto_scale_batch_size=True model=milli_modus_prime_resnet50 datamodule=hecta-tali datamodule.config.modality_config.image=True datamodule.config.modality_config.text=False datamodule.config.modality_config.audio=False datamodule.config.modality_config.video=True
-
-python run.py hydra.verbose=True trainer=default resume=True batch_size=8 trainer.gpus=1 trainer.auto_scale_batch_size=True model=centi_modus_prime_resnet50 datamodule=hecta-tali datamodule.config.modality_config.image=True datamodule.config.modality_config.text=False datamodule.config.modality_config.audio=False datamodule.config.modality_config.video=True
-
-python run.py hydra.verbose=True trainer=default resume=True batch_size=10 trainer.gpus=1 trainer.auto_scale_batch_size=True model=deci_modus_prime_resnet50 datamodule=hecta-tali datamodule.config.modality_config.image=True datamodule.config.modality_config.text=False datamodule.config.modality_config.audio=False datamodule.config.modality_config.video=True
-
-python run.py hydra.verbose=True trainer=default resume=True batch_size=4 trainer.gpus=1 trainer.auto_scale_batch_size=True model=base-deci-hybrid_modus_prime_resnet50 datamodule=hecta-tali datamodule.config.modality_config.image=True datamodule.config.modality_config.text=False datamodule.config.modality_config.audio=False datamodule.config.modality_config.video=True
-
-python run.py hydra.verbose=True trainer=default resume=True batch_size=10 trainer.gpus=2 trainer.auto_scale_batch_size=True model=base_modus_prime_resnet50 datamodule=hecta-tali datamodule.config.modality_config.image=True datamodule.config.modality_config.text=False datamodule.config.modality_config.audio=False datamodule.config.modality_config.video=True
-
-python run.py hydra.verbose=True trainer=default resume=True batch_size=16 trainer.gpus=1 trainer.auto_scale_batch_size=True model=milli_modus_prime_vi-transformer16 datamodule=hecta-tali datamodule.config.modality_config.image=True datamodule.config.modality_config.text=False datamodule.config.modality_config.audio=False datamodule.config.modality_config.video=True
-
-python run.py hydra.verbose=True trainer=default resume=True batch_size=8 trainer.gpus=1 trainer.auto_scale_batch_size=True model=centi_modus_prime_vi-transformer16 datamodule=hecta-tali datamodule.config.modality_config.image=True datamodule.config.modality_config.text=False datamodule.config.modality_config.audio=False datamodule.config.modality_config.video=True
-
-python run.py hydra.verbose=True trainer=default resume=True batch_size=4 trainer.gpus=1 trainer.auto_scale_batch_size=True model=deci_modus_prime_vi-transformer16 datamodule=hecta-tali datamodule.config.modality_config.image=True datamodule.config.modality_config.text=False datamodule.config.modality_config.audio=False datamodule.config.modality_config.video=True
-
-python run.py hydra.verbose=True trainer=default resume=True batch_size=2 trainer.gpus=1 trainer.auto_scale_batch_size=True model=base_modus_prime_vi-transformer16 datamodule=hecta-tali datamodule.config.modality_config.image=True datamodule.config.modality_config.text=False datamodule.config.modality_config.audio=False datamodule.config.modality_config.video=True
-
-python run.py hydra.verbose=True trainer=default resume=True batch_size=16 trainer.gpus=1 trainer.auto_scale_batch_size=True model=milli_modus_prime_resnet50 datamodule=base-tali datamodule.config.modality_config.image=True datamodule.config.modality_config.text=True datamodule.config.modality_config.audio=False datamodule.config.modality_config.video=True
-
-python run.py hydra.verbose=True trainer=default resume=True batch_size=8 trainer.gpus=1 trainer.auto_scale_batch_size=True model=centi_modus_prime_resnet50 datamodule=base-tali datamodule.config.modality_config.image=True datamodule.config.modality_config.text=True datamodule.config.modality_config.audio=False datamodule.config.modality_config.video=True
-
-python run.py hydra.verbose=True trainer=default resume=True batch_size=10 trainer.gpus=1 trainer.auto_scale_batch_size=True model=deci_modus_prime_resnet50 datamodule=base-tali datamodule.config.modality_config.image=True datamodule.config.modality_config.text=True datamodule.config.modality_config.audio=False datamodule.config.modality_config.video=True
-
-python run.py hydra.verbose=True trainer=default resume=True batch_size=4 trainer.gpus=1 trainer.auto_scale_batch_size=True model=base-deci-hybrid_modus_prime_resnet50 datamodule=base-tali datamodule.config.modality_config.image=True datamodule.config.modality_config.text=True datamodule.config.modality_config.audio=False datamodule.config.modality_config.video=True
-
-python run.py hydra.verbose=True trainer=default resume=True batch_size=10 trainer.gpus=2 trainer.auto_scale_batch_size=True model=base_modus_prime_resnet50 datamodule=base-tali datamodule.config.modality_config.image=True datamodule.config.modality_config.text=True datamodule.config.modality_config.audio=False datamodule.config.modality_config.video=True
-
-python run.py hydra.verbose=True trainer=default resume=True batch_size=16 trainer.gpus=1 trainer.auto_scale_batch_size=True model=milli_modus_prime_vi-transformer16 datamodule=base-tali datamodule.config.modality_config.image=True datamodule.config.modality_config.text=True datamodule.config.modality_config.audio=False datamodule.config.modality_config.video=True
-
-python run.py hydra.verbose=True trainer=default resume=True batch_size=8 trainer.gpus=1 trainer.auto_scale_batch_size=True model=centi_modus_prime_vi-transformer16 datamodule=base-tali datamodule.config.modality_config.image=True datamodule.config.modality_config.text=True datamodule.config.modality_config.audio=False datamodule.config.modality_config.video=True
-
-python run.py hydra.verbose=True trainer=default resume=True batch_size=4 trainer.gpus=1 trainer.auto_scale_batch_size=True model=deci_modus_prime_vi-transformer16 datamodule=base-tali datamodule.config.modality_config.image=True datamodule.config.modality_config.text=True datamodule.config.modality_config.audio=False datamodule.config.modality_config.video=True
-
-python run.py hydra.verbose=True trainer=default resume=True batch_size=2 trainer.gpus=1 trainer.auto_scale_batch_size=True model=base_modus_prime_vi-transformer16 datamodule=base-tali datamodule.config.modality_config.image=True datamodule.config.modality_config.text=True datamodule.config.modality_config.audio=False datamodule.config.modality_config.video=True
-
-python run.py hydra.verbose=True trainer=default resume=True batch_size=16 trainer.gpus=1 trainer.auto_scale_batch_size=True model=milli_modus_prime_resnet50 datamodule=hecta-tali datamodule.config.modality_config.image=True datamodule.config.modality_config.text=True datamodule.config.modality_config.audio=False datamodule.config.modality_config.video=True
-
-python run.py hydra.verbose=True trainer=default resume=True batch_size=8 trainer.gpus=1 trainer.auto_scale_batch_size=True model=centi_modus_prime_resnet50 datamodule=hecta-tali datamodule.config.modality_config.image=True datamodule.config.modality_config.text=True datamodule.config.modality_config.audio=False datamodule.config.modality_config.video=True
-
-python run.py hydra.verbose=True trainer=default resume=True batch_size=10 trainer.gpus=1 trainer.auto_scale_batch_size=True model=deci_modus_prime_resnet50 datamodule=hecta-tali datamodule.config.modality_config.image=True datamodule.config.modality_config.text=True datamodule.config.modality_config.audio=False datamodule.config.modality_config.video=True
-
-python run.py hydra.verbose=True trainer=default resume=True batch_size=4 trainer.gpus=1 trainer.auto_scale_batch_size=True model=base-deci-hybrid_modus_prime_resnet50 datamodule=hecta-tali datamodule.config.modality_config.image=True datamodule.config.modality_config.text=True datamodule.config.modality_config.audio=False datamodule.config.modality_config.video=True
-
-python run.py hydra.verbose=True trainer=default resume=True batch_size=10 trainer.gpus=2 trainer.auto_scale_batch_size=True model=base_modus_prime_resnet50 datamodule=hecta-tali datamodule.config.modality_config.image=True datamodule.config.modality_config.text=True datamodule.config.modality_config.audio=False datamodule.config.modality_config.video=True
-
-python run.py hydra.verbose=True trainer=default resume=True batch_size=16 trainer.gpus=1 trainer.auto_scale_batch_size=True model=milli_modus_prime_vi-transformer16 datamodule=hecta-tali datamodule.config.modality_config.image=True datamodule.config.modality_config.text=True datamodule.config.modality_config.audio=False datamodule.config.modality_config.video=True
-
-python run.py hydra.verbose=True trainer=default resume=True batch_size=8 trainer.gpus=1 trainer.auto_scale_batch_size=True model=centi_modus_prime_vi-transformer16 datamodule=hecta-tali datamodule.config.modality_config.image=True datamodule.config.modality_config.text=True datamodule.config.modality_config.audio=False datamodule.config.modality_config.video=True
-
-python run.py hydra.verbose=True trainer=default resume=True batch_size=4 trainer.gpus=1 trainer.auto_scale_batch_size=True model=deci_modus_prime_vi-transformer16 datamodule=hecta-tali datamodule.config.modality_config.image=True datamodule.config.modality_config.text=True datamodule.config.modality_config.audio=False datamodule.config.modality_config.video=True
-
-python run.py hydra.verbose=True trainer=default resume=True batch_size=2 trainer.gpus=1 trainer.auto_scale_batch_size=True model=base_modus_prime_vi-transformer16 datamodule=hecta-tali datamodule.config.modality_config.image=True datamodule.config.modality_config.text=True datamodule.config.modality_config.audio=False datamodule.config.modality_config.video=True
-
-python run.py hydra.verbose=True trainer=default resume=True batch_size=16 trainer.gpus=1 trainer.auto_scale_batch_size=True model=milli_modus_prime_resnet50 datamodule=base-tali datamodule.config.modality_config.image=True datamodule.config.modality_config.text=False datamodule.config.modality_config.audio=True datamodule.config.modality_config.video=False
-
-python run.py hydra.verbose=True trainer=default resume=True batch_size=8 trainer.gpus=1 trainer.auto_scale_batch_size=True model=centi_modus_prime_resnet50 datamodule=base-tali datamodule.config.modality_config.image=True datamodule.config.modality_config.text=False datamodule.config.modality_config.audio=True datamodule.config.modality_config.video=False
-
-python run.py hydra.verbose=True trainer=default resume=True batch_size=10 trainer.gpus=1 trainer.auto_scale_batch_size=True model=deci_modus_prime_resnet50 datamodule=base-tali datamodule.config.modality_config.image=True datamodule.config.modality_config.text=False datamodule.config.modality_config.audio=True datamodule.config.modality_config.video=False
-
-python run.py hydra.verbose=True trainer=default resume=True batch_size=4 trainer.gpus=1 trainer.auto_scale_batch_size=True model=base-deci-hybrid_modus_prime_resnet50 datamodule=base-tali datamodule.config.modality_config.image=True datamodule.config.modality_config.text=False datamodule.config.modality_config.audio=True datamodule.config.modality_config.video=False
-
-python run.py hydra.verbose=True trainer=default resume=True batch_size=10 trainer.gpus=2 trainer.auto_scale_batch_size=True model=base_modus_prime_resnet50 datamodule=base-tali datamodule.config.modality_config.image=True datamodule.config.modality_config.text=False datamodule.config.modality_config.audio=True datamodule.config.modality_config.video=False
-
-python run.py hydra.verbose=True trainer=default resume=True batch_size=16 trainer.gpus=1 trainer.auto_scale_batch_size=True model=milli_modus_prime_vi-transformer16 datamodule=base-tali datamodule.config.modality_config.image=True datamodule.config.modality_config.text=False datamodule.config.modality_config.audio=True datamodule.config.modality_config.video=False
-
-python run.py hydra.verbose=True trainer=default resume=True batch_size=8 trainer.gpus=1 trainer.auto_scale_batch_size=True model=centi_modus_prime_vi-transformer16 datamodule=base-tali datamodule.config.modality_config.image=True datamodule.config.modality_config.text=False datamodule.config.modality_config.audio=True datamodule.config.modality_config.video=False
-
-python run.py hydra.verbose=True trainer=default resume=True batch_size=4 trainer.gpus=1 trainer.auto_scale_batch_size=True model=deci_modus_prime_vi-transformer16 datamodule=base-tali datamodule.config.modality_config.image=True datamodule.config.modality_config.text=False datamodule.config.modality_config.audio=True datamodule.config.modality_config.video=False
-
-python run.py hydra.verbose=True trainer=default resume=True batch_size=2 trainer.gpus=1 trainer.auto_scale_batch_size=True model=base_modus_prime_vi-transformer16 datamodule=base-tali datamodule.config.modality_config.image=True datamodule.config.modality_config.text=False datamodule.config.modality_config.audio=True datamodule.config.modality_config.video=False
-
-python run.py hydra.verbose=True trainer=default resume=True batch_size=16 trainer.gpus=1 trainer.auto_scale_batch_size=True model=milli_modus_prime_resnet50 datamodule=hecta-tali datamodule.config.modality_config.image=True datamodule.config.modality_config.text=False datamodule.config.modality_config.audio=True datamodule.config.modality_config.video=False
-
-python run.py hydra.verbose=True trainer=default resume=True batch_size=8 trainer.gpus=1 trainer.auto_scale_batch_size=True model=centi_modus_prime_resnet50 datamodule=hecta-tali datamodule.config.modality_config.image=True datamodule.config.modality_config.text=False datamodule.config.modality_config.audio=True datamodule.config.modality_config.video=False
-
-python run.py hydra.verbose=True trainer=default resume=True batch_size=10 trainer.gpus=1 trainer.auto_scale_batch_size=True model=deci_modus_prime_resnet50 datamodule=hecta-tali datamodule.config.modality_config.image=True datamodule.config.modality_config.text=False datamodule.config.modality_config.audio=True datamodule.config.modality_config.video=False
-
-python run.py hydra.verbose=True trainer=default resume=True batch_size=4 trainer.gpus=1 trainer.auto_scale_batch_size=True model=base-deci-hybrid_modus_prime_resnet50 datamodule=hecta-tali datamodule.config.modality_config.image=True datamodule.config.modality_config.text=False datamodule.config.modality_config.audio=True datamodule.config.modality_config.video=False
-
-python run.py hydra.verbose=True trainer=default resume=True batch_size=10 trainer.gpus=2 trainer.auto_scale_batch_size=True model=base_modus_prime_resnet50 datamodule=hecta-tali datamodule.config.modality_config.image=True datamodule.config.modality_config.text=False datamodule.config.modality_config.audio=True datamodule.config.modality_config.video=False
-
-python run.py hydra.verbose=True trainer=default resume=True batch_size=16 trainer.gpus=1 trainer.auto_scale_batch_size=True model=milli_modus_prime_vi-transformer16 datamodule=hecta-tali datamodule.config.modality_config.image=True datamodule.config.modality_config.text=False datamodule.config.modality_config.audio=True datamodule.config.modality_config.video=False
-
-python run.py hydra.verbose=True trainer=default resume=True batch_size=8 trainer.gpus=1 trainer.auto_scale_batch_size=True model=centi_modus_prime_vi-transformer16 datamodule=hecta-tali datamodule.config.modality_config.image=True datamodule.config.modality_config.text=False datamodule.config.modality_config.audio=True datamodule.config.modality_config.video=False
-
-python run.py hydra.verbose=True trainer=default resume=True batch_size=4 trainer.gpus=1 trainer.auto_scale_batch_size=True model=deci_modus_prime_vi-transformer16 datamodule=hecta-tali datamodule.config.modality_config.image=True datamodule.config.modality_config.text=False datamodule.config.modality_config.audio=True datamodule.config.modality_config.video=False
-
-python run.py hydra.verbose=True trainer=default resume=True batch_size=2 trainer.gpus=1 trainer.auto_scale_batch_size=True model=base_modus_prime_vi-transformer16 datamodule=hecta-tali datamodule.config.modality_config.image=True datamodule.config.modality_config.text=False datamodule.config.modality_config.audio=True datamodule.config.modality_config.video=False
-
-python run.py hydra.verbose=True trainer=default resume=True batch_size=16 trainer.gpus=1 trainer.auto_scale_batch_size=True model=milli_modus_prime_resnet50 datamodule=base-tali datamodule.config.modality_config.image=True datamodule.config.modality_config.text=True datamodule.config.modality_config.audio=True datamodule.config.modality_config.video=False
-
-python run.py hydra.verbose=True trainer=default resume=True batch_size=8 trainer.gpus=1 trainer.auto_scale_batch_size=True model=centi_modus_prime_resnet50 datamodule=base-tali datamodule.config.modality_config.image=True datamodule.config.modality_config.text=True datamodule.config.modality_config.audio=True datamodule.config.modality_config.video=False
-
-python run.py hydra.verbose=True trainer=default resume=True batch_size=10 trainer.gpus=1 trainer.auto_scale_batch_size=True model=deci_modus_prime_resnet50 datamodule=base-tali datamodule.config.modality_config.image=True datamodule.config.modality_config.text=True datamodule.config.modality_config.audio=True datamodule.config.modality_config.video=False
-
-python run.py hydra.verbose=True trainer=default resume=True batch_size=4 trainer.gpus=1 trainer.auto_scale_batch_size=True model=base-deci-hybrid_modus_prime_resnet50 datamodule=base-tali datamodule.config.modality_config.image=True datamodule.config.modality_config.text=True datamodule.config.modality_config.audio=True datamodule.config.modality_config.video=False
-
-python run.py hydra.verbose=True trainer=default resume=True batch_size=10 trainer.gpus=2 trainer.auto_scale_batch_size=True model=base_modus_prime_resnet50 datamodule=base-tali datamodule.config.modality_config.image=True datamodule.config.modality_config.text=True datamodule.config.modality_config.audio=True datamodule.config.modality_config.video=False
-
-python run.py hydra.verbose=True trainer=default resume=True batch_size=16 trainer.gpus=1 trainer.auto_scale_batch_size=True model=milli_modus_prime_vi-transformer16 datamodule=base-tali datamodule.config.modality_config.image=True datamodule.config.modality_config.text=True datamodule.config.modality_config.audio=True datamodule.config.modality_config.video=False
-
-python run.py hydra.verbose=True trainer=default resume=True batch_size=8 trainer.gpus=1 trainer.auto_scale_batch_size=True model=centi_modus_prime_vi-transformer16 datamodule=base-tali datamodule.config.modality_config.image=True datamodule.config.modality_config.text=True datamodule.config.modality_config.audio=True datamodule.config.modality_config.video=False
-
-python run.py hydra.verbose=True trainer=default resume=True batch_size=4 trainer.gpus=1 trainer.auto_scale_batch_size=True model=deci_modus_prime_vi-transformer16 datamodule=base-tali datamodule.config.modality_config.image=True datamodule.config.modality_config.text=True datamodule.config.modality_config.audio=True datamodule.config.modality_config.video=False
-
-python run.py hydra.verbose=True trainer=default resume=True batch_size=2 trainer.gpus=1 trainer.auto_scale_batch_size=True model=base_modus_prime_vi-transformer16 datamodule=base-tali datamodule.config.modality_config.image=True datamodule.config.modality_config.text=True datamodule.config.modality_config.audio=True datamodule.config.modality_config.video=False
-
-python run.py hydra.verbose=True trainer=default resume=True batch_size=16 trainer.gpus=1 trainer.auto_scale_batch_size=True model=milli_modus_prime_resnet50 datamodule=hecta-tali datamodule.config.modality_config.image=True datamodule.config.modality_config.text=True datamodule.config.modality_config.audio=True datamodule.config.modality_config.video=False
-
-python run.py hydra.verbose=True trainer=default resume=True batch_size=8 trainer.gpus=1 trainer.auto_scale_batch_size=True model=centi_modus_prime_resnet50 datamodule=hecta-tali datamodule.config.modality_config.image=True datamodule.config.modality_config.text=True datamodule.config.modality_config.audio=True datamodule.config.modality_config.video=False
-
-python run.py hydra.verbose=True trainer=default resume=True batch_size=10 trainer.gpus=1 trainer.auto_scale_batch_size=True model=deci_modus_prime_resnet50 datamodule=hecta-tali datamodule.config.modality_config.image=True datamodule.config.modality_config.text=True datamodule.config.modality_config.audio=True datamodule.config.modality_config.video=False
-
-python run.py hydra.verbose=True trainer=default resume=True batch_size=4 trainer.gpus=1 trainer.auto_scale_batch_size=True model=base-deci-hybrid_modus_prime_resnet50 datamodule=hecta-tali datamodule.config.modality_config.image=True datamodule.config.modality_config.text=True datamodule.config.modality_config.audio=True datamodule.config.modality_config.video=False
-
-python run.py hydra.verbose=True trainer=default resume=True batch_size=10 trainer.gpus=2 trainer.auto_scale_batch_size=True model=base_modus_prime_resnet50 datamodule=hecta-tali datamodule.config.modality_config.image=True datamodule.config.modality_config.text=True datamodule.config.modality_config.audio=True datamodule.config.modality_config.video=False
-
-python run.py hydra.verbose=True trainer=default resume=True batch_size=16 trainer.gpus=1 trainer.auto_scale_batch_size=True model=milli_modus_prime_vi-transformer16 datamodule=hecta-tali datamodule.config.modality_config.image=True datamodule.config.modality_config.text=True datamodule.config.modality_config.audio=True datamodule.config.modality_config.video=False
-
-python run.py hydra.verbose=True trainer=default resume=True batch_size=8 trainer.gpus=1 trainer.auto_scale_batch_size=True model=centi_modus_prime_vi-transformer16 datamodule=hecta-tali datamodule.config.modality_config.image=True datamodule.config.modality_config.text=True datamodule.config.modality_config.audio=True datamodule.config.modality_config.video=False
-
-python run.py hydra.verbose=True trainer=default resume=True batch_size=4 trainer.gpus=1 trainer.auto_scale_batch_size=True model=deci_modus_prime_vi-transformer16 datamodule=hecta-tali datamodule.config.modality_config.image=True datamodule.config.modality_config.text=True datamodule.config.modality_config.audio=True datamodule.config.modality_config.video=False
-
-python run.py hydra.verbose=True trainer=default resume=True batch_size=2 trainer.gpus=1 trainer.auto_scale_batch_size=True model=base_modus_prime_vi-transformer16 datamodule=hecta-tali datamodule.config.modality_config.image=True datamodule.config.modality_config.text=True datamodule.config.modality_config.audio=True datamodule.config.modality_config.video=False
-
-python run.py hydra.verbose=True trainer=default resume=True batch_size=16 trainer.gpus=1 trainer.auto_scale_batch_size=True model=milli_modus_prime_resnet50 datamodule=base-tali datamodule.config.modality_config.image=True datamodule.config.modality_config.text=False datamodule.config.modality_config.audio=True datamodule.config.modality_config.video=True
-
-python run.py hydra.verbose=True trainer=default resume=True batch_size=8 trainer.gpus=1 trainer.auto_scale_batch_size=True model=centi_modus_prime_resnet50 datamodule=base-tali datamodule.config.modality_config.image=True datamodule.config.modality_config.text=False datamodule.config.modality_config.audio=True datamodule.config.modality_config.video=True
-
-python run.py hydra.verbose=True trainer=default resume=True batch_size=10 trainer.gpus=1 trainer.auto_scale_batch_size=True model=deci_modus_prime_resnet50 datamodule=base-tali datamodule.config.modality_config.image=True datamodule.config.modality_config.text=False datamodule.config.modality_config.audio=True datamodule.config.modality_config.video=True
-
-python run.py hydra.verbose=True trainer=default resume=True batch_size=4 trainer.gpus=1 trainer.auto_scale_batch_size=True model=base-deci-hybrid_modus_prime_resnet50 datamodule=base-tali datamodule.config.modality_config.image=True datamodule.config.modality_config.text=False datamodule.config.modality_config.audio=True datamodule.config.modality_config.video=True
-
-python run.py hydra.verbose=True trainer=default resume=True batch_size=10 trainer.gpus=2 trainer.auto_scale_batch_size=True model=base_modus_prime_resnet50 datamodule=base-tali datamodule.config.modality_config.image=True datamodule.config.modality_config.text=False datamodule.config.modality_config.audio=True datamodule.config.modality_config.video=True
-
-python run.py hydra.verbose=True trainer=default resume=True batch_size=16 trainer.gpus=1 trainer.auto_scale_batch_size=True model=milli_modus_prime_vi-transformer16 datamodule=base-tali datamodule.config.modality_config.image=True datamodule.config.modality_config.text=False datamodule.config.modality_config.audio=True datamodule.config.modality_config.video=True
-
-python run.py hydra.verbose=True trainer=default resume=True batch_size=8 trainer.gpus=1 trainer.auto_scale_batch_size=True model=centi_modus_prime_vi-transformer16 datamodule=base-tali datamodule.config.modality_config.image=True datamodule.config.modality_config.text=False datamodule.config.modality_config.audio=True datamodule.config.modality_config.video=True
-
-python run.py hydra.verbose=True trainer=default resume=True batch_size=4 trainer.gpus=1 trainer.auto_scale_batch_size=True model=deci_modus_prime_vi-transformer16 datamodule=base-tali datamodule.config.modality_config.image=True datamodule.config.modality_config.text=False datamodule.config.modality_config.audio=True datamodule.config.modality_config.video=True
-
-python run.py hydra.verbose=True trainer=default resume=True batch_size=2 trainer.gpus=1 trainer.auto_scale_batch_size=True model=base_modus_prime_vi-transformer16 datamodule=base-tali datamodule.config.modality_config.image=True datamodule.config.modality_config.text=False datamodule.config.modality_config.audio=True datamodule.config.modality_config.video=True
-
-python run.py hydra.verbose=True trainer=default resume=True batch_size=16 trainer.gpus=1 trainer.auto_scale_batch_size=True model=milli_modus_prime_resnet50 datamodule=hecta-tali datamodule.config.modality_config.image=True datamodule.config.modality_config.text=False datamodule.config.modality_config.audio=True datamodule.config.modality_config.video=True
-
-python run.py hydra.verbose=True trainer=default resume=True batch_size=8 trainer.gpus=1 trainer.auto_scale_batch_size=True model=centi_modus_prime_resnet50 datamodule=hecta-tali datamodule.config.modality_config.image=True datamodule.config.modality_config.text=False datamodule.config.modality_config.audio=True datamodule.config.modality_config.video=True
-
-python run.py hydra.verbose=True trainer=default resume=True batch_size=10 trainer.gpus=1 trainer.auto_scale_batch_size=True model=deci_modus_prime_resnet50 datamodule=hecta-tali datamodule.config.modality_config.image=True datamodule.config.modality_config.text=False datamodule.config.modality_config.audio=True datamodule.config.modality_config.video=True
-
-python run.py hydra.verbose=True trainer=default resume=True batch_size=4 trainer.gpus=1 trainer.auto_scale_batch_size=True model=base-deci-hybrid_modus_prime_resnet50 datamodule=hecta-tali datamodule.config.modality_config.image=True datamodule.config.modality_config.text=False datamodule.config.modality_config.audio=True datamodule.config.modality_config.video=True
-
-python run.py hydra.verbose=True trainer=default resume=True batch_size=10 trainer.gpus=2 trainer.auto_scale_batch_size=True model=base_modus_prime_resnet50 datamodule=hecta-tali datamodule.config.modality_config.image=True datamodule.config.modality_config.text=False datamodule.config.modality_config.audio=True datamodule.config.modality_config.video=True
-
-python run.py hydra.verbose=True trainer=default resume=True batch_size=16 trainer.gpus=1 trainer.auto_scale_batch_size=True model=milli_modus_prime_vi-transformer16 datamodule=hecta-tali datamodule.config.modality_config.image=True datamodule.config.modality_config.text=False datamodule.config.modality_config.audio=True datamodule.config.modality_config.video=True
-
-python run.py hydra.verbose=True trainer=default resume=True batch_size=8 trainer.gpus=1 trainer.auto_scale_batch_size=True model=centi_modus_prime_vi-transformer16 datamodule=hecta-tali datamodule.config.modality_config.image=True datamodule.config.modality_config.text=False datamodule.config.modality_config.audio=True datamodule.config.modality_config.video=True
-
-python run.py hydra.verbose=True trainer=default resume=True batch_size=4 trainer.gpus=1 trainer.auto_scale_batch_size=True model=deci_modus_prime_vi-transformer16 datamodule=hecta-tali datamodule.config.modality_config.image=True datamodule.config.modality_config.text=False datamodule.config.modality_config.audio=True datamodule.config.modality_config.video=True
-
-python run.py hydra.verbose=True trainer=default resume=True batch_size=2 trainer.gpus=1 trainer.auto_scale_batch_size=True model=base_modus_prime_vi-transformer16 datamodule=hecta-tali datamodule.config.modality_config.image=True datamodule.config.modality_config.text=False datamodule.config.modality_config.audio=True datamodule.config.modality_config.video=True
-
-python run.py hydra.verbose=True trainer=default resume=True batch_size=16 trainer.gpus=1 trainer.auto_scale_batch_size=True model=milli_modus_prime_resnet50 datamodule=base-tali datamodule.config.modality_config.image=True datamodule.config.modality_config.text=True datamodule.config.modality_config.audio=True datamodule.config.modality_config.video=True
-
-python run.py hydra.verbose=True trainer=default resume=True batch_size=8 trainer.gpus=1 trainer.auto_scale_batch_size=True model=centi_modus_prime_resnet50 datamodule=base-tali datamodule.config.modality_config.image=True datamodule.config.modality_config.text=True datamodule.config.modality_config.audio=True datamodule.config.modality_config.video=True
-
-python run.py hydra.verbose=True trainer=default resume=True batch_size=10 trainer.gpus=1 trainer.auto_scale_batch_size=True model=deci_modus_prime_resnet50 datamodule=base-tali datamodule.config.modality_config.image=True datamodule.config.modality_config.text=True datamodule.config.modality_config.audio=True datamodule.config.modality_config.video=True
-
-python run.py hydra.verbose=True trainer=default resume=True batch_size=4 trainer.gpus=1 trainer.auto_scale_batch_size=True model=base-deci-hybrid_modus_prime_resnet50 datamodule=base-tali datamodule.config.modality_config.image=True datamodule.config.modality_config.text=True datamodule.config.modality_config.audio=True datamodule.config.modality_config.video=True
-
-python run.py hydra.verbose=True trainer=default resume=True batch_size=10 trainer.gpus=2 trainer.auto_scale_batch_size=True model=base_modus_prime_resnet50 datamodule=base-tali datamodule.config.modality_config.image=True datamodule.config.modality_config.text=True datamodule.config.modality_config.audio=True datamodule.config.modality_config.video=True
-
-python run.py hydra.verbose=True trainer=default resume=True batch_size=16 trainer.gpus=1 trainer.auto_scale_batch_size=True model=milli_modus_prime_vi-transformer16 datamodule=base-tali datamodule.config.modality_config.image=True datamodule.config.modality_config.text=True datamodule.config.modality_config.audio=True datamodule.config.modality_config.video=True
-
-python run.py hydra.verbose=True trainer=default resume=True batch_size=8 trainer.gpus=1 trainer.auto_scale_batch_size=True model=centi_modus_prime_vi-transformer16 datamodule=base-tali datamodule.config.modality_config.image=True datamodule.config.modality_config.text=True datamodule.config.modality_config.audio=True datamodule.config.modality_config.video=True
-
-python run.py hydra.verbose=True trainer=default resume=True batch_size=4 trainer.gpus=1 trainer.auto_scale_batch_size=True model=deci_modus_prime_vi-transformer16 datamodule=base-tali datamodule.config.modality_config.image=True datamodule.config.modality_config.text=True datamodule.config.modality_config.audio=True datamodule.config.modality_config.video=True
-
-python run.py hydra.verbose=True trainer=default resume=True batch_size=2 trainer.gpus=1 trainer.auto_scale_batch_size=True model=base_modus_prime_vi-transformer16 datamodule=base-tali datamodule.config.modality_config.image=True datamodule.config.modality_config.text=True datamodule.config.modality_config.audio=True datamodule.config.modality_config.video=True
-
-python run.py hydra.verbose=True trainer=default resume=True batch_size=16 trainer.gpus=1 trainer.auto_scale_batch_size=True model=milli_modus_prime_resnet50 datamodule=hecta-tali datamodule.config.modality_config.image=True datamodule.config.modality_config.text=True datamodule.config.modality_config.audio=True datamodule.config.modality_config.video=True
-
-python run.py hydra.verbose=True trainer=default resume=True batch_size=8 trainer.gpus=1 trainer.auto_scale_batch_size=True model=centi_modus_prime_resnet50 datamodule=hecta-tali datamodule.config.modality_config.image=True datamodule.config.modality_config.text=True datamodule.config.modality_config.audio=True datamodule.config.modality_config.video=True
-
-python run.py hydra.verbose=True trainer=default resume=True batch_size=10 trainer.gpus=1 trainer.auto_scale_batch_size=True model=deci_modus_prime_resnet50 datamodule=hecta-tali datamodule.config.modality_config.image=True datamodule.config.modality_config.text=True datamodule.config.modality_config.audio=True datamodule.config.modality_config.video=True
-
-python run.py hydra.verbose=True trainer=default resume=True batch_size=4 trainer.gpus=1 trainer.auto_scale_batch_size=True model=base-deci-hybrid_modus_prime_resnet50 datamodule=hecta-tali datamodule.config.modality_config.image=True datamodule.config.modality_config.text=True datamodule.config.modality_config.audio=True datamodule.config.modality_config.video=True
-
-python run.py hydra.verbose=True trainer=default resume=True batch_size=10 trainer.gpus=2 trainer.auto_scale_batch_size=True model=base_modus_prime_resnet50 datamodule=hecta-tali datamodule.config.modality_config.image=True datamodule.config.modality_config.text=True datamodule.config.modality_config.audio=True datamodule.config.modality_config.video=True
-
-python run.py hydra.verbose=True trainer=default resume=True batch_size=16 trainer.gpus=1 trainer.auto_scale_batch_size=True model=milli_modus_prime_vi-transformer16 datamodule=hecta-tali datamodule.config.modality_config.image=True datamodule.config.modality_config.text=True datamodule.config.modality_config.audio=True datamodule.config.modality_config.video=True
-
-python run.py hydra.verbose=True trainer=default resume=True batch_size=8 trainer.gpus=1 trainer.auto_scale_batch_size=True model=centi_modus_prime_vi-transformer16 datamodule=hecta-tali datamodule.config.modality_config.image=True datamodule.config.modality_config.text=True datamodule.config.modality_config.audio=True datamodule.config.modality_config.video=True
-
-python run.py hydra.verbose=True trainer=default resume=True batch_size=4 trainer.gpus=1 trainer.auto_scale_batch_size=True model=deci_modus_prime_vi-transformer16 datamodule=hecta-tali datamodule.config.modality_config.image=True datamodule.config.modality_config.text=True datamodule.config.modality_config.audio=True datamodule.config.modality_config.video=True
-
-python run.py hydra.verbose=True trainer=default resume=True batch_size=2 trainer.gpus=1 trainer.auto_scale_batch_size=True model=base_modus_prime_vi-transformer16 datamodule=hecta-tali datamodule.config.modality_config.image=True datamodule.config.modality_config.text=True datamodule.config.modality_config.audio=True datamodule.config.modality_config.video=True
+fuser -k /dev/nvidia*; \
+python $CODE_DIR/run.py \
+hydra.verbose=True \
+trainer=default \
+resume=True \
+batch_size=64 \
+wandb_project_name=TALI-gcp-sweep-1 \
+trainer.gpus=-1 \
+trainer.auto_scale_batch_size=False \
+datamodule.config.rescan_paths=True \
+datamodule.prefetch_factor=3 \
+datamodule.num_workers=-12 \
+model=centi_modus_prime_resnet50 \
+datamodule.config.training_set_size_identifier=base \
+datamodule.config.modality_config.image=True \
+datamodule.config.modality_config.text=True \
+datamodule.config.modality_config.audio=False \
+datamodule.config.modality_config.video=False
+
+fuser -k /dev/nvidia*; \
+python $CODE_DIR/run.py \
+hydra.verbose=True \
+trainer=default \
+resume=True \
+batch_size=64 \
+wandb_project_name=TALI-gcp-sweep-1 \
+trainer.gpus=-1 \
+trainer.auto_scale_batch_size=False \
+datamodule.config.rescan_paths=True \
+datamodule.prefetch_factor=3 \
+datamodule.num_workers=-12 \
+model=centi_modus_prime_resnet50 \
+datamodule.config.training_set_size_identifier=milli \
+datamodule.config.modality_config.image=True \
+datamodule.config.modality_config.text=True \
+datamodule.config.modality_config.audio=False \
+datamodule.config.modality_config.video=False
+
+fuser -k /dev/nvidia*; \
+python $CODE_DIR/run.py \
+hydra.verbose=True \
+trainer=default \
+resume=True \
+batch_size=64 \
+wandb_project_name=TALI-gcp-sweep-1 \
+trainer.gpus=-1 \
+trainer.auto_scale_batch_size=False \
+datamodule.config.rescan_paths=True \
+datamodule.prefetch_factor=3 \
+datamodule.num_workers=-12 \
+model=base_modus_prime_resnet50 \
+datamodule.config.training_set_size_identifier=base \
+datamodule.config.modality_config.image=True \
+datamodule.config.modality_config.text=True \
+datamodule.config.modality_config.audio=False \
+datamodule.config.modality_config.video=False
+
+fuser -k /dev/nvidia*; \
+python $CODE_DIR/run.py \
+hydra.verbose=True \
+trainer=default \
+resume=True \
+batch_size=64 \
+wandb_project_name=TALI-gcp-sweep-1 \
+trainer.gpus=-1 \
+trainer.auto_scale_batch_size=False \
+datamodule.config.rescan_paths=True \
+datamodule.prefetch_factor=3 \
+datamodule.num_workers=-12 \
+model=base_modus_prime_resnet50 \
+datamodule.config.training_set_size_identifier=milli \
+datamodule.config.modality_config.image=True \
+datamodule.config.modality_config.text=True \
+datamodule.config.modality_config.audio=False \
+datamodule.config.modality_config.video=False
+
+fuser -k /dev/nvidia*; \
+python $CODE_DIR/run.py \
+hydra.verbose=True \
+trainer=default \
+resume=True \
+batch_size=64 \
+wandb_project_name=TALI-gcp-sweep-1 \
+trainer.gpus=-1 \
+trainer.auto_scale_batch_size=False \
+datamodule.config.rescan_paths=True \
+datamodule.prefetch_factor=3 \
+datamodule.num_workers=-12 \
+model=centi_modus_prime_vi-transformer16 \
+datamodule.config.training_set_size_identifier=base \
+datamodule.config.modality_config.image=True \
+datamodule.config.modality_config.text=True \
+datamodule.config.modality_config.audio=False \
+datamodule.config.modality_config.video=False
+
+fuser -k /dev/nvidia*; \
+python $CODE_DIR/run.py \
+hydra.verbose=True \
+trainer=default \
+resume=True \
+batch_size=64 \
+wandb_project_name=TALI-gcp-sweep-1 \
+trainer.gpus=-1 \
+trainer.auto_scale_batch_size=False \
+datamodule.config.rescan_paths=True \
+datamodule.prefetch_factor=3 \
+datamodule.num_workers=-12 \
+model=centi_modus_prime_vi-transformer16 \
+datamodule.config.training_set_size_identifier=milli \
+datamodule.config.modality_config.image=True \
+datamodule.config.modality_config.text=True \
+datamodule.config.modality_config.audio=False \
+datamodule.config.modality_config.video=False
+
+fuser -k /dev/nvidia*; \
+python $CODE_DIR/run.py \
+hydra.verbose=True \
+trainer=default \
+resume=True \
+batch_size=64 \
+wandb_project_name=TALI-gcp-sweep-1 \
+trainer.gpus=-1 \
+trainer.auto_scale_batch_size=False \
+datamodule.config.rescan_paths=True \
+datamodule.prefetch_factor=3 \
+datamodule.num_workers=-12 \
+model=base_modus_prime_vi-transformer16 \
+datamodule.config.training_set_size_identifier=base \
+datamodule.config.modality_config.image=True \
+datamodule.config.modality_config.text=True \
+datamodule.config.modality_config.audio=False \
+datamodule.config.modality_config.video=False
+
+fuser -k /dev/nvidia*; \
+python $CODE_DIR/run.py \
+hydra.verbose=True \
+trainer=default \
+resume=True \
+batch_size=64 \
+wandb_project_name=TALI-gcp-sweep-1 \
+trainer.gpus=-1 \
+trainer.auto_scale_batch_size=False \
+datamodule.config.rescan_paths=True \
+datamodule.prefetch_factor=3 \
+datamodule.num_workers=-12 \
+model=base_modus_prime_vi-transformer16 \
+datamodule.config.training_set_size_identifier=milli \
+datamodule.config.modality_config.image=True \
+datamodule.config.modality_config.text=True \
+datamodule.config.modality_config.audio=False \
+datamodule.config.modality_config.video=False
+
+fuser -k /dev/nvidia*; \
+python $CODE_DIR/run.py \
+hydra.verbose=True \
+trainer=default \
+resume=True \
+batch_size=64 \
+wandb_project_name=TALI-gcp-sweep-1 \
+trainer.gpus=-1 \
+trainer.auto_scale_batch_size=False \
+datamodule.config.rescan_paths=True \
+datamodule.prefetch_factor=3 \
+datamodule.num_workers=-12 \
+model=centi_modus_prime_resnet50 \
+datamodule.config.training_set_size_identifier=base \
+datamodule.config.modality_config.image=True \
+datamodule.config.modality_config.text=False \
+datamodule.config.modality_config.audio=False \
+datamodule.config.modality_config.video=True
+
+fuser -k /dev/nvidia*; \
+python $CODE_DIR/run.py \
+hydra.verbose=True \
+trainer=default \
+resume=True \
+batch_size=64 \
+wandb_project_name=TALI-gcp-sweep-1 \
+trainer.gpus=-1 \
+trainer.auto_scale_batch_size=False \
+datamodule.config.rescan_paths=True \
+datamodule.prefetch_factor=3 \
+datamodule.num_workers=-12 \
+model=centi_modus_prime_resnet50 \
+datamodule.config.training_set_size_identifier=milli \
+datamodule.config.modality_config.image=True \
+datamodule.config.modality_config.text=False \
+datamodule.config.modality_config.audio=False \
+datamodule.config.modality_config.video=True
+
+fuser -k /dev/nvidia*; \
+python $CODE_DIR/run.py \
+hydra.verbose=True \
+trainer=default \
+resume=True \
+batch_size=64 \
+wandb_project_name=TALI-gcp-sweep-1 \
+trainer.gpus=-1 \
+trainer.auto_scale_batch_size=False \
+datamodule.config.rescan_paths=True \
+datamodule.prefetch_factor=3 \
+datamodule.num_workers=-12 \
+model=base_modus_prime_resnet50 \
+datamodule.config.training_set_size_identifier=base \
+datamodule.config.modality_config.image=True \
+datamodule.config.modality_config.text=False \
+datamodule.config.modality_config.audio=False \
+datamodule.config.modality_config.video=True
+
+fuser -k /dev/nvidia*; \
+python $CODE_DIR/run.py \
+hydra.verbose=True \
+trainer=default \
+resume=True \
+batch_size=64 \
+wandb_project_name=TALI-gcp-sweep-1 \
+trainer.gpus=-1 \
+trainer.auto_scale_batch_size=False \
+datamodule.config.rescan_paths=True \
+datamodule.prefetch_factor=3 \
+datamodule.num_workers=-12 \
+model=base_modus_prime_resnet50 \
+datamodule.config.training_set_size_identifier=milli \
+datamodule.config.modality_config.image=True \
+datamodule.config.modality_config.text=False \
+datamodule.config.modality_config.audio=False \
+datamodule.config.modality_config.video=True
+
+fuser -k /dev/nvidia*; \
+python $CODE_DIR/run.py \
+hydra.verbose=True \
+trainer=default \
+resume=True \
+batch_size=64 \
+wandb_project_name=TALI-gcp-sweep-1 \
+trainer.gpus=-1 \
+trainer.auto_scale_batch_size=False \
+datamodule.config.rescan_paths=True \
+datamodule.prefetch_factor=3 \
+datamodule.num_workers=-12 \
+model=centi_modus_prime_vi-transformer16 \
+datamodule.config.training_set_size_identifier=base \
+datamodule.config.modality_config.image=True \
+datamodule.config.modality_config.text=False \
+datamodule.config.modality_config.audio=False \
+datamodule.config.modality_config.video=True
+
+fuser -k /dev/nvidia*; \
+python $CODE_DIR/run.py \
+hydra.verbose=True \
+trainer=default \
+resume=True \
+batch_size=64 \
+wandb_project_name=TALI-gcp-sweep-1 \
+trainer.gpus=-1 \
+trainer.auto_scale_batch_size=False \
+datamodule.config.rescan_paths=True \
+datamodule.prefetch_factor=3 \
+datamodule.num_workers=-12 \
+model=centi_modus_prime_vi-transformer16 \
+datamodule.config.training_set_size_identifier=milli \
+datamodule.config.modality_config.image=True \
+datamodule.config.modality_config.text=False \
+datamodule.config.modality_config.audio=False \
+datamodule.config.modality_config.video=True
+
+fuser -k /dev/nvidia*; \
+python $CODE_DIR/run.py \
+hydra.verbose=True \
+trainer=default \
+resume=True \
+batch_size=64 \
+wandb_project_name=TALI-gcp-sweep-1 \
+trainer.gpus=-1 \
+trainer.auto_scale_batch_size=False \
+datamodule.config.rescan_paths=True \
+datamodule.prefetch_factor=3 \
+datamodule.num_workers=-12 \
+model=base_modus_prime_vi-transformer16 \
+datamodule.config.training_set_size_identifier=base \
+datamodule.config.modality_config.image=True \
+datamodule.config.modality_config.text=False \
+datamodule.config.modality_config.audio=False \
+datamodule.config.modality_config.video=True
+
+fuser -k /dev/nvidia*; \
+python $CODE_DIR/run.py \
+hydra.verbose=True \
+trainer=default \
+resume=True \
+batch_size=64 \
+wandb_project_name=TALI-gcp-sweep-1 \
+trainer.gpus=-1 \
+trainer.auto_scale_batch_size=False \
+datamodule.config.rescan_paths=True \
+datamodule.prefetch_factor=3 \
+datamodule.num_workers=-12 \
+model=base_modus_prime_vi-transformer16 \
+datamodule.config.training_set_size_identifier=milli \
+datamodule.config.modality_config.image=True \
+datamodule.config.modality_config.text=False \
+datamodule.config.modality_config.audio=False \
+datamodule.config.modality_config.video=True
+
+fuser -k /dev/nvidia*; \
+python $CODE_DIR/run.py \
+hydra.verbose=True \
+trainer=default \
+resume=True \
+batch_size=64 \
+wandb_project_name=TALI-gcp-sweep-1 \
+trainer.gpus=-1 \
+trainer.auto_scale_batch_size=False \
+datamodule.config.rescan_paths=True \
+datamodule.prefetch_factor=3 \
+datamodule.num_workers=-12 \
+model=centi_modus_prime_resnet50 \
+datamodule.config.training_set_size_identifier=base \
+datamodule.config.modality_config.image=True \
+datamodule.config.modality_config.text=True \
+datamodule.config.modality_config.audio=False \
+datamodule.config.modality_config.video=True
+
+fuser -k /dev/nvidia*; \
+python $CODE_DIR/run.py \
+hydra.verbose=True \
+trainer=default \
+resume=True \
+batch_size=64 \
+wandb_project_name=TALI-gcp-sweep-1 \
+trainer.gpus=-1 \
+trainer.auto_scale_batch_size=False \
+datamodule.config.rescan_paths=True \
+datamodule.prefetch_factor=3 \
+datamodule.num_workers=-12 \
+model=centi_modus_prime_resnet50 \
+datamodule.config.training_set_size_identifier=milli \
+datamodule.config.modality_config.image=True \
+datamodule.config.modality_config.text=True \
+datamodule.config.modality_config.audio=False \
+datamodule.config.modality_config.video=True
+
+fuser -k /dev/nvidia*; \
+python $CODE_DIR/run.py \
+hydra.verbose=True \
+trainer=default \
+resume=True \
+batch_size=64 \
+wandb_project_name=TALI-gcp-sweep-1 \
+trainer.gpus=-1 \
+trainer.auto_scale_batch_size=False \
+datamodule.config.rescan_paths=True \
+datamodule.prefetch_factor=3 \
+datamodule.num_workers=-12 \
+model=base_modus_prime_resnet50 \
+datamodule.config.training_set_size_identifier=base \
+datamodule.config.modality_config.image=True \
+datamodule.config.modality_config.text=True \
+datamodule.config.modality_config.audio=False \
+datamodule.config.modality_config.video=True
+
+fuser -k /dev/nvidia*; \
+python $CODE_DIR/run.py \
+hydra.verbose=True \
+trainer=default \
+resume=True \
+batch_size=64 \
+wandb_project_name=TALI-gcp-sweep-1 \
+trainer.gpus=-1 \
+trainer.auto_scale_batch_size=False \
+datamodule.config.rescan_paths=True \
+datamodule.prefetch_factor=3 \
+datamodule.num_workers=-12 \
+model=base_modus_prime_resnet50 \
+datamodule.config.training_set_size_identifier=milli \
+datamodule.config.modality_config.image=True \
+datamodule.config.modality_config.text=True \
+datamodule.config.modality_config.audio=False \
+datamodule.config.modality_config.video=True
+
+fuser -k /dev/nvidia*; \
+python $CODE_DIR/run.py \
+hydra.verbose=True \
+trainer=default \
+resume=True \
+batch_size=64 \
+wandb_project_name=TALI-gcp-sweep-1 \
+trainer.gpus=-1 \
+trainer.auto_scale_batch_size=False \
+datamodule.config.rescan_paths=True \
+datamodule.prefetch_factor=3 \
+datamodule.num_workers=-12 \
+model=centi_modus_prime_vi-transformer16 \
+datamodule.config.training_set_size_identifier=base \
+datamodule.config.modality_config.image=True \
+datamodule.config.modality_config.text=True \
+datamodule.config.modality_config.audio=False \
+datamodule.config.modality_config.video=True
+
+fuser -k /dev/nvidia*; \
+python $CODE_DIR/run.py \
+hydra.verbose=True \
+trainer=default \
+resume=True \
+batch_size=64 \
+wandb_project_name=TALI-gcp-sweep-1 \
+trainer.gpus=-1 \
+trainer.auto_scale_batch_size=False \
+datamodule.config.rescan_paths=True \
+datamodule.prefetch_factor=3 \
+datamodule.num_workers=-12 \
+model=centi_modus_prime_vi-transformer16 \
+datamodule.config.training_set_size_identifier=milli \
+datamodule.config.modality_config.image=True \
+datamodule.config.modality_config.text=True \
+datamodule.config.modality_config.audio=False \
+datamodule.config.modality_config.video=True
+
+fuser -k /dev/nvidia*; \
+python $CODE_DIR/run.py \
+hydra.verbose=True \
+trainer=default \
+resume=True \
+batch_size=64 \
+wandb_project_name=TALI-gcp-sweep-1 \
+trainer.gpus=-1 \
+trainer.auto_scale_batch_size=False \
+datamodule.config.rescan_paths=True \
+datamodule.prefetch_factor=3 \
+datamodule.num_workers=-12 \
+model=base_modus_prime_vi-transformer16 \
+datamodule.config.training_set_size_identifier=base \
+datamodule.config.modality_config.image=True \
+datamodule.config.modality_config.text=True \
+datamodule.config.modality_config.audio=False \
+datamodule.config.modality_config.video=True
+
+fuser -k /dev/nvidia*; \
+python $CODE_DIR/run.py \
+hydra.verbose=True \
+trainer=default \
+resume=True \
+batch_size=64 \
+wandb_project_name=TALI-gcp-sweep-1 \
+trainer.gpus=-1 \
+trainer.auto_scale_batch_size=False \
+datamodule.config.rescan_paths=True \
+datamodule.prefetch_factor=3 \
+datamodule.num_workers=-12 \
+model=base_modus_prime_vi-transformer16 \
+datamodule.config.training_set_size_identifier=milli \
+datamodule.config.modality_config.image=True \
+datamodule.config.modality_config.text=True \
+datamodule.config.modality_config.audio=False \
+datamodule.config.modality_config.video=True
+
+fuser -k /dev/nvidia*; \
+python $CODE_DIR/run.py \
+hydra.verbose=True \
+trainer=default \
+resume=True \
+batch_size=64 \
+wandb_project_name=TALI-gcp-sweep-1 \
+trainer.gpus=-1 \
+trainer.auto_scale_batch_size=False \
+datamodule.config.rescan_paths=True \
+datamodule.prefetch_factor=3 \
+datamodule.num_workers=-12 \
+model=centi_modus_prime_resnet50 \
+datamodule.config.training_set_size_identifier=base \
+datamodule.config.modality_config.image=True \
+datamodule.config.modality_config.text=False \
+datamodule.config.modality_config.audio=True \
+datamodule.config.modality_config.video=False
+
+fuser -k /dev/nvidia*; \
+python $CODE_DIR/run.py \
+hydra.verbose=True \
+trainer=default \
+resume=True \
+batch_size=64 \
+wandb_project_name=TALI-gcp-sweep-1 \
+trainer.gpus=-1 \
+trainer.auto_scale_batch_size=False \
+datamodule.config.rescan_paths=True \
+datamodule.prefetch_factor=3 \
+datamodule.num_workers=-12 \
+model=centi_modus_prime_resnet50 \
+datamodule.config.training_set_size_identifier=milli \
+datamodule.config.modality_config.image=True \
+datamodule.config.modality_config.text=False \
+datamodule.config.modality_config.audio=True \
+datamodule.config.modality_config.video=False
+
+fuser -k /dev/nvidia*; \
+python $CODE_DIR/run.py \
+hydra.verbose=True \
+trainer=default \
+resume=True \
+batch_size=64 \
+wandb_project_name=TALI-gcp-sweep-1 \
+trainer.gpus=-1 \
+trainer.auto_scale_batch_size=False \
+datamodule.config.rescan_paths=True \
+datamodule.prefetch_factor=3 \
+datamodule.num_workers=-12 \
+model=base_modus_prime_resnet50 \
+datamodule.config.training_set_size_identifier=base \
+datamodule.config.modality_config.image=True \
+datamodule.config.modality_config.text=False \
+datamodule.config.modality_config.audio=True \
+datamodule.config.modality_config.video=False
+
+fuser -k /dev/nvidia*; \
+python $CODE_DIR/run.py \
+hydra.verbose=True \
+trainer=default \
+resume=True \
+batch_size=64 \
+wandb_project_name=TALI-gcp-sweep-1 \
+trainer.gpus=-1 \
+trainer.auto_scale_batch_size=False \
+datamodule.config.rescan_paths=True \
+datamodule.prefetch_factor=3 \
+datamodule.num_workers=-12 \
+model=base_modus_prime_resnet50 \
+datamodule.config.training_set_size_identifier=milli \
+datamodule.config.modality_config.image=True \
+datamodule.config.modality_config.text=False \
+datamodule.config.modality_config.audio=True \
+datamodule.config.modality_config.video=False
+
+fuser -k /dev/nvidia*; \
+python $CODE_DIR/run.py \
+hydra.verbose=True \
+trainer=default \
+resume=True \
+batch_size=64 \
+wandb_project_name=TALI-gcp-sweep-1 \
+trainer.gpus=-1 \
+trainer.auto_scale_batch_size=False \
+datamodule.config.rescan_paths=True \
+datamodule.prefetch_factor=3 \
+datamodule.num_workers=-12 \
+model=centi_modus_prime_vi-transformer16 \
+datamodule.config.training_set_size_identifier=base \
+datamodule.config.modality_config.image=True \
+datamodule.config.modality_config.text=False \
+datamodule.config.modality_config.audio=True \
+datamodule.config.modality_config.video=False
+
+fuser -k /dev/nvidia*; \
+python $CODE_DIR/run.py \
+hydra.verbose=True \
+trainer=default \
+resume=True \
+batch_size=64 \
+wandb_project_name=TALI-gcp-sweep-1 \
+trainer.gpus=-1 \
+trainer.auto_scale_batch_size=False \
+datamodule.config.rescan_paths=True \
+datamodule.prefetch_factor=3 \
+datamodule.num_workers=-12 \
+model=centi_modus_prime_vi-transformer16 \
+datamodule.config.training_set_size_identifier=milli \
+datamodule.config.modality_config.image=True \
+datamodule.config.modality_config.text=False \
+datamodule.config.modality_config.audio=True \
+datamodule.config.modality_config.video=False
+
+fuser -k /dev/nvidia*; \
+python $CODE_DIR/run.py \
+hydra.verbose=True \
+trainer=default \
+resume=True \
+batch_size=64 \
+wandb_project_name=TALI-gcp-sweep-1 \
+trainer.gpus=-1 \
+trainer.auto_scale_batch_size=False \
+datamodule.config.rescan_paths=True \
+datamodule.prefetch_factor=3 \
+datamodule.num_workers=-12 \
+model=base_modus_prime_vi-transformer16 \
+datamodule.config.training_set_size_identifier=base \
+datamodule.config.modality_config.image=True \
+datamodule.config.modality_config.text=False \
+datamodule.config.modality_config.audio=True \
+datamodule.config.modality_config.video=False
+
+fuser -k /dev/nvidia*; \
+python $CODE_DIR/run.py \
+hydra.verbose=True \
+trainer=default \
+resume=True \
+batch_size=64 \
+wandb_project_name=TALI-gcp-sweep-1 \
+trainer.gpus=-1 \
+trainer.auto_scale_batch_size=False \
+datamodule.config.rescan_paths=True \
+datamodule.prefetch_factor=3 \
+datamodule.num_workers=-12 \
+model=base_modus_prime_vi-transformer16 \
+datamodule.config.training_set_size_identifier=milli \
+datamodule.config.modality_config.image=True \
+datamodule.config.modality_config.text=False \
+datamodule.config.modality_config.audio=True \
+datamodule.config.modality_config.video=False
+
+fuser -k /dev/nvidia*; \
+python $CODE_DIR/run.py \
+hydra.verbose=True \
+trainer=default \
+resume=True \
+batch_size=64 \
+wandb_project_name=TALI-gcp-sweep-1 \
+trainer.gpus=-1 \
+trainer.auto_scale_batch_size=False \
+datamodule.config.rescan_paths=True \
+datamodule.prefetch_factor=3 \
+datamodule.num_workers=-12 \
+model=centi_modus_prime_resnet50 \
+datamodule.config.training_set_size_identifier=base \
+datamodule.config.modality_config.image=True \
+datamodule.config.modality_config.text=True \
+datamodule.config.modality_config.audio=True \
+datamodule.config.modality_config.video=False
+
+fuser -k /dev/nvidia*; \
+python $CODE_DIR/run.py \
+hydra.verbose=True \
+trainer=default \
+resume=True \
+batch_size=64 \
+wandb_project_name=TALI-gcp-sweep-1 \
+trainer.gpus=-1 \
+trainer.auto_scale_batch_size=False \
+datamodule.config.rescan_paths=True \
+datamodule.prefetch_factor=3 \
+datamodule.num_workers=-12 \
+model=centi_modus_prime_resnet50 \
+datamodule.config.training_set_size_identifier=milli \
+datamodule.config.modality_config.image=True \
+datamodule.config.modality_config.text=True \
+datamodule.config.modality_config.audio=True \
+datamodule.config.modality_config.video=False
+
+fuser -k /dev/nvidia*; \
+python $CODE_DIR/run.py \
+hydra.verbose=True \
+trainer=default \
+resume=True \
+batch_size=64 \
+wandb_project_name=TALI-gcp-sweep-1 \
+trainer.gpus=-1 \
+trainer.auto_scale_batch_size=False \
+datamodule.config.rescan_paths=True \
+datamodule.prefetch_factor=3 \
+datamodule.num_workers=-12 \
+model=base_modus_prime_resnet50 \
+datamodule.config.training_set_size_identifier=base \
+datamodule.config.modality_config.image=True \
+datamodule.config.modality_config.text=True \
+datamodule.config.modality_config.audio=True \
+datamodule.config.modality_config.video=False
+
+fuser -k /dev/nvidia*; \
+python $CODE_DIR/run.py \
+hydra.verbose=True \
+trainer=default \
+resume=True \
+batch_size=64 \
+wandb_project_name=TALI-gcp-sweep-1 \
+trainer.gpus=-1 \
+trainer.auto_scale_batch_size=False \
+datamodule.config.rescan_paths=True \
+datamodule.prefetch_factor=3 \
+datamodule.num_workers=-12 \
+model=base_modus_prime_resnet50 \
+datamodule.config.training_set_size_identifier=milli \
+datamodule.config.modality_config.image=True \
+datamodule.config.modality_config.text=True \
+datamodule.config.modality_config.audio=True \
+datamodule.config.modality_config.video=False
+
+fuser -k /dev/nvidia*; \
+python $CODE_DIR/run.py \
+hydra.verbose=True \
+trainer=default \
+resume=True \
+batch_size=64 \
+wandb_project_name=TALI-gcp-sweep-1 \
+trainer.gpus=-1 \
+trainer.auto_scale_batch_size=False \
+datamodule.config.rescan_paths=True \
+datamodule.prefetch_factor=3 \
+datamodule.num_workers=-12 \
+model=centi_modus_prime_vi-transformer16 \
+datamodule.config.training_set_size_identifier=base \
+datamodule.config.modality_config.image=True \
+datamodule.config.modality_config.text=True \
+datamodule.config.modality_config.audio=True \
+datamodule.config.modality_config.video=False
+
+fuser -k /dev/nvidia*; \
+python $CODE_DIR/run.py \
+hydra.verbose=True \
+trainer=default \
+resume=True \
+batch_size=64 \
+wandb_project_name=TALI-gcp-sweep-1 \
+trainer.gpus=-1 \
+trainer.auto_scale_batch_size=False \
+datamodule.config.rescan_paths=True \
+datamodule.prefetch_factor=3 \
+datamodule.num_workers=-12 \
+model=centi_modus_prime_vi-transformer16 \
+datamodule.config.training_set_size_identifier=milli \
+datamodule.config.modality_config.image=True \
+datamodule.config.modality_config.text=True \
+datamodule.config.modality_config.audio=True \
+datamodule.config.modality_config.video=False
+
+fuser -k /dev/nvidia*; \
+python $CODE_DIR/run.py \
+hydra.verbose=True \
+trainer=default \
+resume=True \
+batch_size=64 \
+wandb_project_name=TALI-gcp-sweep-1 \
+trainer.gpus=-1 \
+trainer.auto_scale_batch_size=False \
+datamodule.config.rescan_paths=True \
+datamodule.prefetch_factor=3 \
+datamodule.num_workers=-12 \
+model=base_modus_prime_vi-transformer16 \
+datamodule.config.training_set_size_identifier=base \
+datamodule.config.modality_config.image=True \
+datamodule.config.modality_config.text=True \
+datamodule.config.modality_config.audio=True \
+datamodule.config.modality_config.video=False
+
+fuser -k /dev/nvidia*; \
+python $CODE_DIR/run.py \
+hydra.verbose=True \
+trainer=default \
+resume=True \
+batch_size=64 \
+wandb_project_name=TALI-gcp-sweep-1 \
+trainer.gpus=-1 \
+trainer.auto_scale_batch_size=False \
+datamodule.config.rescan_paths=True \
+datamodule.prefetch_factor=3 \
+datamodule.num_workers=-12 \
+model=base_modus_prime_vi-transformer16 \
+datamodule.config.training_set_size_identifier=milli \
+datamodule.config.modality_config.image=True \
+datamodule.config.modality_config.text=True \
+datamodule.config.modality_config.audio=True \
+datamodule.config.modality_config.video=False
+
+fuser -k /dev/nvidia*; \
+python $CODE_DIR/run.py \
+hydra.verbose=True \
+trainer=default \
+resume=True \
+batch_size=64 \
+wandb_project_name=TALI-gcp-sweep-1 \
+trainer.gpus=-1 \
+trainer.auto_scale_batch_size=False \
+datamodule.config.rescan_paths=True \
+datamodule.prefetch_factor=3 \
+datamodule.num_workers=-12 \
+model=centi_modus_prime_resnet50 \
+datamodule.config.training_set_size_identifier=base \
+datamodule.config.modality_config.image=True \
+datamodule.config.modality_config.text=False \
+datamodule.config.modality_config.audio=True \
+datamodule.config.modality_config.video=True
+
+fuser -k /dev/nvidia*; \
+python $CODE_DIR/run.py \
+hydra.verbose=True \
+trainer=default \
+resume=True \
+batch_size=64 \
+wandb_project_name=TALI-gcp-sweep-1 \
+trainer.gpus=-1 \
+trainer.auto_scale_batch_size=False \
+datamodule.config.rescan_paths=True \
+datamodule.prefetch_factor=3 \
+datamodule.num_workers=-12 \
+model=centi_modus_prime_resnet50 \
+datamodule.config.training_set_size_identifier=milli \
+datamodule.config.modality_config.image=True \
+datamodule.config.modality_config.text=False \
+datamodule.config.modality_config.audio=True \
+datamodule.config.modality_config.video=True
+
+fuser -k /dev/nvidia*; \
+python $CODE_DIR/run.py \
+hydra.verbose=True \
+trainer=default \
+resume=True \
+batch_size=64 \
+wandb_project_name=TALI-gcp-sweep-1 \
+trainer.gpus=-1 \
+trainer.auto_scale_batch_size=False \
+datamodule.config.rescan_paths=True \
+datamodule.prefetch_factor=3 \
+datamodule.num_workers=-12 \
+model=base_modus_prime_resnet50 \
+datamodule.config.training_set_size_identifier=base \
+datamodule.config.modality_config.image=True \
+datamodule.config.modality_config.text=False \
+datamodule.config.modality_config.audio=True \
+datamodule.config.modality_config.video=True
+
+fuser -k /dev/nvidia*; \
+python $CODE_DIR/run.py \
+hydra.verbose=True \
+trainer=default \
+resume=True \
+batch_size=64 \
+wandb_project_name=TALI-gcp-sweep-1 \
+trainer.gpus=-1 \
+trainer.auto_scale_batch_size=False \
+datamodule.config.rescan_paths=True \
+datamodule.prefetch_factor=3 \
+datamodule.num_workers=-12 \
+model=base_modus_prime_resnet50 \
+datamodule.config.training_set_size_identifier=milli \
+datamodule.config.modality_config.image=True \
+datamodule.config.modality_config.text=False \
+datamodule.config.modality_config.audio=True \
+datamodule.config.modality_config.video=True
+
+fuser -k /dev/nvidia*; \
+python $CODE_DIR/run.py \
+hydra.verbose=True \
+trainer=default \
+resume=True \
+batch_size=64 \
+wandb_project_name=TALI-gcp-sweep-1 \
+trainer.gpus=-1 \
+trainer.auto_scale_batch_size=False \
+datamodule.config.rescan_paths=True \
+datamodule.prefetch_factor=3 \
+datamodule.num_workers=-12 \
+model=centi_modus_prime_vi-transformer16 \
+datamodule.config.training_set_size_identifier=base \
+datamodule.config.modality_config.image=True \
+datamodule.config.modality_config.text=False \
+datamodule.config.modality_config.audio=True \
+datamodule.config.modality_config.video=True
+
+fuser -k /dev/nvidia*; \
+python $CODE_DIR/run.py \
+hydra.verbose=True \
+trainer=default \
+resume=True \
+batch_size=64 \
+wandb_project_name=TALI-gcp-sweep-1 \
+trainer.gpus=-1 \
+trainer.auto_scale_batch_size=False \
+datamodule.config.rescan_paths=True \
+datamodule.prefetch_factor=3 \
+datamodule.num_workers=-12 \
+model=centi_modus_prime_vi-transformer16 \
+datamodule.config.training_set_size_identifier=milli \
+datamodule.config.modality_config.image=True \
+datamodule.config.modality_config.text=False \
+datamodule.config.modality_config.audio=True \
+datamodule.config.modality_config.video=True
+
+fuser -k /dev/nvidia*; \
+python $CODE_DIR/run.py \
+hydra.verbose=True \
+trainer=default \
+resume=True \
+batch_size=64 \
+wandb_project_name=TALI-gcp-sweep-1 \
+trainer.gpus=-1 \
+trainer.auto_scale_batch_size=False \
+datamodule.config.rescan_paths=True \
+datamodule.prefetch_factor=3 \
+datamodule.num_workers=-12 \
+model=base_modus_prime_vi-transformer16 \
+datamodule.config.training_set_size_identifier=base \
+datamodule.config.modality_config.image=True \
+datamodule.config.modality_config.text=False \
+datamodule.config.modality_config.audio=True \
+datamodule.config.modality_config.video=True
+
+fuser -k /dev/nvidia*; \
+python $CODE_DIR/run.py \
+hydra.verbose=True \
+trainer=default \
+resume=True \
+batch_size=64 \
+wandb_project_name=TALI-gcp-sweep-1 \
+trainer.gpus=-1 \
+trainer.auto_scale_batch_size=False \
+datamodule.config.rescan_paths=True \
+datamodule.prefetch_factor=3 \
+datamodule.num_workers=-12 \
+model=base_modus_prime_vi-transformer16 \
+datamodule.config.training_set_size_identifier=milli \
+datamodule.config.modality_config.image=True \
+datamodule.config.modality_config.text=False \
+datamodule.config.modality_config.audio=True \
+datamodule.config.modality_config.video=True
+
+fuser -k /dev/nvidia*; \
+python $CODE_DIR/run.py \
+hydra.verbose=True \
+trainer=default \
+resume=True \
+batch_size=64 \
+wandb_project_name=TALI-gcp-sweep-1 \
+trainer.gpus=-1 \
+trainer.auto_scale_batch_size=False \
+datamodule.config.rescan_paths=True \
+datamodule.prefetch_factor=3 \
+datamodule.num_workers=-12 \
+model=centi_modus_prime_resnet50 \
+datamodule.config.training_set_size_identifier=base \
+datamodule.config.modality_config.image=True \
+datamodule.config.modality_config.text=True \
+datamodule.config.modality_config.audio=True \
+datamodule.config.modality_config.video=True
+
+fuser -k /dev/nvidia*; \
+python $CODE_DIR/run.py \
+hydra.verbose=True \
+trainer=default \
+resume=True \
+batch_size=64 \
+wandb_project_name=TALI-gcp-sweep-1 \
+trainer.gpus=-1 \
+trainer.auto_scale_batch_size=False \
+datamodule.config.rescan_paths=True \
+datamodule.prefetch_factor=3 \
+datamodule.num_workers=-12 \
+model=centi_modus_prime_resnet50 \
+datamodule.config.training_set_size_identifier=milli \
+datamodule.config.modality_config.image=True \
+datamodule.config.modality_config.text=True \
+datamodule.config.modality_config.audio=True \
+datamodule.config.modality_config.video=True
+
+fuser -k /dev/nvidia*; \
+python $CODE_DIR/run.py \
+hydra.verbose=True \
+trainer=default \
+resume=True \
+batch_size=64 \
+wandb_project_name=TALI-gcp-sweep-1 \
+trainer.gpus=-1 \
+trainer.auto_scale_batch_size=False \
+datamodule.config.rescan_paths=True \
+datamodule.prefetch_factor=3 \
+datamodule.num_workers=-12 \
+model=base_modus_prime_resnet50 \
+datamodule.config.training_set_size_identifier=base \
+datamodule.config.modality_config.image=True \
+datamodule.config.modality_config.text=True \
+datamodule.config.modality_config.audio=True \
+datamodule.config.modality_config.video=True
+
+fuser -k /dev/nvidia*; \
+python $CODE_DIR/run.py \
+hydra.verbose=True \
+trainer=default \
+resume=True \
+batch_size=64 \
+wandb_project_name=TALI-gcp-sweep-1 \
+trainer.gpus=-1 \
+trainer.auto_scale_batch_size=False \
+datamodule.config.rescan_paths=True \
+datamodule.prefetch_factor=3 \
+datamodule.num_workers=-12 \
+model=base_modus_prime_resnet50 \
+datamodule.config.training_set_size_identifier=milli \
+datamodule.config.modality_config.image=True \
+datamodule.config.modality_config.text=True \
+datamodule.config.modality_config.audio=True \
+datamodule.config.modality_config.video=True
+
+fuser -k /dev/nvidia*; \
+python $CODE_DIR/run.py \
+hydra.verbose=True \
+trainer=default \
+resume=True \
+batch_size=64 \
+wandb_project_name=TALI-gcp-sweep-1 \
+trainer.gpus=-1 \
+trainer.auto_scale_batch_size=False \
+datamodule.config.rescan_paths=True \
+datamodule.prefetch_factor=3 \
+datamodule.num_workers=-12 \
+model=centi_modus_prime_vi-transformer16 \
+datamodule.config.training_set_size_identifier=base \
+datamodule.config.modality_config.image=True \
+datamodule.config.modality_config.text=True \
+datamodule.config.modality_config.audio=True \
+datamodule.config.modality_config.video=True
+
+fuser -k /dev/nvidia*; \
+python $CODE_DIR/run.py \
+hydra.verbose=True \
+trainer=default \
+resume=True \
+batch_size=64 \
+wandb_project_name=TALI-gcp-sweep-1 \
+trainer.gpus=-1 \
+trainer.auto_scale_batch_size=False \
+datamodule.config.rescan_paths=True \
+datamodule.prefetch_factor=3 \
+datamodule.num_workers=-12 \
+model=centi_modus_prime_vi-transformer16 \
+datamodule.config.training_set_size_identifier=milli \
+datamodule.config.modality_config.image=True \
+datamodule.config.modality_config.text=True \
+datamodule.config.modality_config.audio=True \
+datamodule.config.modality_config.video=True
+
+fuser -k /dev/nvidia*; \
+python $CODE_DIR/run.py \
+hydra.verbose=True \
+trainer=default \
+resume=True \
+batch_size=64 \
+wandb_project_name=TALI-gcp-sweep-1 \
+trainer.gpus=-1 \
+trainer.auto_scale_batch_size=False \
+datamodule.config.rescan_paths=True \
+datamodule.prefetch_factor=3 \
+datamodule.num_workers=-12 \
+model=base_modus_prime_vi-transformer16 \
+datamodule.config.training_set_size_identifier=base \
+datamodule.config.modality_config.image=True \
+datamodule.config.modality_config.text=True \
+datamodule.config.modality_config.audio=True \
+datamodule.config.modality_config.video=True
+
+fuser -k /dev/nvidia*; \
+python $CODE_DIR/run.py \
+hydra.verbose=True \
+trainer=default \
+resume=True \
+batch_size=64 \
+wandb_project_name=TALI-gcp-sweep-1 \
+trainer.gpus=-1 \
+trainer.auto_scale_batch_size=False \
+datamodule.config.rescan_paths=True \
+datamodule.prefetch_factor=3 \
+datamodule.num_workers=-12 \
+model=base_modus_prime_vi-transformer16 \
+datamodule.config.training_set_size_identifier=milli \
+datamodule.config.modality_config.image=True \
+datamodule.config.modality_config.text=True \
+datamodule.config.modality_config.audio=True \
+datamodule.config.modality_config.video=True
 
