@@ -47,3 +47,6 @@ root_experiment_dir: ${env:EXPERIMENTS_DIR}
 current_experiment_dir: ${root_experiment_dir}/${name}/
 # path to folder with data
 data_dir: ${env:DATASET_DIR}
+callbacks:
+  model_checkpoint_train:
+    every_n_train_steps: 2500
