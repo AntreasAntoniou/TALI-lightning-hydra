@@ -75,7 +75,7 @@ def main():
                                         excludeUUID=[])
 
     template_command = (
-        f"fuser -k /dev/nvidia*; "
+        # f"fuser -k /dev/nvidia*; "
         f"python $CODE_DIR/run.py hydra.verbose=True trainer=default "
         f"resume=True batch_size={config.batch_size} "
         f"wandb_project_name=TALI-gcp-sweep-1 "

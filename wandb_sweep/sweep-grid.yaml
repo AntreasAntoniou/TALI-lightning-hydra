@@ -18,21 +18,21 @@ parameters:
   use_audio_modality:
     distribution: categorical
     values:
-    - "false"
-    - "true"
+    - False
+    - True
   use_image_modality:
     distribution: categorical
     values:
-    - "true"
+    - True
   use_text_modality:
     distribution: categorical
     values:
-    - "true"
-    - "false"
+    - True
+    - False
   use_video_modality:
     distribution: categorical
     values:
-    - "false"
-    - "true"
+    - False
+    - True
 program: wandb_sweep/train_eval_search.py
 
