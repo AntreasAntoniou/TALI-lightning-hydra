@@ -8,7 +8,7 @@ parameters:
     values:
     - milli
     - base
-  model_options:
+  model_name:
     distribution: categorical
     values:
     - centi_modus_prime_resnet50

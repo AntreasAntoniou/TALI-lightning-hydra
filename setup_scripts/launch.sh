@@ -14,4 +14,10 @@ bash $CODE_DIR/setup_scripts/setup_wandb_credentials.sh
 
 
 cd $CODE_DIR
-wandb agent evolvingfungus/TALI-gcp-sweep-1/$WANDB_SWEEP_ID
+
+for i in {0..9}
+do
+  echo "Starting WANDB Agent ID: $i"
+  screen -dmS startup_script_session bash -c 'wandb agent evolvingfungus/TALI-gcp-sweep-1/$WANDB_SWEEP_ID; exec bash'
+  sleep 10
+done
