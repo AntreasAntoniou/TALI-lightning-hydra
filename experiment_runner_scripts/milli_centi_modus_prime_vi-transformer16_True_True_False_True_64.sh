@@ -16,9 +16,9 @@ python $CODE_DIR/run.py \
 hydra.verbose=True \
 trainer=default \
 resume=True \
-batch_size=64 \
+batch_size=2 \
 trainer.gpus=1 \
-trainer.auto_scale_batch_size=False \
+trainer.auto_scale_batch_size=True \
 datamodule.config.rescan_paths=True \
 datamodule.prefetch_factor=3 \
 datamodule.num_workers=12 \
