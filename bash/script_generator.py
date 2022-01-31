@@ -26,77 +26,79 @@ def main():
         ),
     ]
     exp_dict = {}
-    for use_image_modality in [True]:
-        for use_audio_modality in [False, True]:
-            for use_video_modality in [False, True]:
-                for use_text_modality in [False, True]:
-                    for system_config in system_configs:
-                        for dataset_name in dataset_names:
-                            if any(
-                                [
-                                    use_text_modality,
-                                    use_audio_modality,
-                                    use_video_modality,
-                                ]
-                            ):
-                                batch_size = system_config["batch_size"]
-                                model_name = system_config["model_name"]
+    num_gpu_config = {1: 12, 2: 24, 4: 48, 8: 96, 16: 96}
 
-                                if model_name in [
-                                    "base_modus_prime_resnet50",
-                                    "base_modus_prime_vi-transformer16",
-                                ]:
-                                    score = np.sum(
-                                        np.array(
-                                            [use_text_modality, use_audio_modality]
-                                        ).astype(np.int32)
+    for num_gpus, num_workers in num_gpu_config.items():
+        for use_image_modality in [True]:
+            for use_audio_modality in [False, True]:
+                for use_video_modality in [False, True]:
+                    for use_text_modality in [False, True]:
+                        for system_config in system_configs:
+                            for dataset_name in dataset_names:
+                                if any(
+                                    [
+                                        use_text_modality,
+                                        use_audio_modality,
+                                        use_video_modality,
+                                    ]
+                                ):
+                                    model_name = system_config["model_name"]
+
+                                    # if model_name in [
+                                    #     "base_modus_prime_resnet50",
+                                    #     "base_modus_prime_vi-transformer16",
+                                    # ]:
+                                    #     score = np.sum(
+                                    #         np.array(
+                                    #             [use_text_modality, use_audio_modality]
+                                    #         ).astype(np.int32)
+                                    #     )
+                                    #
+                                    #     num_gpus = 8 if use_video_modality else 2 * score
+                                    #
+                                    # elif model_name in [
+                                    #     "centi_modus_prime_resnet50",
+                                    #     "centi_modus_prime_vi-transformer16",
+                                    # ]:
+                                    #
+                                    #     num_gpus = 2 if use_video_modality else 1
+                                    # else:
+                                    #     raise NotImplementedError(
+                                    #         f"Given config does not fall into "
+                                    #         f"the expected patterns "
+                                    #         f"dataset_name: {dataset_name} "
+                                    #         f"system_config: {system_config} "
+                                    #         f"use_audio_modality: {use_audio_modality} "
+                                    #         f"use_image_modality: {use_image_modality} "
+                                    #         f"use_video_modality: {use_video_modality} "
+                                    #         f"use_text_modality: {use_text_modality}"
+                                    #     )
+
+                                    template_command = (
+                                        f"fuser -k /dev/nvidia*; \\\n"
+                                        f"python $CODE_DIR/run.py \\\n"
+                                        f"hydra.verbose=True \\\n"
+                                        f"trainer=default \\\n"
+                                        f"resume=True \\\n"
+                                        f"batch_size={num_gpus * 2} \\\n"
+                                        f"trainer.gpus={num_gpus} \\\n"
+                                        f"trainer.auto_scale_batch_size=True \\\n"
+                                        f"datamodule.config.rescan_paths=True \\\n"
+                                        f"datamodule.prefetch_factor=3 \\\n"
+                                        f"datamodule.num_workers={num_workers} \\\n"
+                                        f"model={model_name} \\\n"
+                                        f"datamodule.config.training_set_size_identifier={dataset_name} \\\n"
+                                        f"datamodule.config.modality_config.image={use_image_modality} \\\n"
+                                        f"datamodule.config.modality_config.text={use_text_modality} \\\n"
+                                        f"datamodule.config.modality_config.audio={use_audio_modality} \\\n"
+                                        f"datamodule.config.modality_config.video={use_video_modality} \n\n"
                                     )
-
-                                    num_gpus = 8 if use_video_modality else 2 * score
-
-                                elif model_name in [
-                                    "centi_modus_prime_resnet50",
-                                    "centi_modus_prime_vi-transformer16",
-                                ]:
-
-                                    num_gpus = 2 if use_video_modality else 1
-                                else:
-                                    raise NotImplementedError(
-                                        f"Given config does not fall into "
-                                        f"the expected patterns "
-                                        f"dataset_name: {dataset_name} "
-                                        f"system_config: {system_config} "
-                                        f"use_audio_modality: {use_audio_modality} "
-                                        f"use_image_modality: {use_image_modality} "
-                                        f"use_video_modality: {use_video_modality} "
-                                        f"use_text_modality: {use_text_modality}"
-                                    )
-
-                                template_command = (
-                                    f"fuser -k /dev/nvidia*; \\\n"
-                                    f"python $CODE_DIR/run.py \\\n"
-                                    f"hydra.verbose=True \\\n"
-                                    f"trainer=default \\\n"
-                                    f"resume=True \\\n"
-                                    f"batch_size={num_gpus * 2} \\\n"
-                                    f"trainer.gpus={num_gpus} \\\n"
-                                    f"trainer.auto_scale_batch_size=True \\\n"
-                                    f"datamodule.config.rescan_paths=True \\\n"
-                                    f"datamodule.prefetch_factor=3 \\\n"
-                                    f"datamodule.num_workers={int(num_gpus * 12)} \\\n"
-                                    f"model={model_name} \\\n"
-                                    f"datamodule.config.training_set_size_identifier={dataset_name} \\\n"
-                                    f"datamodule.config.modality_config.image={use_image_modality} \\\n"
-                                    f"datamodule.config.modality_config.text={use_text_modality} \\\n"
-                                    f"datamodule.config.modality_config.audio={use_audio_modality} \\\n"
-                                    f"datamodule.config.modality_config.video={use_video_modality} \n\n"
-                                )
-                                exp_dict[
-                                    f"{dataset_name}_{model_name}_"
-                                    f"image={use_image_modality}_audio={use_audio_modality}_"
-                                    f"video={use_video_modality}_text={use_text_modality}_"
-                                    f"auto_scale_batch_size=True"
-                                ] = template_command
+                                    exp_dict[
+                                        f"{dataset_name}_{model_name}_"
+                                        f"image={use_image_modality}_audio={use_audio_modality}_"
+                                        f"video={use_video_modality}_text={use_text_modality}_"
+                                        f"auto_scale_batch_size=True_{num_gpus}g"
+                                    ] = template_command
 
     if not os.path.exists(experiment_script_dir):
         os.makedirs(experiment_script_dir)
