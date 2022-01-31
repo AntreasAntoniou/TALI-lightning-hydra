@@ -79,7 +79,6 @@ def main():
                                     f"trainer=default \\\n"
                                     f"resume=True \\\n"
                                     f"batch_size={batch_size} \\\n"
-                                    f"wandb_project_name=TALI-gcp-sweep-1 \\\n"
                                     f"trainer.gpus={num_gpus} \\\n"
                                     f"trainer.auto_scale_batch_size=False \\\n"
                                     f"datamodule.config.rescan_paths=True \\\n"

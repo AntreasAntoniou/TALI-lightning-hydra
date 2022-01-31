@@ -8,19 +8,15 @@ cd $CODE_DIR
 git pull
 pip install -r $CODE_DIR/requirements.txt
 
-
 source $CODE_DIR/setup_scripts/setup_base_experiment_disk.sh
 source $CODE_DIR/setup_scripts/setup_wandb_credentials.sh
 
-cd $CODE_DIR
-
-fuser -k /dev/nvidia*; \
+cd $CODE_DIRfuser -k /dev/nvidia*; \
 python $CODE_DIR/run.py \
 hydra.verbose=True \
 trainer=default \
 resume=True \
 batch_size=64 \
-wandb_project_name=TALI-gcp-sweep-1 \
 trainer.gpus=8 \
 trainer.auto_scale_batch_size=False \
 datamodule.config.rescan_paths=True \
