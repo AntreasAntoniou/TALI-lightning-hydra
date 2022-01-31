@@ -15,15 +15,13 @@ def main():
     # batch_size and gpus should be set by model
     experiment_script_dir = "experiment_runner_scripts/"
     dataset_names = ["base", "milli"]  # , "milli/tali", hecta/tali"]
-    system_configs = [
-        dict(model_name="centi_modus_prime_resnet50", batch_size=64, num_gpus=-1),
-        dict(model_name="base_modus_prime_resnet50", batch_size=64, num_gpus=-1),
-        dict(
-            model_name="centi_modus_prime_vi-transformer16", batch_size=64, num_gpus=-1
-        ),
-        dict(
-            model_name="base_modus_prime_vi-transformer16", batch_size=64, num_gpus=-1
-        ),
+    system_names = [
+        "centi_modus_prime_resnet50",
+        "deci_modus_prime_resnet50",
+        "base_modus_prime_resnet50",
+        "centi_modus_prime_vi-transformer16",
+        "deci_modus_prime_vi-transformer16",
+        "base_modus_prime_vi-transformer16",
     ]
     exp_dict = {}
     num_gpu_config = {1: 12, 2: 24, 4: 48, 8: 96, 16: 96}
@@ -33,7 +31,7 @@ def main():
             for use_audio_modality in [False, True]:
                 for use_video_modality in [False, True]:
                     for use_text_modality in [False, True]:
-                        for system_config in system_configs:
+                        for model_name in system_names:
                             for dataset_name in dataset_names:
                                 if any(
                                     [
@@ -42,37 +40,6 @@ def main():
                                         use_video_modality,
                                     ]
                                 ):
-                                    model_name = system_config["model_name"]
-
-                                    # if model_name in [
-                                    #     "base_modus_prime_resnet50",
-                                    #     "base_modus_prime_vi-transformer16",
-                                    # ]:
-                                    #     score = np.sum(
-                                    #         np.array(
-                                    #             [use_text_modality, use_audio_modality]
-                                    #         ).astype(np.int32)
-                                    #     )
-                                    #
-                                    #     num_gpus = 8 if use_video_modality else 2 * score
-                                    #
-                                    # elif model_name in [
-                                    #     "centi_modus_prime_resnet50",
-                                    #     "centi_modus_prime_vi-transformer16",
-                                    # ]:
-                                    #
-                                    #     num_gpus = 2 if use_video_modality else 1
-                                    # else:
-                                    #     raise NotImplementedError(
-                                    #         f"Given config does not fall into "
-                                    #         f"the expected patterns "
-                                    #         f"dataset_name: {dataset_name} "
-                                    #         f"system_config: {system_config} "
-                                    #         f"use_audio_modality: {use_audio_modality} "
-                                    #         f"use_image_modality: {use_image_modality} "
-                                    #         f"use_video_modality: {use_video_modality} "
-                                    #         f"use_text_modality: {use_text_modality}"
-                                    #     )
 
                                     template_command = (
                                         f"fuser -k /dev/nvidia*; \\\n"
