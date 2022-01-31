@@ -49,7 +49,11 @@ def main():
         "base_modus_prime_resnet50",
         "base_modus_prime_vi-transformer16",
     ]:
-        score = np.sum(np.array([config.use_text_modality, config.use_audio_modality]).astype(np.int32))
+        score = np.sum(
+            np.array([config.use_text_modality, config.use_audio_modality]).astype(
+                np.int32
+            )
+        )
 
         num_gpus = 8 if config.use_video_modality else 2 * score
 
@@ -57,22 +61,35 @@ def main():
         "centi_modus_prime_resnet50",
         "centi_modus_prime_vi-transformer16",
     ]:
-        score = np.sum(np.array([config.use_text_modality, config.use_audio_modality]).astype(np.int32))
+        score = np.sum(
+            np.array([config.use_text_modality, config.use_audio_modality]).astype(
+                np.int32
+            )
+        )
 
         num_gpus = 2 if config.use_video_modality else 1
     else:
-        raise NotImplementedError(f"Given config does not fall into "
-                                  f"the expected patterns {config}")
+        raise NotImplementedError(
+            f"Given config does not fall into " f"the expected patterns {config}"
+        )
 
     deviceIDs = []
 
     while len(deviceIDs) < num_gpus:
-        log.info(f'Need {num_gpus} GPUs, but have access to {len(deviceIDs)} 🏋🖥\n'
-                 f'Waiting for GPUs to become available..🐈🪑')
+        log.info(
+            f"Need {num_gpus} GPUs, but have access to {len(deviceIDs)} 🏋🖥\n"
+            f"Waiting for GPUs to become available..🐈🪑"
+        )
         sleep(random.randint(0, 60))
-        deviceIDs = GPUtil.getAvailable(order='first', limit=8, maxLoad=0.001,
-                                        maxMemory=0.001, includeNan=False, excludeID=[],
-                                        excludeUUID=[])
+        deviceIDs = GPUtil.getAvailable(
+            order="first",
+            limit=8,
+            maxLoad=0.001,
+            maxMemory=0.001,
+            includeNan=False,
+            excludeID=[],
+            excludeUUID=[],
+        )
 
     template_command = (
         # f"fuser -k /dev/nvidia*; "

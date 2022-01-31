@@ -10,15 +10,20 @@
 import numpy as np
 import os
 
+
 def main():
     # batch_size and gpus should be set by model
-    experiment_script_dir = 'experiment_runner_scripts/'
+    experiment_script_dir = "experiment_runner_scripts/"
     dataset_names = ["base", "milli"]  # , "milli/tali", hecta/tali"]
     system_configs = [
         dict(model_name="centi_modus_prime_resnet50", batch_size=64, num_gpus=-1),
         dict(model_name="base_modus_prime_resnet50", batch_size=64, num_gpus=-1),
-        dict(model_name="centi_modus_prime_vi-transformer16", batch_size=64, num_gpus=-1),
-        dict(model_name="base_modus_prime_vi-transformer16", batch_size=64, num_gpus=-1),
+        dict(
+            model_name="centi_modus_prime_vi-transformer16", batch_size=64, num_gpus=-1
+        ),
+        dict(
+            model_name="base_modus_prime_vi-transformer16", batch_size=64, num_gpus=-1
+        ),
     ]
     exp_dict = {}
     for use_image_modality in [True]:
@@ -41,9 +46,11 @@ def main():
                                     "base_modus_prime_resnet50",
                                     "base_modus_prime_vi-transformer16",
                                 ]:
-                                    score = np.sum(np.array([use_text_modality,
-                                                             use_audio_modality]).astype(
-                                        np.int32))
+                                    score = np.sum(
+                                        np.array(
+                                            [use_text_modality, use_audio_modality]
+                                        ).astype(np.int32)
+                                    )
 
                                     num_gpus = 8 if use_video_modality else 2 * score
 
@@ -62,7 +69,8 @@ def main():
                                         f"use_audio_modality: {use_audio_modality} "
                                         f"use_image_modality: {use_image_modality} "
                                         f"use_video_modality: {use_video_modality} "
-                                        f"use_text_modality: {use_text_modality}")
+                                        f"use_text_modality: {use_text_modality}"
+                                    )
 
                                 template_command = (
                                     f"fuser -k /dev/nvidia*; \\\n"
@@ -84,19 +92,21 @@ def main():
                                     f"datamodule.config.modality_config.audio={use_audio_modality} \\\n"
                                     f"datamodule.config.modality_config.video={use_video_modality} \n\n"
                                 )
-                                exp_dict[f'{dataset_name}_{model_name}_' \
-                                         f'{use_image_modality}_{use_audio_modality}_' \
-                                         f'{use_video_modality}_{use_text_modality}_' \
-                                         f'{batch_size}'] = template_command
+                                exp_dict[
+                                    f"{dataset_name}_{model_name}_"
+                                    f"{use_image_modality}_{use_audio_modality}_"
+                                    f"{use_video_modality}_{use_text_modality}_"
+                                    f"{batch_size}"
+                                ] = template_command
 
     if not os.path.exists(experiment_script_dir):
         os.makedirs(experiment_script_dir)
 
     for name, script_contents in exp_dict.items():
-        with open('setup_scripts/experiment_script_template.sh', 'r') as f:
+        with open("setup_scripts/experiment_script_template.sh", "r") as f:
             template_contents = list(f.readlines())
 
-        with open(os.path.join(experiment_script_dir, f'{name}.sh'), 'w') as f:
+        with open(os.path.join(experiment_script_dir, f"{name}.sh"), "w") as f:
             content_list = list(template_contents)
             content_list.append(script_contents)
             f.writelines(content_list)

@@ -279,11 +279,16 @@ class LogPredictions(Callback):
             data_dict = next(iter(trainer.datamodule.val_dataloader()))
 
             # run the batch through the network
-            data_dict = {key: value.to(device=pl_module.device)
-                         for key, value in data_dict.items()}
+            data_dict = {
+                key: value.to(device=pl_module.device)
+                for key, value in data_dict.items()
+            }
 
-            embedding_feature_dict, cross_modal_cosine_similarities, \
-            targets = pl_module(data_dict)
+            (
+                embedding_feature_dict,
+                cross_modal_cosine_similarities,
+                targets,
+            ) = pl_module(data_dict)
 
             # log the images as wandb Image
             experiment.log(
