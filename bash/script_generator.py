@@ -93,9 +93,9 @@ def main():
                                 )
                                 exp_dict[
                                     f"{dataset_name}_{model_name}_"
-                                    f"{use_image_modality}_{use_audio_modality}_"
-                                    f"{use_video_modality}_{use_text_modality}_"
-                                    f"{batch_size}"
+                                    f"image={use_image_modality}_audio={use_audio_modality}_"
+                                    f"video={use_video_modality}_text={use_text_modality}_"
+                                    f"auto_scale_batch_size=True"
                                 ] = template_command
 
     if not os.path.exists(experiment_script_dir):
