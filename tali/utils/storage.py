@@ -319,11 +319,11 @@ def google_storage_rsync_gs_to_local(
         if len(exclude_list) > 0
         else ""
     )
-    command_string = f"gsutil -m rsync -{options_string} {exclude_string} gs://{bucket_name}/{experiment_name}/ {experiments_root_dir}/; "
+    command_string = f"gsutil -m rsync -{options_string} {exclude_string} gs://{bucket_name}/{experiment_name}/ {experiments_root_dir}/;"
 
-    # screen_command_string = (
-    #     f"screen -dmS gsutil-update bash -c " f'"{command_string}; exec bash"'
-    # )
+    screen_command_string = (
+        f"screen -dmS gsutil-update bash -c '{command_string}; exec bash'"
+    )
     log.debug(command_string + "\n\n")
     os.system(command_string)
 
@@ -338,13 +338,13 @@ def google_storage_rsync_local_to_gs(
         else ""
     )
     command_string = (
-        f"gsutil -m rsync -{options_string} {exclude_string} {experiments_root_dir}/ gs://{bucket_name}/{experiment_name}/; "
+        f"gsutil -m rsync -{options_string} {exclude_string} {experiments_root_dir}/ gs://{bucket_name}/{experiment_name}/;"
         # f"wandb artifact cache cleanup 1GB"
     )
 
-    # screen_command_string = (
-    #     f"screen -dmS gsutil-update bash -c " f'"{command_string}; exec bash"'
-    # )
+    screen_command_string = (
+        f"screen -dmS gsutil-update bash -c '{command_string}; exec bash'"
+    )
 
     log.debug(command_string + "\n\n")
     os.system(command_string)
