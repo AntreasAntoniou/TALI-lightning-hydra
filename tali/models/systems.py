@@ -270,14 +270,23 @@ class ModusPrime(LightningModule):
             )
 
         embedding_feature_dict, cross_modal_cosine_similarities = self.system.forward(
-            batch=batch,
+            batch,
         )
 
-        logits, _ = contrastive_logits_labels(
-            torch.stack(list(cross_modal_cosine_similarities.values()))
+        embedding_feature_dict = self.all_gather(embedding_feature_dict)
+        cross_modal_cosine_similarities = self.all_gather(
+            cross_modal_cosine_similarities
         )
 
-        return logits
+        targets = torch.stack(
+            [
+                contrastive_logits_labels(modality_similarities)[1]
+                for modality_similarities in cross_modal_cosine_similarities.values()
+            ],
+            dim=0,
+        )
+
+        return embedding_feature_dict, cross_modal_cosine_similarities, targets
 
     def collect_metrics_step(self, logits, targets, phase_name):
 

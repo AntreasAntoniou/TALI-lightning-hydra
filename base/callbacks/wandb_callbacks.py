@@ -18,7 +18,8 @@ def get_wandb_logger(trainer: Trainer) -> WandbLogger:
 
     if trainer.fast_dev_run:
         raise Exception(
-            "Cannot use wandb callbacks since pytorch lightning disables loggers in `fast_dev_run=true` mode."
+            "Cannot use wandb callbacks since pytorch lightning disables loggers in "
+            "`fast_dev_run=true` mode."
         )
 
     if isinstance(trainer.logger, WandbLogger):
@@ -30,7 +31,8 @@ def get_wandb_logger(trainer: Trainer) -> WandbLogger:
                 return logger
 
     raise Exception(
-        "You are using wandb related callback, but WandbLogger was not found for some reason..."
+        "You are using wandb related callback, but WandbLogger was not found for "
+        "some reason..."
     )
 
 
@@ -250,7 +252,7 @@ class LogF1PrecRecHeatmap(Callback):
             self.targets.clear()
 
 
-class LogImagePredictions(Callback):
+class LogPredictions(Callback):
     """Logs a validation batch and their predictions to wandb.
     Example adapted from:
         https://wandb.ai/wandb/wandb-lightning/reports/Image-Classification-using-PyTorch-Lightning--VmlldzoyODk1NzY
@@ -274,13 +276,14 @@ class LogImagePredictions(Callback):
             experiment = logger.experiment
 
             # get a validation batch from the validation dat loader
-            val_samples = next(iter(trainer.datamodule.val_dataloader()))
-            val_imgs, val_labels = val_samples
+            data_dict = next(iter(trainer.datamodule.val_dataloader()))
 
             # run the batch through the network
-            val_imgs = val_imgs.to(device=pl_module.device)
-            logits = pl_module(val_imgs)
-            preds = torch.argmax(logits, dim=-1)
+            data_dict = {key: value.to(device=pl_module.device)
+                         for key, value in data_dict.items()}
+
+            embedding_feature_dict, cross_modal_cosine_similarities, \
+            targets = pl_module(data_dict)
 
             # log the images as wandb Image
             experiment.log(

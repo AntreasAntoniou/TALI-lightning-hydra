@@ -8,11 +8,11 @@
 # datamodule.config.modality_config.video=False
 # datamodule.config.modality_config.audio=True
 import numpy as np
+import os
 
 def main():
     # batch_size and gpus should be set by model
-    configs = {}
-
+    experiment_script_dir = 'experiment_runner_scripts/'
     dataset_names = ["base", "milli"]  # , "milli/tali", hecta/tali"]
     system_configs = [
         dict(model_name="centi_modus_prime_resnet50", batch_size=64, num_gpus=-1),
@@ -20,7 +20,7 @@ def main():
         dict(model_name="centi_modus_prime_vi-transformer16", batch_size=64, num_gpus=-1),
         dict(model_name="base_modus_prime_vi-transformer16", batch_size=64, num_gpus=-1),
     ]
-    exp_list = []
+    exp_dict = {}
     for use_image_modality in [True]:
         for use_audio_modality in [False, True]:
             for use_video_modality in [False, True]:
@@ -35,7 +35,6 @@ def main():
                                 ]
                             ):
                                 batch_size = system_config["batch_size"]
-                                num_gpus = system_config["num_gpus"]
                                 model_name = system_config["model_name"]
 
                                 if model_name in [
@@ -52,9 +51,6 @@ def main():
                                     "centi_modus_prime_resnet50",
                                     "centi_modus_prime_vi-transformer16",
                                 ]:
-                                    score = np.sum(np.array([use_text_modality,
-                                                             use_audio_modality]).astype(
-                                        np.int32))
 
                                     num_gpus = 2 if use_video_modality else 1
                                 else:
@@ -86,12 +82,24 @@ def main():
                                     f"datamodule.config.modality_config.image={use_image_modality} \\\n"
                                     f"datamodule.config.modality_config.text={use_text_modality} \\\n"
                                     f"datamodule.config.modality_config.audio={use_audio_modality} \\\n"
-                                    f"datamodule.config.modality_config.video={use_video_modality}\n\n"
+                                    f"datamodule.config.modality_config.video={use_video_modality} \n\n"
                                 )
-                                exp_list.append(template_command)
+                                exp_dict[f'{dataset_name}_{model_name}_' \
+                                         f'{use_image_modality}_{use_audio_modality}_' \
+                                         f'{use_video_modality}_{use_text_modality}_' \
+                                         f'{batch_size}'] = template_command
 
-    with open("bash/experiment_commands.sh", mode="w+") as file_writer:
-        file_writer.writelines(exp_list)
+    if not os.path.exists(experiment_script_dir):
+        os.makedirs(experiment_script_dir)
+
+    for name, script_contents in exp_dict.items():
+        with open('setup_scripts/experiment_script_template.sh', 'r') as f:
+            template_contents = list(f.readlines())
+
+        with open(os.path.join(experiment_script_dir, f'{name}.sh'), 'w') as f:
+            content_list = list(template_contents)
+            content_list.append(script_contents)
+            f.writelines(content_list)
 
 
 if __name__ == "__main__":
