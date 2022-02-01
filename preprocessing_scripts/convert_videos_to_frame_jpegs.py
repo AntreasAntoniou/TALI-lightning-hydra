@@ -109,7 +109,7 @@ if __name__ == "__main__":
     if not os.path.exists(args.target_filepath):
         os.makedirs(args.target_filepath, exist_ok=True)
 
-    target_file_types = (".mp4",)
+    target_file_types = [".mp4"]
 
     failed_jobs = []
     matching_files = defaultdict(list)
