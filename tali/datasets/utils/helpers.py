@@ -1,7 +1,9 @@
 import logging
 import os
 import pathlib
+import re
 import signal
+from collections import defaultdict
 from functools import wraps
 from xml.etree.ElementTree import ElementTree, fromstring
 
@@ -264,22 +266,40 @@ def sample_frame_indexes_to_collect(
 
 def collect_files(args):
     json_file_path, training_set_size_fraction_value = args
-    video_files = list(pathlib.Path(json_file_path.parent).glob("**/*.mp4"))
+    video_files = list(pathlib.Path(json_file_path.parent).glob("**/*.frames"))
     video_key = json_file_path.parent.stem
     folder_list = []
     for file in video_files:
         video_data_filepath = os.fspath(file.resolve())
-        audio_data_filepath = os.fspath(file.resolve()).replace(".mp4", ".aac")
-        meta_data_filepath = os.fspath(json_file_path.resolve())
+        frame_list = list(pathlib.Path(file).glob("**/*.jpg"))
+        frame_list = [os.fspath(frame.resolve()) for frame in frame_list]
 
-        if (
-            pathlib.Path(video_data_filepath).exists()
-            and pathlib.Path(meta_data_filepath).exists()
-            and pathlib.Path(audio_data_filepath).exists()
-        ) and np.random.random() <= training_set_size_fraction_value:
-            folder_list.append(
-                (video_data_filepath, audio_data_filepath, meta_data_filepath)
-            )
+        if len(frame_list) > 0:
+            frame_idx_to_filepath = {
+                int(frame_filepath.split("_")[-1].replace(".jpg", "")): frame_filepath
+                for frame_filepath in frame_list
+            }
+
+            frame_idx_to_filepath = {
+                k: v for k, v in sorted(list(frame_idx_to_filepath.items()))
+            }
+            frame_list = list(frame_idx_to_filepath.values())
+            audio_data_filepath = os.fspath(file.resolve()).replace(".frames", ".aac")
+            meta_data_filepath = os.fspath(json_file_path.resolve())
+
+            if (
+                pathlib.Path(video_data_filepath).exists()
+                and pathlib.Path(meta_data_filepath).exists()
+                and pathlib.Path(audio_data_filepath).exists()
+            ) and np.random.random() <= training_set_size_fraction_value:
+                folder_list.append(
+                    (
+                        frame_list,
+                        video_data_filepath,
+                        audio_data_filepath,
+                        meta_data_filepath,
+                    )
+                )
 
     return video_key, folder_list
 

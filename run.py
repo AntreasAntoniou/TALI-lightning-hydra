@@ -1,6 +1,7 @@
 import dotenv
 import hydra
 from omegaconf import DictConfig
+from rich.traceback import install
 
 # load environment variables from `.env` file if it exists
 # recursively searches for `.env` in all folders starting from work dir
@@ -8,6 +9,7 @@ from tali.run_data_only import sample_datamodule
 from tali.train import multi_train_eval
 
 dotenv.load_dotenv(override=True)
+install(show_locals=True)
 
 
 @hydra.main(config_path="configs", config_name="config")

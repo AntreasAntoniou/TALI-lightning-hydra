@@ -67,10 +67,6 @@ def load(
         "error",  # if log.level >= logging.DEBUG else "quiet",
         "-i",
         filename,
-        # "-ss",
-        # f"{datetime.timedelta(0, start_point_in_seconds)}",
-        # "-t",
-        # f"{datetime.timedelta(0, duration_in_seconds)}",
         "-f",
         format_string,
         "-acodec",
@@ -84,10 +80,12 @@ def load(
     process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=None, stdin=None)
     out, err = process.communicate(None)
 
-    if retcode := process.poll():
+    retcode = process.poll()
+
+    if retcode != 0:
         log.exception(f"Error loading audio file {filename}")
         raise Exception(
-            f"{inspect.stack()[0][3]} " f"returned non-zero exit code {retcode}"
+            f"{inspect.stack()[0][3]} returned non-zero exit code {retcode}"
         )
 
     audio = np.frombuffer(out, dtype=in_type).astype(out_type)

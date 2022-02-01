@@ -15,15 +15,15 @@ from torch.utils.data import Dataset
 
 from base import utils
 from tali.config_repository import TALIDatasetConfig
-from tali.datasets.utils import audio_utils
-from tali.datasets.utils.audio_utils import prevent_error_kill
+from tali.datasets.utils import audio
+from tali.datasets.utils.audio import prevent_error_kill
 from tali.datasets.utils.helpers import (
     collect_files,
     get_text_tokens,
     sample_frame_indexes_to_collect,
     timeout,
 )
-from tali.datasets.utils.video_utils import get_frames_opencv_cpu, get_meta_data_opencv
+from tali.datasets.utils.video import load_frames, get_meta_data_opencv
 from tali.utils.arg_parsing import DictWithDotNotation
 from tali.utils.storage import load_json, save_json
 
@@ -89,72 +89,74 @@ class TALIMultiModalDataset(Dataset):
         self.num_video_clips = len(self.index_to_video_path)
         logging.info(f"num video clips: {self.num_video_clips}")
 
-    def get_frames(self, data_dict, filepath, rng):
+    def get_frames(
+        self,
+        frame_list,
+        video_filepath,
+        audio_filepath,
+        rng,
+    ):
 
-        (
-            total_frames,
-            video_frames_per_second,
-            clip_duration_in_seconds,
-        ) = get_meta_data_opencv(filepath)
+        num_frames_to_sample_for_video = self.config.num_video_frames_per_datapoint
 
-        (video_frame_idx_list, image_frame_idx) = sample_frame_indexes_to_collect(
-            video_length_in_frames=total_frames,
-            num_video_frames_per_datapoint=self.config.num_video_frames_per_datapoint,
-            rng=rng,
-        )
-
-        frames_dict = DictWithDotNotation(
-            dict(
-                total_frames=total_frames,
-                video_frames_per_second=video_frames_per_second,
-                video_frame_idx_list=video_frame_idx_list,
-                image_frame_idx=image_frame_idx,
+        if len(frame_list) < num_frames_to_sample_for_video:
+            selected_frame_list_idx = list(
+                rng.choice(
+                    len(frame_list),
+                    size=(num_frames_to_sample_for_video,),
+                    replace=True,
+                )
             )
-        )
+        else:
+            selected_frame_list_idx = list(
+                rng.choice(
+                    len(frame_list),
+                    size=(num_frames_to_sample_for_video,),
+                    replace=False,
+                )
+            )
+
+        frames_dict = DictWithDotNotation()
 
         frames_dict.video = None
         frames_dict.audio = None
         frames_dict.image = None
 
         if self.config.modality_config.video:
-            frames_dict.video = get_frames_opencv_cpu(
-                filepath=filepath,
-                video_frame_idx_list=video_frame_idx_list,
+            frames_dict.video = load_frames(
                 image_height=self.config.image_shape.height,
                 image_width=self.config.image_shape.width,
                 image_channels=self.config.image_shape.channels,
+                selected_frame_list=[
+                    frame_list[idx] for idx in selected_frame_list_idx
+                ],
             )
 
-            frames_dict.video = frames_dict.video.permute([0, 3, 1, 2])
-
         if self.config.modality_config.audio:
-            audio_filepath = filepath.replace(".mp4", ".aac")
-
             if not pathlib.Path(audio_filepath).exists():
                 return None
 
-            frames_dict.audio = audio_utils.load(
+            frames_dict.audio = audio.load(
                 filename=audio_filepath,
                 sample_rate=self.config.num_audio_sample_rate,
                 mono=False,
                 in_type=np.float32,
                 out_type=np.float32,
-                video_frame_idx_list=video_frame_idx_list,
-                total_video_frames=total_frames,
+                video_frame_idx_list=selected_frame_list_idx,
+                total_video_frames=len(frame_list),
             )
             frames_dict.audio = frames_dict.audio.view(-1, 2)
             frames_dict.audio = frames_dict.audio.permute([1, 0])
 
         if self.config.modality_config.image:
-            frames_dict.image = get_frames_opencv_cpu(
-                filepath=filepath,
-                video_frame_idx_list=image_frame_idx,
+            frames_dict.image = load_frames(
                 image_height=self.config.image_shape.height,
                 image_width=self.config.image_shape.width,
                 image_channels=self.config.image_shape.channels,
+                selected_frame_list=rng.choice(frame_list, (1,)),
             )
 
-            frames_dict.image = frames_dict.image[0].permute([2, 0, 1])
+            frames_dict.image = frames_dict.image[0]
 
         return frames_dict
 
@@ -203,15 +205,6 @@ class TALIMultiModalDataset(Dataset):
 
     @prevent_error_kill
     def __getitem__(self, index):
-        # we have:
-        # audio with exact clipping of whatever start-end segment we want
-        # video structured as a per second list of tensors, each tensor containing a
-        # series of images
-        # text structured as a list of sentences, as well as a list that maps seconds to
-        # sentence whose parts play at that second
-        # video_key, value_idx = self.index_to_item_address[
-        #     index % len(self.index_to_item_address)
-        # ]
         actual_index = index % self.num_video_clips
         current_time_rng = int(time.time_ns() % 100000)
         rng = np.random.RandomState(current_time_rng)
@@ -219,24 +212,21 @@ class TALIMultiModalDataset(Dataset):
         torch_rng.manual_seed(current_time_rng)
 
         (
-            video_data_filepath,
-            audio_data_filepath,
+            frame_list,
+            video_filepath,
+            audio_filepath,
             meta_data_filepath,
         ) = self.index_to_video_path[actual_index]
-        # sub_video_idx = rng.choice(len((self.path_dict[video_key])))
-        # (video_data_filepath, audio_data_filepath, meta_data_filepath) = self.path_dict[
-        #     video_key
-        # ][sub_video_idx]
 
         video_segment_idx = int(
             re.match(
-                r"full_video_360p(.*).mp4", video_data_filepath.split("/")[-1]
+                r"full_video_360p(.*).frames", video_filepath.split("/")[-1]
             ).groups()[0]
         )
 
-        total_frames, fps, duration_in_seconds = get_meta_data_opencv(
-            video_data_filepath
-        )
+        total_frames = len(frame_list)
+        fps = 8
+        duration_in_seconds = total_frames / float(fps)
 
         start_time_relative_to_full_video = int(video_segment_idx * 10)
 
@@ -266,7 +256,10 @@ class TALIMultiModalDataset(Dataset):
                 data_dict.text = data_dict.text.type(torch.int32)
 
         frames_dict = self.get_frames(
-            data_dict=data_dict, filepath=video_data_filepath, rng=rng
+            frame_list=frame_list,
+            video_filepath=video_filepath,
+            audio_filepath=audio_filepath,
+            rng=rng,
         )
 
         if frames_dict is not None:
@@ -299,28 +292,28 @@ class TALIMultiModalDataset(Dataset):
         }
 
         if self.config.modality_config.image and "image" not in data_dict:
-            video_path = pathlib.Path(video_data_filepath)
+            video_path = pathlib.Path(video_filepath)
             audio_path = video_path.with_suffix(".aac")
             video_path.unlink()
             audio_path.unlink()
             return None
 
         if self.config.modality_config.video and "video" not in data_dict:
-            video_path = pathlib.Path(video_data_filepath)
+            video_path = pathlib.Path(video_filepath)
             audio_path = video_path.with_suffix(".aac")
             video_path.unlink()
             audio_path.unlink()
             return None
 
         if self.config.modality_config.audio and "audio" not in data_dict:
-            video_path = pathlib.Path(video_data_filepath)
+            video_path = pathlib.Path(video_filepath)
             audio_path = video_path.with_suffix(".aac")
             video_path.unlink()
             audio_path.unlink()
             return None
 
         if self.config.modality_config.text and "text" not in data_dict:
-            video_path = pathlib.Path(video_data_filepath)
+            video_path = pathlib.Path(video_filepath)
             audio_path = video_path.with_suffix(".aac")
             video_path.unlink()
             audio_path.unlink()
@@ -353,7 +346,6 @@ class TALIMultiModalDataset(Dataset):
     def _scan_paths_return_dict(self, training_set_fraction_value):
 
         path_dict = {}
-        # caption_store_dict = {}
         logging.info(self.dataset_dir)
 
         matched_meta_data_files = list(

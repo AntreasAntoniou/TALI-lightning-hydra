@@ -19,7 +19,7 @@ import numpy as np
 import tqdm
 from gate.utils.logging_helpers import get_logging
 
-from tali.datasets.utils.audio_utils import load
+from tali.datasets.utils.audio import load
 
 
 def get_base_arguments():

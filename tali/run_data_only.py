@@ -42,7 +42,7 @@ def sample_datamodule(config: DictConfig):
     datamodule.setup(stage="test")
     total_valid = 0
     total_invalid = 0
-    for _ in range(config.trainer.max_epochs):
+    for _ in range(10):
         total_samples = len(datamodule.train_dataloader()) * config.batch_size
         total_valid = 0
         with tqdm.tqdm(total=len(datamodule.train_dataloader()), smoothing=0.0) as pbar:
@@ -78,7 +78,7 @@ def sample_datamodule(config: DictConfig):
                 # )
                 #
                 # for item_idx, audio_item in enumerate(item_batch["audio"]):
-                #     logging.info(f'{torch.mean(audio_item), torch.std(audio_item)}, ')
+                #     logging.info(f"{torch.mean(audio_item), torch.std(audio_item)}, ")
                 #     # torchaudio.save(
                 #     #     f"save_example_default_{item_idx}.wav",
                 #     #     audio_item.permute([1, 0]),
@@ -86,12 +86,14 @@ def sample_datamodule(config: DictConfig):
                 #     # )
                 #     for channel in range(2):
                 #         fig = plot_with_spectrum(audio_item[channel], rate=44100)
-                #         fig.savefig(f"{config.current_experiment_dir}/{item_idx}_{channel}.png")
+                #         fig.savefig(
+                #             f"{config.current_experiment_dir}/{item_idx}_{channel}.png"
+                #         )
                 #         plt.close()
                 #
                 # plt.imshow(grid.permute([1, 2, 0]).cpu().numpy())
                 # plt.show()
-                # input('Press enter key to continue 🎹')
+                # input("Press enter key to continue 🎹")
 
         total_samples = len(datamodule.test_dataloader()) * config.batch_size
         total_valid = 0
