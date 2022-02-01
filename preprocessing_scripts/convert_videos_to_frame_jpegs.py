@@ -61,34 +61,38 @@ def convert_video_to_frames(path_tuple: Tuple[pathlib.Path, pathlib.Path]):
     if not output_dir.exists():
         output_dir.mkdir(parents=True)
 
-    command_string = [
-        f"ffmpeg",
-        f"-hide_banner",
-        f"-loglevel",
-        f"error",  # if log.level >= logging.DEBUG else "quiet",
-        f"-i",
-        f"{video_filepath_string}",
-        f"-r",
-        f"8/1",
-        f"-qscale:v",
-        f"4",
-        f"-vf",
-        f"scale=320:-1",
-        f"{output_dir_string}/{video_filepath.stem}_%04d.jpg",
-    ]
+    return_code = 0
 
-    process = subprocess.Popen(command_string, stdout=None, stderr=None, stdin=None)
+    if pathlib.Path(f"{output_dir_string}".replace(".frames", ".mp4")).exists():
 
-    out, err = process.communicate(None)
+        command_string = [
+            f"ffmpeg",
+            f"-hide_banner",
+            f"-loglevel",
+            f"error",  # if log.level >= logging.DEBUG else "quiet",
+            f"-i",
+            f"{video_filepath_string}",
+            f"-r",
+            f"8/1",
+            f"-qscale:v",
+            f"4",
+            f"-vf",
+            f"scale=320:-1",
+            f"{output_dir_string}/{video_filepath.stem}_%04d.jpg",
+        ]
 
-    return_code = process.poll()
+        process = subprocess.Popen(command_string, stdout=None, stderr=None, stdin=None)
 
-    if return_code != 0:
-        log.exception(f"Error converting file {video_filepath_string}")
-    else:
-        delete_file_if_exists(
-            pathlib.Path(f"{output_dir_string}".replace(".frames", ".mp4"))
-        )
+        out, err = process.communicate(None)
+
+        return_code = process.poll()
+
+        if return_code != 0:
+            log.exception(f"Error converting file {video_filepath_string}")
+        else:
+            delete_file_if_exists(
+                pathlib.Path(f"{output_dir_string}".replace(".frames", ".mp4"))
+            )
 
     return video_filepath_string, return_code
 
