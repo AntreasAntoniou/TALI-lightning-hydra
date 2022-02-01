@@ -55,7 +55,7 @@ def convert_video_to_frames(path_tuple: Tuple[pathlib.Path, pathlib.Path]):
         f"ffmpeg",
         f"-hide_banner",
         f"-loglevel",
-        f"error" if log.level >= logging.DEBUG else "quiet",
+        f"error",# if log.level >= logging.DEBUG else "quiet",
         f"-i",
         f"{video_filepath_string}",
         f"-r",
