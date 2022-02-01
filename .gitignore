@@ -146,4 +146,3 @@ logs/
 wandb/
 .env
 .autoenv
-/setup_scripts/startup_script_template.sh
