@@ -102,15 +102,14 @@ def delete_file_if_exists(path: pathlib.Path):
 
 if __name__ == "__main__":
     args = get_base_arguments()
-    log.info(f'START THIS\n\n\n')
-    print('start this')
+
     if not os.path.exists(args.source_filepath):
         log.error(f"Source path {args.source_filepath} not found")
 
     if not os.path.exists(args.target_filepath):
         os.makedirs(args.target_filepath, exist_ok=True)
 
-    target_file_types = ".mp4"
+    target_file_types = (".mp4",)
 
     failed_jobs = []
     matching_files = defaultdict(list)
