@@ -113,7 +113,7 @@ if __name__ == "__main__":
     log.info(f"Current working directory is {args.source_filepath}")
     with tqdm.tqdm() as pbar:
         for file_type in target_file_types:
-            for filepath in pathlib.Path(args.source_filepath).glob(f"**/*{file_type}"):
+            for filepath in pathlib.Path(args.source_filepath).glob(f"**/**/*{file_type}"):
                 source_filepath_string = os.fspath(filepath.resolve())
                 target_folderpath_string = source_filepath_string.replace(
                     args.source_filepath, args.target_filepath
