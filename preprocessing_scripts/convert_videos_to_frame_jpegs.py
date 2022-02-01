@@ -24,13 +24,14 @@ ch = RichHandler()
 ch.setLevel(logging.DEBUG)
 
 # create formatter
-formatter = logging.Formatter('%(levelname)s - %(message)s')
+formatter = logging.Formatter("%(levelname)s - %(message)s")
 
 # add formatter to ch
 ch.setFormatter(formatter)
 
 # add ch to logger
 log.addHandler(ch)
+
 
 class VideoToFrameError(Exception):
     """Base class for exceptions in this module."""
@@ -64,7 +65,7 @@ def convert_video_to_frames(path_tuple: Tuple[pathlib.Path, pathlib.Path]):
         f"ffmpeg",
         f"-hide_banner",
         f"-loglevel",
-        f"error",# if log.level >= logging.DEBUG else "quiet",
+        f"error",  # if log.level >= logging.DEBUG else "quiet",
         f"-i",
         f"{video_filepath_string}",
         f"-r",
@@ -85,7 +86,9 @@ def convert_video_to_frames(path_tuple: Tuple[pathlib.Path, pathlib.Path]):
     if return_code != 0:
         log.exception(f"Error converting file {video_filepath_string}")
     else:
-        pathlib.Path(f"{output_dir_string}".replace('.frames', '.mp4')).unlink()
+        delete_file_if_exists(
+            pathlib.Path(f"{output_dir_string}".replace(".frames", ".mp4"))
+        )
 
     return video_filepath_string, return_code
 
