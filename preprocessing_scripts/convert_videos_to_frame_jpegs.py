@@ -5,10 +5,8 @@ using multiple parallel processes"""
 
 import argparse
 import concurrent.futures
-import inspect
 import logging
 import multiprocessing as mp
-import shutil
 import subprocess
 import os
 import pathlib
@@ -18,8 +16,6 @@ import sys
 from collections import defaultdict
 from typing import Tuple
 from rich.logging import RichHandler
-import cv2
-import numpy as np
 import tqdm
 
 log = logging.getLogger(__name__)
