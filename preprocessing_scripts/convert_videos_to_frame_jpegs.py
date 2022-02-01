@@ -6,7 +6,7 @@ using multiple parallel processes"""
 import argparse
 import concurrent.futures
 import inspect
-import logging as log
+import logging
 import multiprocessing as mp
 import shutil
 import subprocess
@@ -22,6 +22,8 @@ import cv2
 import numpy as np
 import tqdm
 
+log = logging.getLogger(__name__)
+log.setLevel(logging.INFO)
 
 class VideoToFrameError(Exception):
     """Base class for exceptions in this module."""
