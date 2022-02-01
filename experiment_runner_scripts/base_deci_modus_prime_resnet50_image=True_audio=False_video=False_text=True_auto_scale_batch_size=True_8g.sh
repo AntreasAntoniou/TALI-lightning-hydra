@@ -18,10 +18,10 @@ python $CODE_DIR/run.py \
 hydra.verbose=True \
 trainer=default \
 resume=True \
-batch_size=16 \
+batch_size=512 \
 trainer.gpus=8 \
-trainer.auto_scale_batch_size=True \
-datamodule.config.rescan_paths=True \
+trainer.auto_scale_batch_size=False \
+datamodule.config.rescan_paths=False \
 datamodule.prefetch_factor=3 \
 datamodule.num_workers=96 \
 model=deci_modus_prime_resnet50 \
