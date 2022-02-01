@@ -17,14 +17,14 @@ import random
 import sys
 from collections import defaultdict
 from typing import Tuple
-
+from rich.logging import RichHandler
 import cv2
 import numpy as np
 import tqdm
 
 log = logging.getLogger(__name__)
 log.setLevel(logging.DEBUG)
-ch = logging.StreamHandler()
+ch = RichHandler()
 ch.setLevel(logging.DEBUG)
 
 # create formatter
