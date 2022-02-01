@@ -98,8 +98,9 @@ def convert_video_to_frames(path_tuple: Tuple[pathlib.Path, pathlib.Path]):
 
 
 def delete_file_if_exists(path: pathlib.Path):
-    log.error(f"Deleting {path}")
+
     if path.exists():
+        log.info(f"Deleting {path}")
         path.unlink()
 
 
