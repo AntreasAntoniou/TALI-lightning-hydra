@@ -6,7 +6,7 @@ using multiple parallel processes"""
 import argparse
 import concurrent.futures
 import inspect
-import logging
+import logging as log
 import multiprocessing as mp
 import shutil
 import subprocess
@@ -21,9 +21,6 @@ from typing import Tuple
 import cv2
 import numpy as np
 import tqdm
-from base import utils
-
-log = utils.get_logger(__name__)
 
 
 class VideoToFrameError(Exception):
