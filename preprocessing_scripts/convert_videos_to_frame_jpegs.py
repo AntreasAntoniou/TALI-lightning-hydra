@@ -23,7 +23,7 @@ import numpy as np
 import tqdm
 
 log = logging.getLogger(__name__)
-log.setLevel(logging.INFO)
+log.setLevel(logging.DEBUG)
 
 class VideoToFrameError(Exception):
     """Base class for exceptions in this module."""
