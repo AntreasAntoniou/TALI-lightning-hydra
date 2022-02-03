@@ -87,7 +87,7 @@ def convert_video_to_frames(path_tuple: Tuple[pathlib.Path, pathlib.Path]):
         out, err = process.communicate(None)
 
         return_code = process.poll()
-
+        log.info(f"{return_code}")
         if return_code != 0:
             log.exception(f"Error converting file {video_filepath_string}")
         else:
