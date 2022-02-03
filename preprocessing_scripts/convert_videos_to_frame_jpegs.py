@@ -17,7 +17,7 @@ from collections import defaultdict
 from typing import Tuple
 
 from rich.logging import RichHandler
-from tqdm.rich import tqdm
+import tqdm.rich as tqdm
 
 log = logging.getLogger(__name__)
 log.setLevel(logging.DEBUG)
