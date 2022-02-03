@@ -23,3 +23,9 @@ if [ ! -d "$DATASET_DIR" ]; then
   chmod -Rv 777 $DATASET_DIR
 fi
 
+#if [ ! -d "$NEW_MOUNT_DIR" ]; then
+#  mkdir -p $NEW_MOUNT_DIR
+#  chmod -Rv 777 $NEW_MOUNT_DIR
+#fi
+#
+#mount -o discard,defaults /dev/sdc $NEW_MOUNT_DIR
