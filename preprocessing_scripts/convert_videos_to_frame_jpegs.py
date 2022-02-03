@@ -142,10 +142,10 @@ if __name__ == "__main__":
         num_samples = len(matching_files[file_type])
         log.info(f"Converting {num_samples}  {file_type} files to jpeg frames")
         target_func = convert_video_to_frames
-        with concurrent.futures.ProcessPoolExecutor(
-            max_workers=args.num_processes
-        ) as executor:
-            with tqdm.tqdm(total=num_samples, smoothing=0.0) as pbar:
+        with tqdm.tqdm(total=num_samples, smoothing=0.0) as pbar:
+            with concurrent.futures.ProcessPoolExecutor(
+                max_workers=args.num_processes
+            ) as executor:
                 for job_idx, (video_filepath_string, return_code) in enumerate(
                     executor.map(target_func, matching_files[file_type]),
                     start=1,
