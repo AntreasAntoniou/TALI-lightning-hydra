@@ -5,20 +5,8 @@ from torch import nn
 from transformers import CLIPTokenizerFast
 
 from base import utils
-from tali.datasets.utils.simple_tokenizer import SimpleTokenizer
-from tali.datasets.utils.tokenizers import tokenize
 
 log = utils.get_logger(__name__)
-
-
-class BPETokenizer(nn.Module):
-    def __init__(self, context_length):
-        super(BPETokenizer, self).__init__()
-        self.tokenizer = SimpleTokenizer()
-        self.context_length = context_length
-
-    def forward(self, x):
-        return tokenize(x, tokenizer=self.tokenizer, context_length=self.context_length)
 
 
 class HuggingFaceBPETokenizer(nn.Module):
@@ -48,10 +36,11 @@ class HuggingFaceBPETokenizer(nn.Module):
             return torch.cat([tokenized_tensor, padding_tensor], dim=0)
         except Exception:
             log.error(f"Error bro {preshape} {postshape}.")
-        # logging.info(f'{x} {tokenized_words} {torch.Tensor(tokenized_words).shape} {padding_tensor}')
 
     def batch_decode(self, x):
-        return self.tokenizer.batch_decode(x)
+        return self.tokenizer.batch_decode(
+            x, skip_special_tokens=True, clean_up_tokenization_spaces=True
+        )
 
     def decode(self, x):
         return self.tokenizer.decode(x)

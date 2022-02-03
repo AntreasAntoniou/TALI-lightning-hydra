@@ -10,7 +10,7 @@ from typing import Callable, Dict, List, Union
 
 import numpy as np
 import torch
-import tqdm
+import tqdm.rich as tqdm
 from torch.utils.data import Dataset
 
 from base import utils
@@ -19,11 +19,9 @@ from tali.datasets.utils import audio
 from tali.datasets.utils.audio import prevent_error_kill
 from tali.datasets.utils.helpers import (
     collect_files,
-    get_text_tokens,
-    sample_frame_indexes_to_collect,
-    timeout,
 )
-from tali.datasets.utils.video import load_frames, get_meta_data_opencv
+from tali.datasets.utils.text import get_text_tokens
+from tali.datasets.utils.video import load_frames
 from tali.utils.arg_parsing import DictWithDotNotation
 from tali.utils.storage import load_json, save_json
 
@@ -98,24 +96,28 @@ class TALIMultiModalDataset(Dataset):
     ):
 
         num_frames_to_sample_for_video = self.config.num_video_frames_per_datapoint
-
+        # log.info(f"{len(frame_list)}, {num_frames_to_sample_for_video}")
         if len(frame_list) < num_frames_to_sample_for_video:
-            selected_frame_list_idx = list(
-                rng.choice(
-                    len(frame_list),
-                    size=(num_frames_to_sample_for_video,),
-                    replace=True,
+            selected_frame_list_idx = sorted(
+                list(
+                    rng.choice(
+                        len(frame_list),
+                        size=(num_frames_to_sample_for_video,),
+                        replace=True,
+                    )
                 )
             )
         else:
-            selected_frame_list_idx = list(
-                rng.choice(
-                    len(frame_list),
-                    size=(num_frames_to_sample_for_video,),
-                    replace=False,
+            selected_frame_list_idx = sorted(
+                list(
+                    rng.choice(
+                        len(frame_list),
+                        size=(num_frames_to_sample_for_video,),
+                        replace=False,
+                    )
                 )
             )
-
+        # log.info(f"selected_frame_list_idx {selected_frame_list_idx}")
         frames_dict = DictWithDotNotation()
 
         frames_dict.video = None
@@ -136,7 +138,7 @@ class TALIMultiModalDataset(Dataset):
             if not pathlib.Path(audio_filepath).exists():
                 return None
 
-            frames_dict.audio = audio.load(
+            frames_dict.audio = audio.load_to_tensor(
                 filename=audio_filepath,
                 sample_rate=self.config.num_audio_sample_rate,
                 mono=False,
@@ -163,45 +165,28 @@ class TALIMultiModalDataset(Dataset):
     def get_text_data_tensors(
         self,
         rng,
-        data_dict,
         meta_data_filepath,
         start_time_relative_to_full_video,
         duration_in_seconds,
     ):
-        data_dict.text = get_text_tokens(
+        text = get_text_tokens(
             meta_data_filepath=meta_data_filepath,
             start_timestamp=start_time_relative_to_full_video,
             end_timestamp=start_time_relative_to_full_video + duration_in_seconds,
         )
 
-        if len(data_dict.text) == 0:
-            data_dict.text = "No detected speech"
-            return None
+        if not text:
+            text = "No detected speech"
         else:
-            data_dict.text_start_point_in_seconds = rng.choice(
-                list(data_dict.text.keys())
-            ).item()
-
-            data_dict.text = [
+            text = [
                 value.split(" ") if isinstance(value, str) else value
-                for key, value in data_dict.text.items()
-                if data_dict.text_start_point_in_seconds >= key
+                for key, value in text.items()
             ]
+            text = list(itertools.chain.from_iterable(text))
+            text = [token.replace(" ", "") for token in text]
+            text = " ".join(text) if len(text) > 1 else text
 
-            data_dict.text = list(itertools.chain.from_iterable(data_dict.text))
-            data_dict.text = data_dict.text[: self.config.text_context_length]
-            data_dict.text = [token.replace(" ", "") for token in data_dict.text]
-            data_dict.text = (
-                " ".join(data_dict.text) if len(data_dict.text) > 1 else data_dict.text
-            )
-
-            data_dict.start_point_in_seconds = (
-                data_dict.text_start_point_in_seconds
-                - start_time_relative_to_full_video
-            )
-            data_dict.end_point_in_seconds = duration_in_seconds
-
-        return data_dict.text
+        return text
 
     @prevent_error_kill
     def __getitem__(self, index):
@@ -242,7 +227,6 @@ class TALIMultiModalDataset(Dataset):
         if self.config.modality_config.text:
             data_dict.text = self.get_text_data_tensors(
                 rng,
-                data_dict,
                 meta_data_filepath,
                 start_time_relative_to_full_video,
                 duration_in_seconds,
@@ -318,6 +302,8 @@ class TALIMultiModalDataset(Dataset):
             video_path.unlink()
             audio_path.unlink()
             return None
+
+        data_dict["filepath"] = video_filepath
 
         return data_dict
 

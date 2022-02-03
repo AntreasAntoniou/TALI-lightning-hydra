@@ -1,4 +1,4 @@
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List
 
 import pytorch_lightning as pl
 from pytorch_lightning import Callback

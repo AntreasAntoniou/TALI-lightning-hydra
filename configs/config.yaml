@@ -22,7 +22,10 @@ defaults:
 
 resume: True
 checkpoint_path: null
-debug_data: False
+
+debug_data: True
+visualize_data: True
+upload_data_to_wandb: False
 
 # pretty print config at the start of the run using Rich library
 print_config: True

@@ -16,10 +16,10 @@ from collections import defaultdict
 
 import cv2
 import numpy as np
-import tqdm
+import tqdm.rich as tqdm
 from gate.utils.logging_helpers import get_logging
 
-from tali.datasets.utils.audio import load
+from tali.datasets.utils.audio import load_to_tensor
 
 
 def get_base_arguments():
@@ -61,7 +61,7 @@ def verify_video(path: pathlib.Path):
 def verify_audio(path: pathlib.Path):
     audio_filepath = os.fspath(path.resolve())
     try:
-        load(
+        load_to_tensor(
             filename=audio_filepath,
             start_point_in_seconds=1,
             duration_in_seconds=7,

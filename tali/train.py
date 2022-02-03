@@ -1,6 +1,5 @@
 import os
 import pathlib
-import shutil
 from typing import Dict, List, Optional
 
 import hydra
@@ -22,8 +21,6 @@ log = utils.get_logger(__name__)
 
 from tali.utils.storage import (
     google_storage_rsync_gs_to_local,
-    google_storage_rsync_local_to_gs,
-    pretty_print_dict,
 )
 
 torch.cuda.is_available()

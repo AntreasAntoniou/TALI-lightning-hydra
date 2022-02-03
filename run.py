@@ -6,10 +6,10 @@ from rich.traceback import install
 # load environment variables from `.env` file if it exists
 # recursively searches for `.env` in all folders starting from work dir
 from tali.run_data_only import sample_datamodule
-from tali.train import multi_train_eval
+from tali.sample_actuate_data import sample_and_upload_datamodule
 
 dotenv.load_dotenv(override=True)
-install(show_locals=True)
+install(show_locals=True, extra_lines=1, word_wrap=True, width=350)
 
 
 @hydra.main(config_path="configs", config_name="config")
@@ -32,9 +32,11 @@ def main(config: DictConfig):
         utils.print_config(config, resolve=True)
 
     if config.debug_data:
-        # Train multiple models using cloud compute using ray when
-        # given a list of search options
+        # iterate through dataloaders only with current config
+        # -- used to test datamodules
         return sample_datamodule(config)
+    elif config.upload_data_to_wandb:
+        return sample_and_upload_datamodule(config)
     else:
         # Train model in a single run
         return train_eval(config)

@@ -7,16 +7,17 @@ import argparse
 import concurrent.futures
 import logging
 import multiprocessing as mp
-import subprocess
 import os
 import pathlib
 import pprint
 import random
+import subprocess
 import sys
 from collections import defaultdict
 from typing import Tuple
+
 from rich.logging import RichHandler
-import tqdm
+from tqdm.rich import tqdm
 
 log = logging.getLogger(__name__)
 log.setLevel(logging.DEBUG)

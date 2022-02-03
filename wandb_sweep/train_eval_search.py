@@ -10,9 +10,8 @@ import os
 import random
 from time import sleep
 
-import torch
-import numpy as np
 import GPUtil
+import numpy as np
 import wandb
 
 from base import utils

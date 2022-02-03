@@ -3,11 +3,10 @@ from __future__ import print_function
 import logging as log
 from typing import Optional
 
-import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from clip.model import LayerNorm, ModifiedResNet, Transformer
+from clip.model import ModifiedResNet
 from einops import rearrange, repeat
 from gate.architectures import SqueezeExciteConv1dBNLeakyReLU
 from transformers import (

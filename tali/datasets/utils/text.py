@@ -1,68 +1,85 @@
-import cv2
+import logging
+import pathlib
+
+import defusedxml.ElementTree as ET
+import numpy as np
+
+from tali.utils.storage import load_json
+
+log = logging.getLogger(__name__)
 
 
-def extract_frames_from_video_file(filepath):
-    cap = cv2.VideoCapture(filepath)
+def load_text_into_language_time_stamps(filepath):
+    filepath = pathlib.Path(f"{filepath}".replace("\n", ""))
+    caption_data_filepath = pathlib.Path(
+        filepath.parent / "start_timestamp_to_caption_dict.yaml"
+    )
 
-    # Get the frames per second
-    num_total_frames = cap.get(cv2.CAP_PROP_FRAME_COUNT)
-    fps = cap.get(cv2.CAP_PROP_FPS)
+    # if caption_data_filepath.exists():
+    #     return load_yaml(caption_data_filepath)
 
-    frame_list = [i for i in range(int(num_total_frames))]
-    image_list = []
+    meta_data = load_json(filepath)
 
-    for frame_number in frame_list:
+    captions = meta_data["captions"]
 
-        cap.set(cv2.CAP_PROP_POS_FRAMES, frame_number)  # optional
-        success, image = cap.read()
+    captions_matched = {
+        key: value for key, value in captions.items() if key in ["a.en", "en"]
+    }
 
-        while success and frame_number <= num_total_frames:
-            # do stuff
+    if len(captions_matched) > 1:
+        selected_key = "en"
+    else:
+        selected_key = list(captions_matched.keys())[0]
 
-            frame_number += fps
-            cap.set(cv2.CAP_PROP_POS_FRAMES, frame_number)
-            success, image = cap.read()
-            image_list.append(image)
+    selected_captions = captions_matched[selected_key]
+    xml_tree = ET.fromstring(selected_captions)
 
-    return image_list, fps, num_total_frames
+    root = list(xml_tree.iter())
+    timestamp_to_caption_dict = {}
 
+    for item in root:
+        if selected_key == "a.en":
+            children_text = [
+                child.text.replace("\n", " ")
+                for child in item
+                if child.text is not None
+            ]
+            if item.tag == "p" and children_text:
+                timestamp_to_caption_dict[
+                    float(item.attrib["t"]) / 1000
+                ] = children_text
 
-def extract_specific_frame_from_video(filepath, frame_list, cap=None):
+        elif selected_key == "en":
+            if item.tag == "p" and len(item.items()) == 2:
+                [(_, start), (_, dur)] = item.items()
 
-    if not cap:
-        cap = cv2.VideoCapture(filepath)
+                timestamp_to_caption_dict[float(start) / 1000] = (
+                    item.text.replace("\n", " ") if item.text is not None else ""
+                )
 
-    # Get the frames per second
-    num_total_frames = cap.stream.get(cv2.CAP_PROP_FRAME_COUNT)
-    fps = cap.get(cv2.CAP_PROP_FPS)
+    # save_yaml(object_to_store=timestamp_to_caption_dict, filepath=caption_data_filepath)
 
-    image_list = []
-
-    for frame_number in frame_list:
-
-        cap.set(cv2.CAP_PROP_POS_FRAMES, frame_number)  # optional
-        success, image = cap.read()
-
-        while success and frame_number <= num_total_frames:
-            # do stuff
-
-            frame_number += fps
-            cap.set(cv2.CAP_PROP_POS_FRAMES, frame_number)
-            success, image = cap.read()
-            image_list.append(image)
-
-    return image_list, fps, num_total_frames
-
-
-def get_num_total_frames(filepath, cap=None):
-    if not cap:
-        cap = cv2.VideoCapture(filepath)
-
-    return cap.stream.get(cv2.CAP_PROP_FRAME_COUNT)
+    return timestamp_to_caption_dict
 
 
-def get_frames_per_second(filepath, cap=None):
-    if not cap:
-        cap = cv2.VideoCapture(filepath)
+def get_text_tokens(meta_data_filepath, start_timestamp, end_timestamp):
+    # logging.info(f'{start_timestamp} {end_timestamp}')
+    timestamp_to_caption_dict = load_text_into_language_time_stamps(
+        filepath=meta_data_filepath
+    )
+    start_timestamp = float(np.floor(start_timestamp))
+    end_timestamp = float(np.floor(end_timestamp))
 
-    return cap.get(cv2.CAP_PROP_FPS)
+    temp_timestamp_to_caption_dict = {}
+
+    for current_start_timestamp in sorted(timestamp_to_caption_dict.keys()):
+        current_start_timestamp_float = float(current_start_timestamp)
+        if start_timestamp <= current_start_timestamp_float <= end_timestamp:
+            temp_timestamp_to_caption_dict[
+                current_start_timestamp_float
+            ] = timestamp_to_caption_dict[current_start_timestamp]
+
+        if current_start_timestamp_float > end_timestamp:
+            break
+
+    return temp_timestamp_to_caption_dict

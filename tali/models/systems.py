@@ -1,13 +1,12 @@
 import logging
-from typing import Any, Callable, Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional, Union
 
 import hydra.utils
 import numpy as np
 import torch
-import torch.nn.functional as F
-from pytorch_lightning import LightningDataModule, LightningModule
+from pytorch_lightning import LightningModule
 from torch import nn
-from torchmetrics import MaxMetric, Metric
+from torchmetrics import Metric
 from torchmetrics.classification.accuracy import Accuracy
 
 from base import utils
@@ -18,10 +17,7 @@ from tali.config_repository import (
     AutoCLIPVisionTransformerConfig,
     AutoConv1DTransformersConfig,
     AutoVideoTransformersConfig,
-    GoogleStorageConfig,
 )
-from tali.utils.metric_tracking import compute_accuracy
-from tali.utils.storage import google_storage_rsync_local_to_gs
 
 log = utils.get_logger(__name__)
 

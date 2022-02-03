@@ -1,11 +1,12 @@
-import datetime
 import inspect
 import logging
+import pathlib
 import subprocess
 import time
 
 import numpy as np
 import torch
+from torchaudio.backend.sox_io_backend import save
 
 log = logging.getLogger(__name__)
 
@@ -36,9 +37,15 @@ def prevent_error_kill(method):
     return try_catch_return
 
 
+class AudioLoadingError(Exception):
+    """Base class for exceptions in this module."""
+
+    pass
+
+
 # load_audio can not detect the input type
 @timeit
-def load(
+def load_to_tensor(
     filename: str,
     sample_rate: int = 44100,
     num_audio_frames_per_datapoint: int = 88200,
@@ -48,9 +55,6 @@ def load(
     video_frame_idx_list=None,
     total_video_frames=1,
 ):
-    # logging.info(
-    #     f'load "{filename}", start_point_in_seconds: {start_point_in_seconds}, duration_in_seconds: {duration_in_seconds}, sr: {sr}, mono: {mono}, normalize: {normalize}, in_type: {in_type}, out_type: {out_type}, log_time: {log_time}, frames_to_collect: {len(frames_to_collect)}'
-    # )
     channels = 1 if mono else 2
     format_strings = {
         np.float64: "f64le",
@@ -84,7 +88,7 @@ def load(
 
     if retcode != 0:
         log.exception(f"Error loading audio file {filename}")
-        raise Exception(
+        raise AudioLoadingError(
             f"{inspect.stack()[0][3]} returned non-zero exit code {retcode}"
         )
 
@@ -96,63 +100,28 @@ def load(
 
     num_audio_frames = audio.shape[0]
 
-    audio_frames_per_video_frame_actual = int(
-        np.floor(num_audio_frames / total_video_frames)
-    )
-
-    audio_frames_per_video_frame_to_sample = int(
-        np.floor(num_audio_frames_per_datapoint / len(video_frame_idx_list))
-    )
-
-    map_to_full_audio = lambda x: int(
-        np.floor((x / total_video_frames) * num_audio_frames)
-    )
-
-    if video_frame_idx_list is not None:
-        audio_temp = torch.zeros((num_audio_frames_per_datapoint, audio.shape[1]))
-        for idx, video_frame_idx in enumerate(video_frame_idx_list):
-            audio_frame_idx_range = (
-                map_to_full_audio(x=video_frame_idx),
-                map_to_full_audio(x=video_frame_idx)
-                + audio_frames_per_video_frame_to_sample,
-            )
-
-            audio_temp_idx_range = (
-                idx * audio_frames_per_video_frame_to_sample,
-                (idx + 1) * audio_frames_per_video_frame_to_sample,
-            )
-            # log.debug(
-            #     f"{audio.shape}, "
-            #     f"{audio_temp_idx_range}, {audio_frame_idx_range}, "
-            #     f"{audio_temp[audio_temp_idx_range[0]: audio_temp_idx_range[1]].shape}, "
-            #     f"{audio[audio_frame_idx_range[0]: audio_frame_idx_range[1]].shape}"
-            # )
-
-            audio_chunk = audio[audio_frame_idx_range[0] : audio_frame_idx_range[1]]
-
-            if 0 < audio_chunk.shape[0] < audio_frames_per_video_frame_to_sample:
-                padding_size = (
-                    audio_frames_per_video_frame_to_sample - audio_chunk.shape[0]
-                )
-                audio_chunk = torch.cat(
-                    [audio_chunk, torch.zeros((padding_size, audio_chunk.shape[1]))]
-                )
-
-            audio_temp[audio_temp_idx_range[0] : audio_temp_idx_range[1]] = audio_chunk
-
-        audio = audio_temp.clone()
-        # log.info(audio.shape)
-        if audio.shape[0] < num_audio_frames_per_datapoint:
-            audio = torch.cat(
-                [
-                    audio,
-                    torch.zeros(
-                        num_audio_frames_per_datapoint - audio.shape[0], audio.shape[1]
-                    ),
-                ],
-                dim=0,
-            )
-
-    # log.debug(f"{audio.shape}")
-
     return audio
+
+
+def tensor_to_audio(
+    input_audio: torch.Tensor,
+    output_path: pathlib.Path,
+    format: str = "wav",
+    sample_rate: int = 44100,
+):
+    try:
+        # input_audio = input_audio.permute([1, 0])
+
+        save(
+            output_path.with_suffix(f".{format}"),
+            input_audio,
+            sample_rate,
+            format=format,
+        )
+        return True
+    except Exception:
+        log.exception(
+            f"Converting tensor to an audio file failed on file "
+            f"{output_path.with_suffix(f'.{format}')}"
+        )
+        return False

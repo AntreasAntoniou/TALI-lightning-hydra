@@ -10,7 +10,7 @@ from dataclasses import dataclass
 from typing import Dict
 
 import requests
-import tqdm  # progress bar
+import tqdm.rich as tqdm  # progress bar
 import yaml
 from google.cloud import storage
 from omegaconf import DictConfig
@@ -127,7 +127,7 @@ def save_json(filepath, metrics_dict, overwrite):
     # '+'       open a disk file for updating (reading and writing)
     # 'U'       universal newline mode (deprecated)
 
-    with open(metrics_file_path, "w+") as json_file:
+    with open(metrics_file_path, "w") as json_file:
         json.dump(metrics_dict, json_file, indent=4, sort_keys=True)
 
 
@@ -170,6 +170,15 @@ def load_model_config_from_yaml(config_filepath, model_name):
         config = yaml.safe_load(file_reader)
 
     return DictWithDotNotation(config[model_name])
+
+
+def save_yaml(filepath, object_to_store):
+    try:
+        with open(filepath, mode="w+") as file_reader:
+            yaml.dump(object_to_store, file_reader)
+            return True
+    except Exception:
+        return False
 
 
 def load_yaml(filepath):

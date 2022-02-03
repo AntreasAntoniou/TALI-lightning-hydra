@@ -7,7 +7,7 @@ from pytorch_lightning import LightningDataModule
 from torch.utils.data import DataLoader
 
 import tali
-from tali.config_repository import TALIDataModuleConfig, TALIDatasetConfig
+from tali.config_repository import TALIDatasetConfig
 from tali.datasets.datasets import TALIMultiModalDataset
 from tali.datasets.tokenizers import HuggingFaceBPETokenizer
 from tali.datasets.utils.helpers import SubSampleAudioFrames, SubSampleVideoFrames
@@ -52,15 +52,20 @@ class TALIDataModule(BaseDataModule):
         prefetch_factor: int = 2,
         batch_size: int = 32,
         num_workers: int = mp.cpu_count(),
+        shuffle_train: bool = True,
+        shuffle_eval: bool = False,
     ):
         super(TALIDataModule, self).__init__()
         self.save_hyperparameters(logger=False)
         log.info(f"TALI DataModule config {self.hparams}")
+        self.config = config
         self.batch_size = batch_size
         self.persistent_workers = persistent_workers
         self.pin_memory = pin_memory
         self.prefetch_factor = prefetch_factor
         self.num_workers = num_workers
+        self.shuffle_train = shuffle_train
+        self.shuffle_eval = shuffle_eval
         self.tokenizer = HuggingFaceBPETokenizer(
             context_length=config.text_context_length
         )
@@ -111,12 +116,12 @@ class TALIDataModule(BaseDataModule):
 
         if stage == "fit" or stage is None:
             self.val_set = TALIMultiModalDataset(
-                config=self.hparams.config,
+                config=self.config,
                 set_name="val",
                 transforms=self.transform_eval,
             )
             self.train_set = TALIMultiModalDataset(
-                config=self.hparams.config,
+                config=self.config,
                 set_name="train",
                 transforms=self.transform_train,
             )
@@ -124,7 +129,7 @@ class TALIDataModule(BaseDataModule):
         # Assign test dataset for use in dataloader(s)
         if stage == "test" or stage is None:
             self.test_set = TALIMultiModalDataset(
-                config=self.hparams.config,
+                config=self.config,
                 set_name="test",
                 transforms=self.transform_eval,
             )
@@ -144,24 +149,10 @@ class TALIDataModule(BaseDataModule):
 
     def train_dataloader(self):
 
-        config_temp = dict(
-            dataset=self.train_set,
-            batch_size=self.batch_size,
-            shuffle=True,
-            num_workers=self.num_workers,
-            pin_memory=self.pin_memory,
-            prefetch_factor=self.prefetch_factor,
-            collate_fn=tali.datasets.utils.helpers.collate_resample_none,
-            persistent_workers=self.persistent_workers,
-            drop_last=True,
-        )
-
-        log.info(f"Starting train data loader with config {config_temp}")
-
         return DataLoader(
             dataset=self.train_set,
             batch_size=self.batch_size,
-            shuffle=True,
+            shuffle=self.shuffle_train,
             num_workers=self.num_workers,
             pin_memory=self.pin_memory,
             prefetch_factor=self.prefetch_factor,
@@ -172,24 +163,10 @@ class TALIDataModule(BaseDataModule):
 
     def val_dataloader(self):
 
-        config_temp = dict(
-            dataset=self.train_set,
-            batch_size=self.batch_size,
-            shuffle=True,
-            num_workers=self.num_workers,
-            pin_memory=self.pin_memory,
-            prefetch_factor=self.prefetch_factor,
-            collate_fn=tali.datasets.utils.helpers.collate_resample_none,
-            persistent_workers=self.persistent_workers,
-            drop_last=True,
-        )
-
-        log.info(f"Starting val data loader with config {config_temp}")
-
         return DataLoader(
             dataset=self.val_set,
             batch_size=self.batch_size,
-            shuffle=False,
+            shuffle=self.shuffle_eval,
             num_workers=self.num_workers,
             pin_memory=self.pin_memory,
             prefetch_factor=self.prefetch_factor,
@@ -199,20 +176,6 @@ class TALIDataModule(BaseDataModule):
         )
 
     def test_dataloader(self):
-
-        config_temp = dict(
-            dataset=self.train_set,
-            batch_size=self.batch_size,
-            shuffle=True,
-            num_workers=self.num_workers,
-            pin_memory=self.pin_memory,
-            prefetch_factor=self.prefetch_factor,
-            collate_fn=tali.datasets.utils.helpers.collate_resample_none,
-            persistent_workers=self.persistent_workers,
-            drop_last=True,
-        )
-
-        log.info(f"Starting testing data loader with config {config_temp}")
 
         return DataLoader(
             dataset=self.test_set,

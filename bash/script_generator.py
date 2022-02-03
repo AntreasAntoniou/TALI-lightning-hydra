@@ -7,7 +7,6 @@
 # datamodule.config.modality_config.text=False
 # datamodule.config.modality_config.video=False
 # datamodule.config.modality_config.audio=True
-import numpy as np
 import os
 
 
