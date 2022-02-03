@@ -4,7 +4,7 @@ import pathlib
 import defusedxml.ElementTree as ET
 import numpy as np
 
-from tali.utils.storage import load_json
+from tali.utils.storage import load_json, load_yaml
 
 log = logging.getLogger(__name__)
 
@@ -15,8 +15,15 @@ def load_text_into_language_time_stamps(filepath):
         filepath.parent / "start_timestamp_to_caption_dict.yaml"
     )
 
-    # if caption_data_filepath.exists():
-    #     return load_yaml(caption_data_filepath)
+    old_caption_data_filepath = pathlib.Path(
+        filepath.parent / "start_timestamp_to_caption_dict.json"
+    )
+
+    if old_caption_data_filepath.exists():
+        old_caption_data_filepath.unlink()
+
+    if caption_data_filepath.exists():
+        return load_yaml(caption_data_filepath)
 
     meta_data = load_json(filepath)
 
@@ -57,13 +64,12 @@ def load_text_into_language_time_stamps(filepath):
                     item.text.replace("\n", " ") if item.text is not None else ""
                 )
 
-    # save_yaml(object_to_store=timestamp_to_caption_dict, filepath=caption_data_filepath)
+    save_yaml(object_to_store=timestamp_to_caption_dict, filepath=caption_data_filepath)
 
     return timestamp_to_caption_dict
 
 
 def get_text_tokens(meta_data_filepath, start_timestamp, end_timestamp):
-    # logging.info(f'{start_timestamp} {end_timestamp}')
     timestamp_to_caption_dict = load_text_into_language_time_stamps(
         filepath=meta_data_filepath
     )
