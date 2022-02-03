@@ -17,7 +17,7 @@ from collections import defaultdict
 from typing import Tuple
 
 from rich.logging import RichHandler
-import tqdm.rich as tqdm
+import tqdm as tqdm
 
 log = logging.getLogger(__name__)
 log.setLevel(logging.DEBUG)
@@ -87,7 +87,6 @@ def convert_video_to_frames(path_tuple: Tuple[pathlib.Path, pathlib.Path]):
         out, err = process.communicate(None)
 
         return_code = process.poll()
-        log.info(f"{return_code}")
         if return_code != 0:
             log.exception(f"Error converting file {video_filepath_string}")
         else:
