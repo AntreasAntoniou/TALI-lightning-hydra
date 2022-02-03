@@ -91,16 +91,18 @@ def convert_video_to_frames(path_tuple: Tuple[pathlib.Path, pathlib.Path]):
             log.exception(f"Error converting file {video_filepath_string}")
         else:
             delete_file_if_exists(
-                pathlib.Path(f"{output_dir_string}".replace(".frames", ".mp4"))
+                path=pathlib.Path(f"{output_dir_string}".replace(".frames", ".mp4")),
+                verbose=False,
             )
 
     return video_filepath_string, return_code
 
 
-def delete_file_if_exists(path: pathlib.Path):
+def delete_file_if_exists(path: pathlib.Path, verbose: bool = True):
 
     if path.exists():
-        log.info(f"Deleting {path}")
+        if verbose:
+            log.info(f"Deleting {path}")
         path.unlink()
 
 
