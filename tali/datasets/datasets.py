@@ -336,13 +336,9 @@ class TALIMultiModalDataset(Dataset):
 
         matched_meta_data_files = []
 
-        for dirpath, dirnames, filenames in os.walk(pathlib.Path(self.dataset_dir)):
-            if ".frames" not in dirpath:
-                for file in filenames:
-                    if file == "meta_data.json":
-                        matched_meta_data_files.append(
-                            pathlib.Path(os.path.join(dirpath, file))
-                        )
+        for file in pathlib.Path(self.dataset_dir).glob("**/meta_data.json"):
+            matched_meta_data_files.append(file)
+            log.info(f"{len(matched_meta_data_files)}")
 
         logging.info(f"Found {len(matched_meta_data_files)} matched meta_data files")
 
