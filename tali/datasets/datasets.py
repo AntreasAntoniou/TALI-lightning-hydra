@@ -334,9 +334,15 @@ class TALIMultiModalDataset(Dataset):
         path_dict = {}
         logging.info(self.dataset_dir)
 
-        matched_meta_data_files = list(
-            pathlib.Path(self.dataset_dir).glob("**/meta_data.json")
-        )
+        matched_meta_data_files = []
+
+        for dirpath, dirnames, filenames in os.walk(pathlib.Path(self.dataset_dir)):
+            if ".frames" not in dirpath:
+                for file in filenames:
+                    if file == "meta_data.json":
+                        matched_meta_data_files.append(
+                            pathlib.Path(os.path.join(dirpath, file))
+                        )
 
         logging.info(f"Found {len(matched_meta_data_files)} matched meta_data files")
 
@@ -345,7 +351,7 @@ class TALIMultiModalDataset(Dataset):
         logging.info("Scanning folders for media files")
 
         with concurrent.futures.ProcessPoolExecutor(
-            max_workers=mp.cpu_count()
+            max_workers=int(mp.cpu_count() / 2)
         ) as executor:
             with tqdm.tqdm(total=len(matched_meta_data_files), smoothing=0.0) as pbar:
                 for video_key, folder_list in executor.map(collect_files, args):

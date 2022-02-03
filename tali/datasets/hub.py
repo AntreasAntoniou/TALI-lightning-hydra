@@ -57,7 +57,6 @@ class TALIDataModule(BaseDataModule):
     ):
         super(TALIDataModule, self).__init__()
         self.save_hyperparameters(logger=False)
-        log.info(f"TALI DataModule config {self.hparams}")
         self.config = config
         self.batch_size = batch_size
         self.persistent_workers = persistent_workers
@@ -180,7 +179,7 @@ class TALIDataModule(BaseDataModule):
         return DataLoader(
             dataset=self.test_set,
             batch_size=self.batch_size,
-            shuffle=False,
+            shuffle=self.shuffle_eval,
             num_workers=self.num_workers,
             pin_memory=self.pin_memory,
             prefetch_factor=self.prefetch_factor,
