@@ -120,7 +120,7 @@ if __name__ == "__main__":
     matching_files = defaultdict(list)
     # get all of the source audio filenames
     log.info(f"Current working directory is {args.source_filepath}")
-    with tqdm.tqdm() as pbar:
+    with tqdm.tqdm(total=4700000) as pbar:
         for file_type in target_file_types:
             for filepath in pathlib.Path(args.source_filepath).glob(f"**/*{file_type}"):
                 source_filepath_string = os.fspath(filepath.resolve())
