@@ -2,8 +2,8 @@
 
 wandb:
   _target_: pytorch_lightning.loggers.wandb.WandbLogger
-  project: "dataset_upload_dev"
-  name: dev_log
+  project: "TALI-visualizer"
+  name: TALI-v-3-2-upload-0
   offline: False # set True to store all logs only locally
   resume: ${resume}
   save_dir: ${current_experiment_dir}/

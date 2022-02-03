@@ -206,8 +206,12 @@ def sample_and_upload_datamodule(config: DictConfig):
 
                     current_log_idx += 1
 
-                if current_log_idx % 1000:
-                    run.log({f"{key}-set_chunk_{current_log_idx}": multimedia_log_file})
-                    multimedia_log_file = wandb.Table(columns=columns)
+                    if current_log_idx % 20 == 0:
+                        log.info(f"Uploading {key}-set_chunk_{current_log_idx}")
+                        run.log(
+                            {f"{key}-set_chunk_{current_log_idx}": multimedia_log_file}
+                        )
+                        multimedia_log_file = wandb.Table(columns=columns)
 
                 pbar.update(1)
+            run.log({f"{key}-set_chunk_{current_log_idx}": multimedia_log_file})
