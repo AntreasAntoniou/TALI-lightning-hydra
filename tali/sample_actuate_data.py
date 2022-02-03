@@ -139,7 +139,7 @@ def sample_and_upload_datamodule(config: DictConfig):
         project=config.logger.wandb.project, name=config.logger.wandb.name, resume=True
     )
     columns = ["id", "video", "image", "audio", "text"]
-
+    current_log_idx = 0
     for key, dataloader in zip(
         ["val", "test", "train"],
         [
@@ -204,5 +204,10 @@ def sample_and_upload_datamodule(config: DictConfig):
                         text,
                     )
 
-                run.log({f"{key}-set": multimedia_log_file})
+                    current_log_idx += 1
+
+                if current_log_idx % 1000:
+                    run.log({f"{key}-set_chunk_{current_log_idx}": multimedia_log_file})
+                    multimedia_log_file = wandb.Table(columns=columns)
+
                 pbar.update(1)
