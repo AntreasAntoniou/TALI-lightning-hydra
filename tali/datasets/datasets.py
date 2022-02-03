@@ -336,7 +336,7 @@ class TALIMultiModalDataset(Dataset):
 
         matched_meta_data_files = []
         with tqdm.tqdm(total=150000, smoothing=0.0) as pbar:
-            for file in pathlib.Path(self.dataset_dir).glob("**/meta_data.json"):
+            for file in pathlib.Path(self.dataset_dir).rglob("meta_data.json"):
                 matched_meta_data_files.append(file)
                 pbar.update(1)
 
