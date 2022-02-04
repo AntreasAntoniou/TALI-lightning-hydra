@@ -28,8 +28,8 @@ visualize_data_locally: False
 
 wandb_visualization_config:
   visualize_data_in_wandb: True
-  upload_interval_in_num_samples: 20
-  num_samples_to_upload_per_set: 2500
+  upload_interval_in_num_samples: 100
+  num_samples_to_upload_per_set: 10000
   sets_to_upload:
     - train
 #    - val
@@ -47,7 +47,7 @@ test_after_training: True
 
 batch_size: null
 # seed for random number generators in pytorch, numpy and python.random
-seed: 20221601
+seed: 20220204
 
 wandb_project_name: ${env:WANDB_PROJECT}
 # name of the run, should be used along with experiment mode
