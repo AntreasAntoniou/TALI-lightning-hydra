@@ -23,9 +23,17 @@ defaults:
 resume: True
 checkpoint_path: null
 
-debug_data: True
-visualize_data: True
-upload_data_to_wandb: False
+debug_data: False
+visualize_data_locally: False
+
+wandb_visualization_config:
+  visualize_data_in_wandb: True
+  upload_interval_in_num_samples: 20
+  num_samples_to_upload_per_set: 2500
+  sets_to_upload:
+    - train
+#    - val
+    - test
 
 # pretty print config at the start of the run using Rich library
 print_config: True

@@ -140,18 +140,26 @@ def sample_and_upload_datamodule(config: DictConfig):
     )
     columns = ["id", "video", "image", "audio", "text"]
     current_log_idx = 0
-    for key, dataloader in zip(
-        ["val", "test", "train"],
-        [
-            datamodule.val_dataloader(),
-            datamodule.test_dataloader(),
-            datamodule.train_dataloader(),
-        ],
-    ):
+    dataset_dict_caller_fn = {
+        "train": datamodule.train_dataloader,
+        "val": datamodule.val_dataloader,
+        "test": datamodule.test_dataloader,
+
+    }
+    dataset_dict_loaders = {
+        key: value
+        for key, value() in dataset_dict_caller_fn.items()
+        if key in config.wandb_visualization_config.sets_to_upload
+    }
+    for key, dataloader in dataset_dict_loaders.items():
         multimedia_log_file = wandb.Table(columns=columns)
         with tqdm.tqdm(total=len(dataloader), smoothing=0.0) as pbar:
             for item_batch in dataloader:
-
+                if (
+                    current_log_idx
+                    >= config.wandb_visualization_config.num_samples_to_upload_per_set
+                ):
+                    break
                 image_batch = item_batch["image"]
                 video_batch = item_batch["video"]
                 audio_batch = item_batch["audio"]
@@ -206,7 +214,11 @@ def sample_and_upload_datamodule(config: DictConfig):
 
                     current_log_idx += 1
 
-                    if current_log_idx % 20 == 0:
+                    if (
+                        current_log_idx
+                        % config.wandb_visualization_config.upload_interval_in_num_samples
+                        == 0
+                    ):
                         log.info(f"Uploading {key}-set_chunk_{current_log_idx}")
                         run.log(
                             {f"{key}-set_chunk_{current_log_idx}": multimedia_log_file}

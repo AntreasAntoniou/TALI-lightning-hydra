@@ -35,7 +35,7 @@ def main(config: DictConfig):
         # iterate through dataloaders only with current config
         # -- used to test datamodules
         return sample_datamodule(config)
-    elif config.upload_data_to_wandb:
+    elif config.wandb_visualization_config.visualize_data_in_wandb:
         return sample_and_upload_datamodule(config)
     else:
         # Train model in a single run
