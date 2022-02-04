@@ -20,7 +20,7 @@ def load_text_into_language_time_stamps(filepath):
     )
 
     if old_caption_data_filepath.exists():
-        old_caption_data_filepath.unlink()
+        old_caption_data_filepath.unlink(missing_ok=True)
 
     if caption_data_filepath.exists():
         return load_yaml(caption_data_filepath)
