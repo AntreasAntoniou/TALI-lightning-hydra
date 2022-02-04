@@ -1,5 +1,6 @@
 export MOUNT_DIR="/mnt/disk/tali"
 export EXPERIMENTS_DIR="$MOUNT_DIR/experiments"
+export EXPERIMENT_DIR="$MOUNT_DIR/experiments"
 export DATASET_DIR="$MOUNT_DIR/dataset"
 
 if [ ! -d "$MOUNT_DIR" ]; then
