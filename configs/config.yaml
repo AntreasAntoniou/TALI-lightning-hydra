@@ -15,10 +15,7 @@ defaults:
   # enable color logging
   - hydra: logging.yaml
 
-# path to original working directory
-# hydra hijacks working directory by changing it to the new log directory
-# so it's useful to have this path as a special variable
-# https://hydra.cc/docs/next/tutorials/basic/running_your_app/working_directory
+
 
 resume: True
 checkpoint_path: null
@@ -53,6 +50,10 @@ wandb_project_name: ${env:WANDB_PROJECT}
 # name of the run, should be used along with experiment mode
 name: ${wandb_project_name}-${datamodule.config.dataset_name}-${model.name}-${datamodule.config.modality_config.name}-${seed}
 
+# path to original working directory
+# hydra hijacks working directory by changing it to the new log directory
+# so it's useful to have this path as a special variable
+# https://hydra.cc/docs/next/tutorials/basic/running_your_app/working_directory
 code_dir: ${hydra:runtime.cwd}
 root_experiment_dir: ${env:EXPERIMENTS_DIR}
 current_experiment_dir: ${root_experiment_dir}/${name}/
