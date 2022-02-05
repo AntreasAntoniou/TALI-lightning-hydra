@@ -29,7 +29,7 @@ wandb_visualization_config:
   num_samples_to_upload_per_set: 10000
   sets_to_upload:
     - train
-#    - val
+    - val
     - test
 
 # pretty print config at the start of the run using Rich library
