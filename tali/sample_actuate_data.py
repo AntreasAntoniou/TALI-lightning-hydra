@@ -146,7 +146,7 @@ def sample_and_upload_datamodule(config: DictConfig):
         "test": (datamodule.test_dataloader, datamodule.test_start_index),
     }
     dataset_dict_loaders = {
-        key: value()
+        key: (value[0](), value[1])
         for key, value in dataset_dict_caller_fn.items()
         if key in config.wandb_visualization_config.sets_to_upload
     }
