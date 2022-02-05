@@ -34,6 +34,7 @@ class TALIMultiModalDataset(Dataset):
         config: TALIDatasetConfig,
         set_name: str,
         transforms: Dict[str, Union[List[Callable], Callable]],
+        start_index: int = 0,
     ):
         super(TALIMultiModalDataset, self).__init__()
 
@@ -53,7 +54,7 @@ class TALIMultiModalDataset(Dataset):
         )
 
         self.dataset_dir = os.path.join(self.dataset_root, self.set_name)
-
+        self.start_index = start_index
         self.pre_scanned_dataset_json_filepath = os.path.join(
             self.dataset_dir,
             f"tali_path_cache_{self.config.training_set_size_identifier}.json",
@@ -190,11 +191,11 @@ class TALIMultiModalDataset(Dataset):
 
     @prevent_error_kill
     def __getitem__(self, index):
+        index = self.start_index + index
         actual_index = index % self.num_video_clips
-        current_time_rng = int(time.time_ns() % 100000)
-        rng = np.random.RandomState(current_time_rng)
+        rng = np.random.RandomState(index)
         torch_rng = torch.Generator()
-        torch_rng.manual_seed(current_time_rng)
+        torch_rng.manual_seed(index)
 
         (
             frame_list,

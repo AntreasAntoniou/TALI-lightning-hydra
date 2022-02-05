@@ -54,6 +54,7 @@ class TALIDataModule(BaseDataModule):
         num_workers: int = mp.cpu_count(),
         shuffle_train: bool = True,
         shuffle_eval: bool = False,
+        train_start_index: int = 0,
     ):
         super(TALIDataModule, self).__init__()
         self.save_hyperparameters(logger=False)
@@ -65,6 +66,7 @@ class TALIDataModule(BaseDataModule):
         self.num_workers = num_workers
         self.shuffle_train = shuffle_train
         self.shuffle_eval = shuffle_eval
+        self.train_start_index = train_start_index
         self.tokenizer = HuggingFaceBPETokenizer(
             context_length=config.text_context_length
         )
@@ -123,6 +125,7 @@ class TALIDataModule(BaseDataModule):
                 config=self.config,
                 set_name="train",
                 transforms=self.transform_train,
+                start_index=self.train_start_index,
             )
 
         # Assign test dataset for use in dataloader(s)

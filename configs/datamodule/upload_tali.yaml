@@ -25,3 +25,4 @@ prefetch_factor: 4
 num_workers: 2
 shuffle_train: True
 shuffle_eval: True
+train_start_index: 0
