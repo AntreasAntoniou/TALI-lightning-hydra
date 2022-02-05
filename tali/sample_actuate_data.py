@@ -224,10 +224,8 @@ def sample_and_upload_datamodule(config: DictConfig):
                         == 0
                     ):
                         log.info(f"Uploading {key}-set_chunk_{current_log_idx}")
-                        run.log(
-                            {f"{key}-set_chunk_{current_log_idx}": multimedia_log_file}
-                        )
+                        run.log({f"{key}-set-samples": multimedia_log_file})
                         multimedia_log_file = wandb.Table(columns=columns)
 
                 pbar.update(1)
-            run.log({f"{key}-set_chunk_{current_log_idx}": multimedia_log_file})
+            run.log({f"{key}-set-samples": multimedia_log_file})

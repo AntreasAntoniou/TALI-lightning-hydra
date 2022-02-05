@@ -225,23 +225,27 @@ def sample_and_upload_datamodule(config: DictConfig):
                         == 0
                     ):
                         log.info(f"Uploading {key}-set_chunk_{current_log_idx}")
-                        run.log(
-                            {
-                                f"{key}-prediction_chunk_{current_log_idx}": multimedia_log_file
-                            }
-                        )
+                        run.log({f"{key}-prediction_chunk": multimedia_log_file})
                         multimedia_log_file = wandb.Table(columns=columns)
 
                 pbar.update(1)
             run.log({f"{key}-set_chunk_{current_log_idx}": multimedia_log_file})
+            output_similarities = {}
             for source_modality in modalities:
-                run.log(
-                    {
-                        f"{key}-{source_modality}_set_chunk_{current_log_idx}": dataset_dict_loaders[
-                            source_modality
-                        ][
-                            1
-                        ]
-                    }
-                )
-            output_similarities[""]
+                for target_modality in modalities:
+
+                    if (
+                        f"{source_modality}-{target_modality}-preds"
+                        not in output_similarities
+                    ):
+
+                        random_preds = torch.randn(
+                            size=(config.batch_size, config.batch_size)
+                        )
+                        output_similarities[
+                            f"{source_modality}-{target_modality}-preds"
+                        ] = random_preds
+
+                        output_similarities[
+                            f"{target_modality}-{source_modality}-preds"
+                        ] = random_preds.transpose(0, 1)
