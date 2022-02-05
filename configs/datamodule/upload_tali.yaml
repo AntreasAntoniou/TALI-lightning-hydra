@@ -26,3 +26,5 @@ num_workers: 2
 shuffle_train: True
 shuffle_eval: True
 train_start_index: 0
+val_start_index: 0
+test_start_index: 0

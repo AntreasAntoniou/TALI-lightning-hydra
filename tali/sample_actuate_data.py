@@ -141,19 +141,20 @@ def sample_and_upload_datamodule(config: DictConfig):
     columns = ["id", "video", "image", "audio", "text"]
     current_log_idx = 0
     dataset_dict_caller_fn = {
-        "train": datamodule.train_dataloader,
-        "val": datamodule.val_dataloader,
-        "test": datamodule.test_dataloader,
+        "train": (datamodule.train_dataloader, datamodule.train_start_index),
+        "val": (datamodule.val_dataloader, datamodule.val_start_index),
+        "test": (datamodule.test_dataloader, datamodule.test_start_index),
     }
     dataset_dict_loaders = {
         key: value()
         for key, value in dataset_dict_caller_fn.items()
         if key in config.wandb_visualization_config.sets_to_upload
     }
-    for key, dataloader in dataset_dict_loaders.items():
+    for key, (dataloader, start_idx) in dataset_dict_loaders.items():
         multimedia_log_file = wandb.Table(columns=columns)
         current_log_idx = 0
         with tqdm.tqdm(
+            initial=start_idx,
             total=config.wandb_visualization_config.num_samples_to_upload_per_set,
             smoothing=0.0,
         ) as pbar:

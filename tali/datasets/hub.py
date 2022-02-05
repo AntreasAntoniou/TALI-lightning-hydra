@@ -55,6 +55,8 @@ class TALIDataModule(BaseDataModule):
         shuffle_train: bool = True,
         shuffle_eval: bool = False,
         train_start_index: int = 0,
+        val_start_index: int = 0,
+        test_start_index: int = 0,
     ):
         super(TALIDataModule, self).__init__()
         self.save_hyperparameters(logger=False)
@@ -67,6 +69,8 @@ class TALIDataModule(BaseDataModule):
         self.shuffle_train = shuffle_train
         self.shuffle_eval = shuffle_eval
         self.train_start_index = train_start_index
+        self.val_start_index = val_start_index
+        self.test_start_index = test_start_index
         self.tokenizer = HuggingFaceBPETokenizer(
             context_length=config.text_context_length
         )
@@ -120,7 +124,9 @@ class TALIDataModule(BaseDataModule):
                 config=self.config,
                 set_name="val",
                 transforms=self.transform_eval,
+                start_index=self.val_start_index,
             )
+
             self.train_set = TALIMultiModalDataset(
                 config=self.config,
                 set_name="train",
@@ -134,6 +140,7 @@ class TALIDataModule(BaseDataModule):
                 config=self.config,
                 set_name="test",
                 transforms=self.transform_eval,
+                start_index=self.test_start_index,
             )
 
     def dummy_dataloader(self):
