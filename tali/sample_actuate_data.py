@@ -154,7 +154,7 @@ def sample_and_upload_datamodule(config: DictConfig):
         multimedia_log_file = wandb.Table(columns=columns)
         current_log_idx = 0
         with tqdm.tqdm(
-            initial=int(start_idx / config.batch_size),
+            initial=int(start_idx),
             total=config.wandb_visualization_config.num_samples_to_upload_per_set,
             smoothing=0.0,
         ) as pbar:
@@ -227,5 +227,5 @@ def sample_and_upload_datamodule(config: DictConfig):
                         run.log({f"{key}-set-samples": multimedia_log_file})
                         multimedia_log_file = wandb.Table(columns=columns)
 
-                pbar.update(1)
+                    pbar.update(1)
             run.log({f"{key}-set-samples": multimedia_log_file})
