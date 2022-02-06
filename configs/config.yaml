@@ -24,8 +24,8 @@ debug_data: False
 visualize_data_locally: False
 
 wandb_visualization_config:
-  visualize_data_in_wandb: False
-  visualize_preds_in_wandb: True
+  visualize_data_in_wandb: True
+  visualize_preds_in_wandb: False
   upload_interval_in_num_samples: 100
   num_samples_to_upload_per_set: 10000
   sets_to_upload:

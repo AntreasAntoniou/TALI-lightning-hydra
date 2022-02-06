@@ -38,8 +38,8 @@ def main(config: DictConfig):
         return sample_datamodule(config)
     elif config.wandb_visualization_config.visualize_data_in_wandb:
         return sample_and_upload_datamodule(config)
-    elif config.wandb_visualization_config.visualize_preds_in_wandb:
-        return sample_and_upload_pred_heatmap(config)
+    # elif config.wandb_visualization_config.visualize_preds_in_wandb:
+    #     return sample_and_upload_pred_heatmap(config)
     else:
         # Train model in a single run
         return train_eval(config)
