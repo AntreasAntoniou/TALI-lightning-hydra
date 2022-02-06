@@ -47,7 +47,10 @@ class WatchModel(Callback):
     def on_train_start(self, trainer, pl_module):
         logger = get_wandb_logger(trainer=trainer)
         logger.watch(
-            model=trainer.model, log=self.log, log_freq=self.log_freq, log_graph=True
+            model=trainer.model,
+            log=self.log,
+            log_freq=self.log_freq,
+            log_graph=True,
         )
 
 
@@ -174,7 +177,8 @@ class LogConfusionMatrix(Callback):
 
             # names should be uniqe or else charts from different experiments in wandb will overlap
             experiment.log(
-                {f"confusion_matrix/{experiment.name}": wandb.Image(plt)}, commit=False
+                {f"confusion_matrix/{experiment.name}": wandb.Image(plt)},
+                commit=False,
             )
 
             # according to wandb docs this should also work but it crashes
@@ -242,7 +246,8 @@ class LogF1PrecRecHeatmap(Callback):
 
             # names should be uniqe or else charts from different experiments in wandb will overlap
             experiment.log(
-                {f"f1_p_r_heatmap/{experiment.name}": wandb.Image(plt)}, commit=False
+                {f"f1_p_r_heatmap/{experiment.name}": wandb.Image(plt)},
+                commit=False,
             )
 
             # reset plot

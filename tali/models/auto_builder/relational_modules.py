@@ -241,7 +241,9 @@ class PatchBatchRelationalModule(nn.Module):
 
         for idx_layer in range(self.num_layers):
             self.block_dict["g_fcc_{}".format(idx_layer)] = nn.Linear(
-                out.shape[1], out_features=self.num_hidden_filters, bias=self.bias
+                out.shape[1],
+                out_features=self.num_hidden_filters,
+                bias=self.bias,
             )
             self.block_dict["g_fcc_{}".format(idx_layer)].to(out.device)
             out = self.block_dict["g_fcc_{}".format(idx_layer)].forward(out)
@@ -343,7 +345,12 @@ class PatchBatchRelationalModule(nn.Module):
 
 
 def test_patch_relational_module():
-    input_shape_list = [(2, 3, 32, 32), (10, 3, 32, 32), (2, 3, 32), (2, 32, 32)]
+    input_shape_list = [
+        (2, 3, 32, 32),
+        (10, 3, 32, 32),
+        (2, 3, 32),
+        (2, 32, 32),
+    ]
     use_coord_list = [False, True]
     patch_size_list = [2, 4]
 

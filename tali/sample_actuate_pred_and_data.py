@@ -1,6 +1,7 @@
 import logging
 import os
 import pathlib
+from collections import defaultdict
 from typing import Optional
 
 import cv2
@@ -13,6 +14,7 @@ import wandb
 from omegaconf import DictConfig
 from pytorch_lightning import LightningDataModule, seed_everything
 from torchvision.utils import make_grid
+from wandb.plots.heatmap import heatmap
 
 from tali.datasets.tokenizers import HuggingFaceBPETokenizer
 from tali.datasets.utils.audio import tensor_to_audio
@@ -124,7 +126,7 @@ def decode_audio_plot_audiograph_store_audio_file(
             return pathlib.Path(store_dir / f"{filename}_{item_idx}.wav")
 
 
-def sample_and_upload_datamodule(config: DictConfig):
+def sample_and_upload_pred_heatmap(config: DictConfig):
     seed_everything(config.seed, workers=True)
 
     log.info("Start uploading 😼")
@@ -136,7 +138,9 @@ def sample_and_upload_datamodule(config: DictConfig):
     datamodule.setup(stage="test")
 
     run = wandb.init(
-        project=config.logger.wandb.project, name=config.logger.wandb.name, resume=True
+        project=config.logger.wandb.project,
+        name=config.logger.wandb.name,
+        resume=True,
     )
     columns = ["id", "video", "image", "audio", "text"]
     modalities = ["video", "image", "audio", "text"]
@@ -151,6 +155,7 @@ def sample_and_upload_datamodule(config: DictConfig):
         for key, value in dataset_dict_caller_fn.items()
         if key in config.wandb_visualization_config.sets_to_upload
     }
+    # round_float = lambda x: (x * 10 ** 3).round() / (10 ** 3)
     for key, (dataloader, start_idx) in dataset_dict_loaders.items():
         multimedia_log_file = wandb.Table(columns=columns)
         current_log_idx = 0
@@ -159,7 +164,7 @@ def sample_and_upload_datamodule(config: DictConfig):
             total=config.wandb_visualization_config.num_samples_to_upload_per_set,
             smoothing=0.0,
         ) as pbar:
-            for item_batch in dataloader:
+            for batch_idx, item_batch in enumerate(dataloader):
                 if (
                     current_log_idx
                     >= config.wandb_visualization_config.num_samples_to_upload_per_set
@@ -176,9 +181,20 @@ def sample_and_upload_datamodule(config: DictConfig):
                     save=False,
                     show=False,
                 )
-
+                filepath_batch = [
+                    filepath.replace(os.environ.get("DATASET_DIR"), "")
+                    .replace("full_video_360p", "")
+                    .replace(".frames", "")
+                    for filepath in filepath_batch
+                ]
+                rich_media_dict = defaultdict(list)
+                rows = []
                 for image, video, audio, text, filepath in zip(
-                    image_batch, video_batch, audio_batch, text_batch, filepath_batch
+                    image_batch,
+                    video_batch,
+                    audio_batch,
+                    text_batch,
+                    filepath_batch,
                 ):
                     video = video.permute([0, 2, 3, 1]).cpu().numpy()
                     video_shape = video.shape
@@ -204,48 +220,58 @@ def sample_and_upload_datamodule(config: DictConfig):
                         audio.permute([1, 0]), sample_rate=44100
                     )
 
-                    # /mnt/disk/tali/dataset-in-frames/
-                    # val/--4ZIf4_5aU/full_video_360p0034.frames
-
-                    multimedia_log_file.add_data(
-                        filepath.replace(os.environ.get("DATASET_DIR"), "")
-                        .replace("full_video_360p", "")
-                        .replace(".frames", ""),
-                        video_log_file,
-                        image_log_file,
-                        audio_log_file,
-                        text,
+                    rich_media_dict["video"].append(video_log_file)
+                    rich_media_dict["image"].append(image_log_file)
+                    rich_media_dict["audio"].append(audio_log_file)
+                    rich_media_dict["text"].append(text)
+                    rich_media_dict["id"].append(filepath)
+                    rows.append(
+                        (filepath, video_log_file, image_log_file, audio_log_file, text)
                     )
 
                     current_log_idx += 1
+                    pbar.update(1)
 
-                    if (
-                        current_log_idx
-                        % config.wandb_visualization_config.upload_interval_in_num_samples
-                        == 0
-                    ):
-                        log.info(f"Uploading {key}-set_chunk_{current_log_idx}")
-                        run.log({f"{key}-prediction_chunk": multimedia_log_file})
-                        multimedia_log_file = wandb.Table(columns=columns)
+                log.info(f"Uploading {key}-set_chunk_{current_log_idx}")
+                run.log({f"{key}-heatmap-data-{batch_idx}": multimedia_log_file})
+                multimedia_log_file = wandb.Table(columns=columns, data=rows)
+                output_similarities = {}
+                for source_modality in modalities:
+                    for target_modality in modalities:
 
-                pbar.update(1)
-            run.log({f"{key}-set_chunk_{current_log_idx}": multimedia_log_file})
-            output_similarities = {}
-            for source_modality in modalities:
-                for target_modality in modalities:
-
-                    if (
-                        f"{source_modality}-{target_modality}-preds"
-                        not in output_similarities
-                    ):
-
-                        random_preds = torch.randn(
-                            size=(config.batch_size, config.batch_size)
-                        )
-                        output_similarities[
+                        if (
                             f"{source_modality}-{target_modality}-preds"
-                        ] = random_preds
+                            not in output_similarities
+                        ):
 
-                        output_similarities[
-                            f"{target_modality}-{source_modality}-preds"
-                        ] = random_preds.transpose(0, 1)
+                            random_preds = (
+                                torch.randn(size=(config.batch_size, config.batch_size))
+                                .type(torch.float32)
+                                .cpu()
+                                .numpy()
+                            )
+                            random_preds = np.around(random_preds, decimals=3)
+                            output_similarities[
+                                f"{source_modality}-{target_modality}-preds"
+                            ] = random_preds
+
+                            output_similarities[
+                                f"{target_modality}-{source_modality}-preds"
+                            ] = random_preds.transpose(0, 1)
+
+                            run.log(
+                                {
+                                    f"{key}-id_heatmap"
+                                    f"-x={source_modality}"
+                                    f"-y={target_modality}": heatmap(
+                                        x_labels=[
+                                            f"{filepath}" for filepath in filepath_batch
+                                        ],
+                                        y_labels=[
+                                            f"{filepath}" for filepath in filepath_batch
+                                        ],
+                                        matrix_values=random_preds,
+                                        show_text=True,
+                                    )
+                                }
+                            )

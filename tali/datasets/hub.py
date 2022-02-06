@@ -10,7 +10,10 @@ import tali
 from tali.config_repository import TALIDatasetConfig
 from tali.datasets.datasets import TALIMultiModalDataset
 from tali.datasets.tokenizers import HuggingFaceBPETokenizer
-from tali.datasets.utils.helpers import SubSampleAudioFrames, SubSampleVideoFrames
+from tali.datasets.utils.helpers import (
+    SubSampleAudioFrames,
+    SubSampleVideoFrames,
+)
 
 
 class BaseDataModule(LightningDataModule):

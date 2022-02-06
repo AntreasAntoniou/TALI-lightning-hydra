@@ -265,7 +265,10 @@ class ModusPrime(LightningModule):
                 }
             )
 
-        embedding_feature_dict, cross_modal_cosine_similarities = self.system.forward(
+        (
+            embedding_feature_dict,
+            cross_modal_cosine_similarities,
+        ) = self.system.forward(
             batch,
         )
 
@@ -299,7 +302,8 @@ class ModusPrime(LightningModule):
                     )
 
                 value = self.per_modality_metrics_computed_dict[cur_key](
-                    measurement_value.detach().cpu(), target_value.detach().cpu()
+                    measurement_value.detach().cpu(),
+                    target_value.detach().cpu(),
                 )
 
                 self.log(
@@ -373,7 +377,10 @@ class ModusPrime(LightningModule):
 
     def step(self, batch, batch_idx):
 
-        embedding_feature_dict, cross_modal_cosine_similarities = self.system.forward(
+        (
+            embedding_feature_dict,
+            cross_modal_cosine_similarities,
+        ) = self.system.forward(
             batch,
         )
 
@@ -398,9 +405,11 @@ class ModusPrime(LightningModule):
     def training_step(self, batch, batch_idx):
         # logging.info(f'{[(key, value.shape) for key, value in batch.items()]}')
 
-        embedding_feature_dict, cross_modal_cosine_similarities, targets = self.step(
-            batch=batch, batch_idx=batch_idx
-        )
+        (
+            embedding_feature_dict,
+            cross_modal_cosine_similarities,
+            targets,
+        ) = self.step(batch=batch, batch_idx=batch_idx)
 
         logits = torch.stack(list(cross_modal_cosine_similarities.values()), dim=0)
 
@@ -419,9 +428,11 @@ class ModusPrime(LightningModule):
     def validation_step(self, batch, batch_idx):
         # logging.info(f'{[(key, value.shape) for key, value in batch.items()]}')
 
-        embedding_feature_dict, cross_modal_cosine_similarities, targets = self.step(
-            batch=batch, batch_idx=batch_idx
-        )
+        (
+            embedding_feature_dict,
+            cross_modal_cosine_similarities,
+            targets,
+        ) = self.step(batch=batch, batch_idx=batch_idx)
 
         self.collect_metrics_step(
             logits=cross_modal_cosine_similarities,
@@ -435,12 +446,16 @@ class ModusPrime(LightningModule):
 
     def test_step(self, batch, batch_idx):
 
-        embedding_feature_dict, cross_modal_cosine_similarities, targets = self.step(
-            batch=batch, batch_idx=batch_idx
-        )
+        (
+            embedding_feature_dict,
+            cross_modal_cosine_similarities,
+            targets,
+        ) = self.step(batch=batch, batch_idx=batch_idx)
 
         self.collect_metrics_step(
-            logits=cross_modal_cosine_similarities, targets=targets, phase_name="test"
+            logits=cross_modal_cosine_similarities,
+            targets=targets,
+            phase_name="test",
         )
 
     def testing_epoch_end(self, outputs: List[Any]):

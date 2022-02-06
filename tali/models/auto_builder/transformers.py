@@ -438,7 +438,9 @@ class AutoVideoTransformers(BaseLinearOutputModel):
 
 class AutoAverager(BaseLinearOutputModel):
     def __init__(
-        self, config: AutoAveragerConfig, image_embedding: Optional[nn.Module] = None
+        self,
+        config: AutoAveragerConfig,
+        image_embedding: Optional[nn.Module] = None,
     ):
         self.config = config
         feature_embedding_modules = [

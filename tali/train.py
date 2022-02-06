@@ -228,7 +228,8 @@ def multi_train_eval(config: DictConfig):
                                     f"-image-{use_image_modality}".lower(),
                                 ]
                                 run_cfg = hydra.compose(
-                                    config_name="ray_config", overrides=overrides
+                                    config_name="ray_config",
+                                    overrides=overrides,
                                 )
 
                                 configs[run_cfg.name] = DictConfig(run_cfg)

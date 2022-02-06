@@ -64,7 +64,10 @@ def load_text_into_language_time_stamps(filepath):
                     item.text.replace("\n", " ") if item.text is not None else ""
                 )
 
-    save_yaml(object_to_store=timestamp_to_caption_dict, filepath=caption_data_filepath)
+    save_yaml(
+        object_to_store=timestamp_to_caption_dict,
+        filepath=caption_data_filepath,
+    )
 
     return timestamp_to_caption_dict
 

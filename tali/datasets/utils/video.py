@@ -21,7 +21,9 @@ def load_frames(
         image = cv2.imread(frame_filepath)
         image = (
             cv2.resize(
-                image, (image_width, image_height), interpolation=cv2.INTER_CUBIC
+                image,
+                (image_width, image_height),
+                interpolation=cv2.INTER_CUBIC,
             )
             / 255.0
         )

@@ -225,7 +225,8 @@ class ModusPrimeConfig:
 @dataclass
 class ExperimentConfig:
     data: InstantiationConfig = InstantiationConfig(
-        _target_="tali.datasets.hub.TALIDataModule", config=TALIDataModuleConfig()
+        _target_="tali.datasets.hub.TALIDataModule",
+        config=TALIDataModuleConfig(),
     )
     system: InstantiationConfig = InstantiationConfig(
         _target_="tali.models.systems.ModusPrime", config=ModusPrimeConfig()

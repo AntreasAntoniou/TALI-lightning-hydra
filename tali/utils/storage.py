@@ -319,7 +319,11 @@ class GoogleStorageClientConfig:
 
 
 def google_storage_rsync_gs_to_local(
-    bucket_name, experiments_root_dir, experiment_name, exclude_list, options_list
+    bucket_name,
+    experiments_root_dir,
+    experiment_name,
+    exclude_list,
+    options_list,
 ):
 
     options_string = "".join(options_list) if len(options_list) > 0 else ""
@@ -338,7 +342,11 @@ def google_storage_rsync_gs_to_local(
 
 
 def google_storage_rsync_local_to_gs(
-    bucket_name, experiments_root_dir, experiment_name, exclude_list, options_list
+    bucket_name,
+    experiments_root_dir,
+    experiment_name,
+    exclude_list,
+    options_list,
 ):
     options_string = "".join(options_list) if len(options_list) > 0 else ""
     exclude_string = (
