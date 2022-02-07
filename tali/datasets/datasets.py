@@ -310,7 +310,7 @@ class TALIMultiModalDataset(Dataset):
     def __len__(self):
         # use 25000 to keep training very long to ensure even val
         # intervals no matter what the size of the dataset
-        return 4252731 if self.set_name == "train" else self.num_video_clips
+        return 4 * 10 ** 8 if self.set_name == "train" else self.num_video_clips
 
     def apply_transforms_if_available(self, modality_name, data):
         if self.transforms[modality_name]:
@@ -349,7 +349,7 @@ class TALIMultiModalDataset(Dataset):
         logging.info("Scanning folders for media files")
 
         with concurrent.futures.ProcessPoolExecutor(
-            max_workers=int(mp.cpu_count())
+            max_workers=int(mp.cpu_count() / 2)
         ) as executor:
             with tqdm.tqdm(total=len(matched_meta_data_files), smoothing=0.0) as pbar:
                 for video_key, folder_list in executor.map(collect_files, args):
