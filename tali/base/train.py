@@ -11,7 +11,7 @@ from pytorch_lightning import (
 )
 from pytorch_lightning.loggers import LightningLoggerBase
 
-from base import utils
+from tali.base import utils
 
 log = utils.get_logger(__name__)
 
@@ -84,7 +84,6 @@ def train(config: DictConfig) -> Optional[float]:
             "Make sure the `optimized_metric` in `hparams_search` config is correct!"
         )
     score = trainer.callback_metrics.get(optimized_metric)
-
     # Test the model
     if config.get("test_after_training") and not config.trainer.get("fast_dev_run"):
         log.info("Starting testing!")

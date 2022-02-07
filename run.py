@@ -7,7 +7,6 @@ from rich.traceback import install
 # recursively searches for `.env` in all folders starting from work dir
 from tali.run_data_only import sample_datamodule
 from tali.sample_actuate_data import sample_and_upload_datamodule
-from tali.sample_actuate_pred_and_data import sample_and_upload_pred_heatmap
 
 dotenv.load_dotenv(override=True)
 install(show_locals=True, extra_lines=1, word_wrap=True, width=350)
@@ -18,7 +17,7 @@ def main(config: DictConfig):
 
     # Imports can be nested inside @hydra.main to optimize tab completion
     # https://github.com/facebookresearch/hydra/issues/934
-    from base import utils
+    from tali.base import utils
     from tali.train import train_eval
 
     # A couple of optional utilities:
@@ -38,8 +37,7 @@ def main(config: DictConfig):
         return sample_datamodule(config)
     elif config.wandb_visualization_config.visualize_data_in_wandb:
         return sample_and_upload_datamodule(config)
-    # elif config.wandb_visualization_config.visualize_preds_in_wandb:
-    #     return sample_and_upload_pred_heatmap(config)
+    # -p[000000000000/;......
     else:
         # Train model in a single run
         return train_eval(config)

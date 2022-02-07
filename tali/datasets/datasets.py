@@ -5,7 +5,6 @@ import multiprocessing as mp
 import os
 import pathlib
 import re
-import time
 from typing import Callable, Dict, List, Union
 
 import numpy as np
@@ -13,7 +12,7 @@ import torch
 import tqdm.rich as tqdm
 from torch.utils.data import Dataset
 
-from base import utils
+from tali.base import utils
 from tali.config_repository import TALIDatasetConfig
 from tali.datasets.utils import audio
 from tali.datasets.utils.audio import prevent_error_kill

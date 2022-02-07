@@ -34,7 +34,7 @@ learning_rate_monitor:
   logging_interval: "step"
 
 gs_file_monitor:
-  _target_: base.callbacks.cloud_storage_callbacks.GoogleStorageBucketRSyncClient
+  _target_: tali.base.callbacks.cloud_storage_callbacks.GoogleStorageBucketRSyncClient
   bucket_name: 'tali-experiments'
   experiments_root_dir: ${current_experiment_dir}
   experiment_name: ${name}

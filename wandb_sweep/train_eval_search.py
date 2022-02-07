@@ -14,7 +14,7 @@ import GPUtil
 import numpy as np
 import wandb
 
-from base import utils
+from tali.base import utils
 
 log = utils.get_logger(__name__)
 

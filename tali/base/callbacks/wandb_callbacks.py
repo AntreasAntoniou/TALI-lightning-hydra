@@ -1,8 +1,12 @@
+import os
 import subprocess
+from collections import defaultdict
 from pathlib import Path
 from typing import List
 
+import cv2
 import matplotlib.pyplot as plt
+import numpy as np
 import seaborn as sn
 import torch
 import wandb
@@ -11,6 +15,12 @@ from pytorch_lightning.loggers import LoggerCollection, WandbLogger
 from pytorch_lightning.utilities import rank_zero_only
 from sklearn import metrics
 from sklearn.metrics import f1_score, precision_score, recall_score
+from wandb.plots.heatmap import heatmap
+
+from tali.sample_actuate_pred_and_data import (
+    decode_and_store_text,
+    make_image_frame_grid,
+)
 
 
 def get_wandb_logger(trainer: Trainer) -> WandbLogger:
@@ -257,15 +267,14 @@ class LogF1PrecRecHeatmap(Callback):
             self.targets.clear()
 
 
-class LogPredictions(Callback):
+class LogMultiModalPredictionHeatmaps(Callback):
     """Logs a validation batch and their predictions to wandb.
     Example adapted from:
         https://wandb.ai/wandb/wandb-lightning/reports/Image-Classification-using-PyTorch-Lightning--VmlldzoyODk1NzY
     """
 
-    def __init__(self, num_samples: int = 8):
+    def __init__(self):
         super().__init__()
-        self.num_samples = num_samples
         self.ready = True
 
     def on_sanity_check_start(self, trainer, pl_module):
@@ -275,36 +284,143 @@ class LogPredictions(Callback):
         """Start executing this callback only after all validation sanity checks end."""
         self.ready = True
 
-    def on_validation_epoch_end(self, trainer, pl_module):
-        if self.ready:
-            logger = get_wandb_logger(trainer=trainer)
-            experiment = logger.experiment
+    def build_data_table(self, data_dict):
+        image_batch = data_dict["image"].cpu()
+        video_batch = data_dict["video"].cpu()
+        audio_batch = data_dict["audio"].cpu()
+        text_batch = data_dict["text"].cpu()
+        filepath_batch = data_dict["filepath"]
 
-            # get a validation batch from the validation dat loader
-            data_dict = next(iter(trainer.datamodule.val_dataloader()))
+        text_batch = decode_and_store_text(
+            text_frames=text_batch,
+            save=False,
+            show=False,
+        )
+        filepath_batch = [
+            filepath.replace(os.environ.get("DATASET_DIR"), "")
+            .replace("full_video_360p", "")
+            .replace(".frames", "")
+            for filepath in filepath_batch
+        ]
+        # rich_media_dict = defaultdict(list)
+        rows = []
+        for image, video, audio, text, filepath in zip(
+            image_batch,
+            video_batch,
+            audio_batch,
+            text_batch,
+            filepath_batch,
+        ):
+            video = video.permute([0, 2, 3, 1]).cpu().numpy()
+            video_shape = video.shape
+            video = video.reshape(-1, video.shape[2], video.shape[3])
+            video = cv2.cvtColor(video, cv2.COLOR_BGR2RGB)
+            video = video.reshape(video_shape) * 255
+            video = torch.Tensor(video).permute([0, 3, 1, 2]).type(torch.uint8)
 
-            # run the batch through the network
-            data_dict = {
-                key: value.to(device=pl_module.device)
-                for key, value in data_dict.items()
-            }
-
-            (
-                embedding_feature_dict,
-                cross_modal_cosine_similarities,
-                targets,
-            ) = pl_module(data_dict)
-
-            # log the images as wandb Image
-            experiment.log(
-                {
-                    f"Images/{experiment.name}": [
-                        wandb.Image(x, caption=f"Pred:{pred}, Label:{y}")
-                        for x, pred, y in zip(
-                            val_imgs[: self.num_samples],
-                            preds[: self.num_samples],
-                            val_labels[: self.num_samples],
-                        )
-                    ]
-                }
+            video_log_file = wandb.Video(video, fps=8, format="gif")
+            image_log_file = wandb.Image(
+                make_image_frame_grid(
+                    image_frames=image.unsqueeze(0),
+                    num_video_frames_per_datapoint=1,
+                    save=False,
+                    store_dir=None,
+                    filename=None,
+                    show=False,
+                )
             )
+
+            audio_log_file = wandb.Audio(audio.permute([1, 0]), sample_rate=44100)
+
+            # rich_media_dict["video"].append(video_log_file)
+            # rich_media_dict["image"].append(image_log_file)
+            # rich_media_dict["audio"].append(audio_log_file)
+            # rich_media_dict["text"].append(text)
+            # rich_media_dict["id"].append(filepath)
+            rows.append(
+                (filepath, video_log_file, image_log_file, audio_log_file, text)
+            )
+        columns = ["id", "video", "image", "audio", "text"]
+        return wandb.Table(columns=columns, data=rows), filepath_batch
+
+    def log_similarity_heatmaps_multi_modal(self, trainer, pl_module, set_name):
+        if not self.ready:
+            return
+        logger = get_wandb_logger(trainer=trainer)
+        experiment = logger.experiment
+
+        # get a validation batch from the validation dat loader
+        if set_name == "train":
+            data_dict = next(iter(trainer.datamodule.train_dataloader()))
+        elif set_name == "validation":
+            data_dict = next(iter(trainer.datamodule.val_dataloader()))
+        else:
+            data_dict = next(iter(trainer.datamodule.test_dataloader()))
+
+        data_dict = {
+            key: value.to(device=pl_module.device)
+            if isinstance(value, torch.Tensor)
+            else value
+            for key, value in data_dict.items()
+        }
+
+        (
+            embedding_feature_dict,
+            cross_modal_cosine_similarities,
+            targets,
+        ) = pl_module(data_dict)
+
+        report_table, filepath_batch = self.build_data_table(data_dict)
+        modalities = ["video", "image", "audio", "text"]
+        output_similarities_collected = set()
+        experiment.log(data={f"{set_name}-similarity-batch": report_table})
+
+        for source_modality in modalities:
+            for target_modality in modalities:
+
+                if (
+                    f"{source_modality}_{target_modality}_preds"
+                    not in output_similarities_collected
+                    and f"{source_modality}_to_{target_modality}_similarity"
+                    in cross_modal_cosine_similarities
+                ):
+                    cur_preds = cross_modal_cosine_similarities[
+                        f"{source_modality}_to_{target_modality}_similarity"
+                    ]
+
+                    cur_preds = (
+                        cur_preds.clone()
+                        .detach()
+                        .cpu()
+                        .requires_grad_(False)
+                        .type(torch.float32)
+                        .numpy()
+                    )
+                    cur_preds = np.around(cur_preds, decimals=3)
+
+                    output_similarities_collected.add(
+                        f"{source_modality}-{target_modality}-preds"
+                    )
+
+                    output_similarities_collected.add(
+                        f"{target_modality}-{source_modality}-preds"
+                    )
+
+                    experiment.log(
+                        {
+                            f"{set_name}_heatmap"
+                            f"_x={source_modality}"
+                            f"_y={target_modality}": heatmap(
+                                x_labels=[f"{filepath}" for filepath in filepath_batch],
+                                y_labels=[f"{filepath}" for filepath in filepath_batch],
+                                matrix_values=cur_preds,
+                                show_text=True,
+                            )
+                        }
+                    )
+
+    def on_validation_epoch_start(self, trainer, pl_module):
+        self.log_similarity_heatmaps_multi_modal(trainer, pl_module, "validation")
+
+    def on_train_epoch_start(self, trainer, pl_module):
+        self.log_similarity_heatmaps_multi_modal(trainer, pl_module, "train")

@@ -4,7 +4,7 @@ import torch
 from torch import nn
 from transformers import CLIPTokenizerFast
 
-from base import utils
+from tali.base import utils
 
 log = utils.get_logger(__name__)
 

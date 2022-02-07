@@ -15,7 +15,7 @@ from pytorch_lightning import (
 from pytorch_lightning.loggers import LightningLoggerBase
 from pytorch_lightning.tuner.tuning import Tuner
 
-from base import utils
+from tali.base import utils
 
 log = utils.get_logger(__name__)
 
@@ -80,7 +80,9 @@ def train_eval(config: DictConfig) -> List[Dict[str, float]]:
     log.info(f"Instantiating model <{config.model._target_}>")
     model: LightningModule = hydra.utils.instantiate(config.model, _recursive_=False)
 
-    model.forward(iter(datamodule.train_dataloader()).__next__())
+    dummy_data_dict = iter(datamodule.train_dataloader()).__next__()
+
+    _ = model.forward(dummy_data_dict)
 
     callbacks: List[Callback] = []
     if "callbacks" in config:
@@ -166,87 +168,3 @@ def train_eval(config: DictConfig) -> List[Dict[str, float]]:
     # Print path to best checkpoint
     if not config.trainer.get("fast_dev_run"):
         log.info(f"Best model ckpt at {trainer.checkpoint_callback.best_model_path}")
-
-    # Return metric score for hyperparameter optimization
-    # return score
-
-
-def multi_train_eval(config: DictConfig):
-    import ray
-
-    ray.init(address="auto")
-    dataset_options = ["base-tali"]  # , "milli/tali", "hecta/tali"]
-    system_options = [
-        # "milli_modus_prime_resnet50",
-        # "centi_modus_prime_resnet50",
-        # "deci_modus_prime_resnet50",
-        "base-deci-hybrid_modus_prime_resnet50",
-        "base_modus_prime_resnet50",
-        # "milli_modus_prime_vi-transformer16",
-        # "centi_modus_prime_vi-transformer16",
-        # "deci_modus_prime_vi-transformer16",
-        "base_modus_prime_vi-transformer16",
-    ]
-
-    @ray.remote(
-        num_cpus=config.num_workers * config.num_cpus_per_worker,
-        num_gpus=config.num_workers * config.num_gpus_per_worker,
-    )
-    def remote_train_eval(config: DictConfig) -> List[Dict[str, float]]:
-        return train_eval(config)
-
-    configs = {}
-    for use_image_modality in [True]:
-        for use_audio_modality in [False, True]:
-            for use_video_modality in [False, True]:
-                for use_text_modality in [False, True]:
-                    for dataset_option in dataset_options:
-                        for system_option in system_options:
-                            if any(
-                                [
-                                    use_text_modality,
-                                    use_audio_modality,
-                                    use_video_modality,
-                                ]
-                            ):
-                                overrides = [
-                                    f"datamodule={dataset_option}",
-                                    f"model={system_option}",
-                                    f"datamodule.config."
-                                    f"modality_config.image={use_image_modality}",
-                                    f"datamodule.config."
-                                    f"modality_config.audio={use_audio_modality}",
-                                    f"datamodule.config."
-                                    f"modality_config.text={use_text_modality}",
-                                    f"datamodule.config."
-                                    f"modality_config.video={use_video_modality}",
-                                    f"datamodule.config."
-                                    f"modality_config.name="
-                                    f"video-{use_video_modality}"
-                                    f"-audio-{use_audio_modality}"
-                                    f"-text-{use_text_modality}"
-                                    f"-image-{use_image_modality}".lower(),
-                                ]
-                                run_cfg = hydra.compose(
-                                    config_name="ray_config",
-                                    overrides=overrides,
-                                )
-
-                                configs[run_cfg.name] = DictConfig(run_cfg)
-    log.info(
-        f"Number of trials -------- {len(configs)}, "
-        f"{[name for name in configs.keys()]}"
-    )
-
-    experiment_objects = []
-    for key, value in configs.items():
-        log.info(f"Running {key}")
-        # log.debug(f'{pretty_print_dict(dict(value))}')
-
-        object_experiment = remote_train_eval.remote(config=value)
-        # object_experiment
-        experiment_objects.append(object_experiment)
-
-    results = ray.get(experiment_objects)
-
-    log.info(f"{results}")

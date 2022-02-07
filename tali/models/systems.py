@@ -9,7 +9,7 @@ from torch import nn
 from torchmetrics import Metric
 from torchmetrics.classification.accuracy import Accuracy
 
-from base import utils
+from tali.base import utils
 from tali.config_repository import (
     AutoAveragerConfig,
     AutoCLIPResNetConfig,
@@ -115,13 +115,14 @@ class CrossModalMatchingNetwork(LightningModule):
 
     def forward(self, batch):
 
+        batch = {
+            key: value
+            for key, value in batch.items()
+            if isinstance(value, torch.Tensor)
+        }
+
         if not self.is_built:
-            self.build(
-                {
-                    key: value.shape if isinstance(value, torch.Tensor) else None
-                    for key, value in batch.items()
-                }
-            )
+            self.build({key: value.shape for key, value in batch.items()})
 
         if self.sub_batch_size_dict is not None:
             embedding_feature_dict = {}

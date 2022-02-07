@@ -2,17 +2,17 @@ from setuptools import setup
 
 setup(
     name="tali",
-    version="3.2",
+    version="3.4.0",
     packages=[
         "tali.datasets",
         "tali.models",
         "tali.runner",
         "tali.trainer",
         "tali.utils",
-        "base.callbacks",
-        "base.utils",
-        "base.vendor",
-        "base",
+        "tali.base.callbacks",
+        "tali.base.utils",
+        "tali.base.vendor",
+        "tali.base",
         "tali",
     ],
     url="",
