@@ -65,11 +65,27 @@ class TALIMultiModalDataset(Dataset):
 
         if (
             self.config.rescan_paths
-            and pathlib.Path(self.pre_scanned_dataset_json_filepath).exists()
+            and pathlib.Path(self.pre_scanned_dataset_json_filepath)
+            .with_suffix(".shelf.dat")
+            .exists()
         ):
-            pathlib.Path(self.pre_scanned_dataset_json_filepath).unlink()
+            pathlib.Path(self.pre_scanned_dataset_json_filepath).with_suffix(
+                ".shelf.dat"
+            ).unlink()
 
-        if not pathlib.Path(self.pre_scanned_dataset_json_filepath).exists():
+            pathlib.Path(self.pre_scanned_dataset_json_filepath).with_suffix(
+                ".shelf.bak"
+            ).unlink()
+
+            pathlib.Path(self.pre_scanned_dataset_json_filepath).with_suffix(
+                ".shelf.dir"
+            ).unlink()
+
+        if (
+            not pathlib.Path(self.pre_scanned_dataset_json_filepath)
+            .with_suffix(".shelf.dat")
+            .exists()
+        ):
             self._scan_paths_return_dict(
                 training_set_fraction_value=self.training_set_fraction_value
             )
