@@ -91,21 +91,21 @@ class TALIMultiModalDataset(Dataset):
                 training_set_fraction_value=self.training_set_fraction_value
             )
 
-        self.path_dict = shelve.open(self.pre_scanned_dataset_json_filepath)
+        with closing(shelve.open(self.pre_scanned_dataset_json_filepath)) as path_dict:
 
-        logging.info(
-            f"{np.sum(len(value) for key, value in self.path_dict.items())} "
-            f"files found"
-        )
+            logging.info(
+                f"{np.sum(len(value) for key, value in path_dict.items())} "
+                f"files found"
+            )
 
-        self.index_to_video_path = [
-            video_path
-            for folder_list in self.path_dict.values()
-            for video_path in folder_list
-        ]
+            self.index_to_video_path = [
+                video_path
+                for folder_list in path_dict.values()
+                for video_path in folder_list
+            ]
 
-        self.num_video_clips = len(self.index_to_video_path)
-        logging.info(f"num video clips: {self.num_video_clips}")
+            self.num_video_clips = len(self.index_to_video_path)
+            logging.info(f"num video clips: {self.num_video_clips}")
 
     def get_frames(
         self,
