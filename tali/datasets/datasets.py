@@ -42,6 +42,7 @@ class TALIMultiModalDataset(Dataset):
         self.config = config
         self.dataset_root = config.dataset_root
         self.set_name = set_name
+        self.num_youtube_video_dict = {"train": 141468, "val": 6369, "test": 6500}
         self.transforms = transforms
         self.training_set_fraction_value = (
             {
@@ -346,7 +347,9 @@ class TALIMultiModalDataset(Dataset):
         logging.info(self.dataset_dir)
 
         matched_meta_data_files = []
-        with tqdm.tqdm(total=150000, smoothing=0.0) as pbar:
+        with tqdm.tqdm(
+            total=self.num_youtube_video_dict[self.set_name], smoothing=0.0
+        ) as pbar:
             for dir_path in pathlib.Path(self.dataset_dir).iterdir():
                 cur_file = dir_path / "meta_data.json"
                 if cur_file.exists():
@@ -360,7 +363,6 @@ class TALIMultiModalDataset(Dataset):
         logging.info("Scanning folders for media files")
 
         with closing(shelve.open(self.pre_scanned_dataset_json_filepath, "c")) as shelf:
-
             with concurrent.futures.ProcessPoolExecutor(
                 max_workers=int(mp.cpu_count() / 2)
             ) as executor:
