@@ -5,6 +5,8 @@ import multiprocessing as mp
 import os
 import pathlib
 import re
+import shelve
+from contextlib import closing
 from typing import Callable, Dict, List, Union
 
 import numpy as np
@@ -56,22 +58,23 @@ class TALIMultiModalDataset(Dataset):
         self.start_index = start_index
         self.pre_scanned_dataset_json_filepath = os.path.join(
             self.dataset_dir,
-            f"tali_path_cache_{self.config.training_set_size_identifier}.json",
+            f"tali_path_cache_{self.config.training_set_size_identifier}.shelf",
         )
 
         logging.info(self.pre_scanned_dataset_json_filepath)
 
-        if self._check_if_paths_already_scanned():
-            self.path_dict = load_json(self.pre_scanned_dataset_json_filepath)
-        else:
-            self.path_dict = self._scan_paths_return_dict(
+        if (
+            self.config.rescan_paths
+            and pathlib.Path(self.pre_scanned_dataset_json_filepath).exists()
+        ):
+            pathlib.Path(self.pre_scanned_dataset_json_filepath).unlink()
+
+        if not pathlib.Path(self.pre_scanned_dataset_json_filepath).exists():
+            self._scan_paths_return_dict(
                 training_set_fraction_value=self.training_set_fraction_value
             )
-            save_json(
-                filepath=self.pre_scanned_dataset_json_filepath,
-                metrics_dict=self.path_dict,
-                overwrite=True,
-            )
+
+        self.path_dict = shelve.open(self.pre_scanned_dataset_json_filepath)
 
         logging.info(
             f"{np.sum(len(value) for key, value in self.path_dict.items())} "
@@ -322,16 +325,8 @@ class TALIMultiModalDataset(Dataset):
 
         return data
 
-    def _check_if_paths_already_scanned(self):
-
-        if self.config.rescan_paths:
-            return False
-
-        return pathlib.Path(self.pre_scanned_dataset_json_filepath).exists()
-
     def _scan_paths_return_dict(self, training_set_fraction_value):
 
-        path_dict = {}
         logging.info(self.dataset_dir)
 
         matched_meta_data_files = []
@@ -348,14 +343,16 @@ class TALIMultiModalDataset(Dataset):
 
         logging.info("Scanning folders for media files")
 
-        with concurrent.futures.ProcessPoolExecutor(
-            max_workers=int(mp.cpu_count() / 2)
-        ) as executor:
-            with tqdm.tqdm(total=len(matched_meta_data_files), smoothing=0.0) as pbar:
-                for video_key, folder_list in executor.map(collect_files, args):
-                    if len(folder_list) > 0:
-                        path_dict[video_key] = folder_list
+        with closing(shelve.open(self.pre_scanned_dataset_json_filepath, "c")) as shelf:
 
-                    pbar.update(1)
+            with concurrent.futures.ProcessPoolExecutor(
+                max_workers=int(mp.cpu_count() / 2)
+            ) as executor:
+                with tqdm.tqdm(
+                    total=len(matched_meta_data_files), smoothing=0.0
+                ) as pbar:
+                    for video_key, folder_list in executor.map(collect_files, args):
+                        if len(folder_list) > 0:
+                            shelf[video_key] = folder_list
 
-        return path_dict
+                        pbar.update(1)

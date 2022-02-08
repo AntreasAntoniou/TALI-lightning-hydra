@@ -15,15 +15,16 @@ conda activate tali
 conda install -c conda-forge git-lfs -y
 conda install pytorch torchvision torchaudio cudatoolkit=11.3 -c pytorch-nightly -y
 conda install opencv -y
-
+conda install h5py -y
 ########################################################################################
 echo "export CODE_DIR=$HOME/target_codebase" >> $HOME/.bashrc
 echo "export MOUNT_DIR=/mnt/disk/tali/" >> $HOME/.bashrc
-echo "export EXPERIMENTS_DIR=/mnt/disk/tali/experiments/" >> $HOME/.bashrc
-echo "export DATASET_DIR=/mnt/disk/tali/dataset/" >> $HOME/.bashrc
+echo "export EXPERIMENTS_DIR=$MOUNT_DIR/experiments/" >> $HOME/.bashrc
+echo "export DATASET_DIR=$MOUNT_DIR/dataset/" >> $HOME/.bashrc
 echo "export TOKENIZERS_PARALLELISM=false" >> $HOME/.bashrc
 echo "export FFREPORT=file=ffreport.log:level=32" >> $HOME/.bashrc
-echo 'export OPENCV_LOG_LEVEL="SILENT"' >> $HOME/.bashrc
+echo "export OPENCV_LOG_LEVEL=SILENT" >> $HOME/.bashrc
+echo "export TMPDIR=$MOUNT_DIR/tmp" >> $HOME/.bashrc
 
 echo "source $CONDA_DIR/bin/activate" >> $HOME/.bashrc
 echo "conda activate tali" >> $HOME/.bashrc
