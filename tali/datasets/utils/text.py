@@ -23,7 +23,10 @@ def load_text_into_language_time_stamps(filepath):
         old_caption_data_filepath.unlink(missing_ok=True)
 
     if caption_data_filepath.exists():
-        return load_yaml(caption_data_filepath)
+        try:
+            return load_yaml(caption_data_filepath)
+        except Exception:
+            caption_data_filepath.unlink(missing_ok=True)
 
     meta_data = load_json(filepath)
 
