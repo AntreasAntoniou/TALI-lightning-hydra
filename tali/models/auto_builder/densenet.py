@@ -69,7 +69,7 @@ class DenseBlock(nn.Module):
         out = torch.cat([dummy_x, out], dim=1)
 
         self.is_built = True
-        logging.info(
+        logging.debug(
             f"Built module {self.__class__.__name__} with input -> output sizes "
             f"{dummy_x.shape} {out.shape}"
         )
@@ -81,13 +81,13 @@ class DenseBlock(nn.Module):
 
         out = self.conv_bn_relu_in.forward(x)
         if self.downsample_output_size is not None:
-            # logging.info(f'Downsampling output size: {out.shape}'
+            # logging.debug(f'Downsampling output size: {out.shape}'
             #              f'{self.downsample_output_size}')
             if len(out.shape) == 4:
                 out = F.avg_pool2d(kernel_size=2, input=out)
                 x = F.avg_pool2d(kernel_size=2, input=x)
             elif len(out.shape) == 3:
-                # logging.info(out.shape)
+                # logging.debug(out.shape)
                 out = F.avg_pool1d(kernel_size=2, input=out)
                 x = F.avg_pool1d(kernel_size=2, input=x)
             else:
@@ -169,7 +169,7 @@ class DenseNetEmbedding(nn.Module):
             )
 
         self.is_built = True
-        logging.info(
+        logging.debug(
             f"Built module {self.__class__.__name__} with input -> output sizes "
             f"{dummy_x.shape} {out.shape}"
         )

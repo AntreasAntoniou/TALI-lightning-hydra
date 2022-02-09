@@ -68,7 +68,7 @@ class FCCNetwork(nn.Module):
 
         self.is_layer_built = True
 
-        log.info(
+        log.debug(
             f"Build {self.__class__.__name__} with input shape {input_shape} with "
             f"output shape {out.shape}"
         )
@@ -152,7 +152,7 @@ class Conv1DTransformer(nn.Module):
 
         out = self.layer_dict["conv1d_densenet"].forward(out)
 
-        log.info(f"conv1d_densenet output shape {out.shape}")
+        log.debug(f"conv1d_densenet output shape {out.shape}")
 
         self.layer_dict["conv_feature_pooling"] = nn.Conv1d(
             in_channels=out.shape[1],
@@ -161,24 +161,24 @@ class Conv1DTransformer(nn.Module):
         )
 
         out = self.layer_dict["conv_feature_pooling"].forward(out)
-        log.info(f"conv_feature_pooling output shape {out.shape}")
+        log.debug(f"conv_feature_pooling output shape {out.shape}")
 
         self.layer_dict["conv_spatial_pool"] = nn.AdaptiveAvgPool1d(
             output_size=self.grid_patch_size
         )
 
         out = self.layer_dict["conv_spatial_pool"].forward(out)
-        log.info(f"conv_spatial_pool output shape {out.shape}")
+        log.debug(f"conv_spatial_pool output shape {out.shape}")
 
         out = rearrange(out, "b f h -> (b h) f")
 
         self.layer_dict["stem_layer_normalization"] = nn.LayerNorm(out.shape[1])
 
         out = self.layer_dict["stem_layer_normalization"].forward(out)
-        log.info(f"stem_layer_normalization output shape {out.shape}")
+        log.debug(f"stem_layer_normalization output shape {out.shape}")
 
         out = rearrange(out, "(b s) (f) -> b s f", b=dummy_x.shape[0])
-        log.info(f"rearrange output shape {out.shape}")
+        log.debug(f"rearrange output shape {out.shape}")
 
         self.positional_embeddings = self.positional_embeddings.type_as(out)
 
@@ -187,7 +187,7 @@ class Conv1DTransformer(nn.Module):
         )
 
         out = out + positional_embeddings
-        log.info(f"out + positional_embeddings output shape {out.shape}")
+        log.debug(f"out + positional_embeddings output shape {out.shape}")
 
         self.layer_dict["transformer_encoder_layer"] = nn.TransformerEncoderLayer(
             d_model=self.transformer_num_filters,
@@ -204,10 +204,10 @@ class Conv1DTransformer(nn.Module):
         )
 
         out = self.layer_dict["transformer_encoder"].forward(out)
-        log.info(f"transformer_encoder output shape {out.shape}")
+        log.debug(f"transformer_encoder output shape {out.shape}")
 
         self.is_built = True
-        log.info(
+        log.debug(
             f"Build {self.__class__.__name__} with input shape {input_shape} with "
             f"output shape {out.shape}"
         )
@@ -300,7 +300,7 @@ class VideoTransformer(nn.Module):
 
         self.is_built = True
 
-        log.info(
+        log.debug(
             f"Build {self.__class__.__name__} with input shape {input_shape} with "
             f"output shape {out.shape}"
         )
@@ -350,7 +350,7 @@ class Averager(nn.Module):
 
         self.is_built = True
 
-        log.info(
+        log.debug(
             f"Build {self.__class__.__name__} with input shape {input_shape} with "
             f"output shape {out.shape}"
         )

@@ -262,7 +262,7 @@ class PatchBatchRelationalModule(nn.Module):
         self.output_layer.to(out.device)
         out = self.output_layer.forward(out)
 
-        logging.info(
+        logging.debug(
             f"Built {self.__class__.__name__} with output volume shape " f"{out.shape}"
         )
 
@@ -328,7 +328,7 @@ class PatchBatchRelationalModule(nn.Module):
 
         out = pair_features.view(image_batch * pair_batch, feature_length)
 
-        # logging.info(out.shape, out.device)
+        # logging.debug(out.shape, out.device)
 
         for idx_layer in range(self.num_layers):
             out = self.block_dict["g_fcc_{}".format(idx_layer)].forward(out)
@@ -357,7 +357,7 @@ def test_patch_relational_module():
     for input_shape in input_shape_list:
         for use_coord in use_coord_list:
             for patch_size in patch_size_list:
-                logging.info(f"Testing {input_shape, use_coord, patch_size}")
+                logging.debug(f"Testing {input_shape, use_coord, patch_size}")
                 x_dummy = torch.zeros(input_shape)
                 model = PatchBatchRelationalModule(
                     num_layers=3,

@@ -28,9 +28,11 @@ class BaseLinearOutputModel(nn.Module):
         Builds network whilst automatically inferring shapes of layers.
         """
         out = torch.zeros(input_shape, dtype=self.input_type)
-        logging.info("Building basic block of a classification model using input shape")
+        logging.debug(
+            "Building basic block of a classification model using input shape"
+        )
         # assumes that input shape is b, c, h, w
-        logging.info(f"build input {out.shape}")
+        logging.debug(f"build input {out.shape}")
 
         if isinstance(self.feature_embedding_module_list, list):
             self.feature_embedding_module = nn.Sequential(
@@ -52,7 +54,7 @@ class BaseLinearOutputModel(nn.Module):
             )
 
         out = self.feature_embedding_module.forward(out)
-        # logging.info(f'{type(out)}')
+        # logging.debug(f'{type(out)}')
 
         if isinstance(out, tuple):
             out = out[-1]
@@ -61,21 +63,21 @@ class BaseLinearOutputModel(nn.Module):
             out = out[1]
 
         out = out.view(out.shape[0], -1)
-        logging.info(f"build input {out.shape}")
+        logging.debug(f"build input {out.shape}")
 
         # classification head
-        logging.info(f"{out.shape[1]} {self.embedding_output_features}")
+        logging.debug(f"{out.shape[1]} {self.embedding_output_features}")
         self.output_layer = nn.Linear(
             in_features=out.shape[1],
             out_features=self.embedding_output_features,
             bias=True,
         )
         out = self.output_layer.forward(out)
-        logging.info(f"build input {out.shape}")
+        logging.debug(f"build input {out.shape}")
 
         self.is_layer_built = True
-        logging.info("Summary:")
-        logging.info(
+        logging.debug("Summary:")
+        logging.debug(
             f"Build {self.__class__.__name__} with input shape {input_shape} with "
             f"output shape {out.shape}"
         )
@@ -118,7 +120,7 @@ class BaseStyleLayer(nn.Module):
 
         self.is_layer_built = True
 
-        logging.info(
+        logging.debug(
             f"Build {self.__class__.__name__} with input shape {input_shape} with "
             f"output shape {out.shape}"
         )
@@ -157,7 +159,7 @@ class AvgPoolSpatialAndSliceIntegrator(nn.Module):
 
         self.is_layer_built = True
 
-        logging.info(
+        logging.debug(
             f"Build {self.__class__.__name__} with input shape {input_shape} with "
             f"output shape {out.shape}"
         )
@@ -197,7 +199,7 @@ class AvgPoolFlexibleDimension(nn.Module):
 
         self.is_layer_built = True
 
-        logging.info(
+        logging.debug(
             f"Build {self.__class__.__name__} with input shape {input_shape} with "
             f"output shape {out.shape}"
         )

@@ -51,7 +51,7 @@ class CrossModalMatchingNetwork(LightningModule):
         batch_shape,
     ):
 
-        logging.info(f"{batch_shape}")
+        logging.debug(f"{batch_shape}")
 
         for modality_key, modality_shape in batch_shape.items():
             if modality_shape is not None:
@@ -69,7 +69,7 @@ class CrossModalMatchingNetwork(LightningModule):
                 self.modality_embeddings[modality_key].build(modality_shape)
                 self._check_modality_embedding_shape(modality_shape, modality_key)
 
-        logging.info(
+        logging.debug(
             f"built {self.__class__.__name__} with output shape {self.embed_dim}",
         )
 
@@ -294,7 +294,7 @@ class ModusPrime(LightningModule):
             for measurement_key, measurement_value, target_value in zip(
                 logits.keys(), logits.values(), targets
             ):
-                # logging.info(f"{measurement_value'].shape} {target_value.shape}")
+                # logging.debug(f"{measurement_value'].shape} {target_value.shape}")
                 cur_key = f"{phase_name}/{metric_key}_{measurement_key}"
 
                 if cur_key not in self.per_modality_metrics_computed_dict:
@@ -398,13 +398,13 @@ class ModusPrime(LightningModule):
             dim=0,
         )
 
-        # log.info(f'targets shape: '
+        # log.debug(f'targets shape: '
         #          f'{targets.shape}')
 
         return embedding_feature_dict, cross_modal_cosine_similarities, targets
 
     def training_step(self, batch, batch_idx):
-        # logging.info(f'{[(key, value.shape) for key, value in batch.items()]}')
+        # logging.debug(f'{[(key, value.shape) for key, value in batch.items()]}')
 
         (
             embedding_feature_dict,
@@ -427,7 +427,7 @@ class ModusPrime(LightningModule):
         self.reset_metric_caches(phase_name="training")
 
     def validation_step(self, batch, batch_idx):
-        # logging.info(f'{[(key, value.shape) for key, value in batch.items()]}')
+        # logging.debug(f'{[(key, value.shape) for key, value in batch.items()]}')
 
         (
             embedding_feature_dict,
