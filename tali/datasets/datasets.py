@@ -364,7 +364,7 @@ class TALIMultiModalDataset(Dataset):
         logging.info("Scanning folders for media files")
 
         with closing(shelve.open(self.pre_scanned_dataset_json_filepath, "c")) as shelf:
-            with concurrent.futures.ThreadPoolExecutor(
+            with concurrent.futures.ProcessPoolExecutor(
                 max_workers=int(mp.cpu_count())
             ) as executor:
                 with tqdm.tqdm(
