@@ -28,7 +28,11 @@ def load_text_into_language_time_stamps(filepath):
         except Exception:
             caption_data_filepath.unlink(missing_ok=True)
 
-    meta_data = load_json(filepath)
+    try:
+        meta_data = load_json(filepath)
+    except Exception:
+        filepath.unlink(missing_ok=True)
+        logging.exception(f"Could not load {filepath}")
 
     captions = meta_data["captions"]
 
