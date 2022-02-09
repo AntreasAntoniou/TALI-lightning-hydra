@@ -145,10 +145,8 @@ def timeout(timeout_secs: int):
 
 def collect_subclip_data(input_tuple):
 
-    filepath, json_filepath, training_set_size_fraction_value = input_tuple
+    filepath, json_filepath = input_tuple
 
-    if not np.random.random() <= training_set_size_fraction_value:
-        return None
     video_data_filepath = os.fspath(filepath.resolve())
     frame_list = list(pathlib.Path(filepath).glob("**/*.jpg"))
     frame_list = [os.fspath(frame.resolve()) for frame in frame_list]
@@ -190,6 +188,11 @@ def collect_files(args):
     # sourcery skip: identity-comprehension, simplify-len-comparison, use-named-expression
     json_file_path, training_set_size_fraction_value = args
     video_files = list(pathlib.Path(json_file_path.parent).glob("**/*.frames"))
+    video_files = [
+        file
+        for file in video_files
+        if np.random.random() <= training_set_size_fraction_value
+    ]
     video_key = json_file_path.parent.stem
     folder_list = []
     multiprocessing_tuple = [
