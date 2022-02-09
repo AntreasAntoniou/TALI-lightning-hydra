@@ -199,11 +199,9 @@ def collect_files(args):
     with concurrent.futures.ThreadPoolExecutor(
         max_workers=int(mp.cpu_count())
     ) as executor:
-        with tqdm.tqdm(total=len(multiprocessing_tuple), smoothing=0.0) as pbar:
-            for data_tuple in executor.map(collect_subclip_data, multiprocessing_tuple):
-                if data_tuple is not None:
-                    folder_list.append(data_tuple)
-                pbar.update(1)
+        for data_tuple in executor.map(collect_subclip_data, multiprocessing_tuple):
+            if data_tuple is not None:
+                folder_list.append(data_tuple)
 
     return video_key, folder_list
 
