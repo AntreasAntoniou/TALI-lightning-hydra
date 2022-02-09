@@ -347,7 +347,7 @@ class TALIMultiModalDataset(Dataset):
         logging.info("Scanning folders for media files")
         path_dict = {}
 
-        with concurrent.futures.ThreadPoolExecutor(
+        with concurrent.futures.ProcessPoolExecutor(
             max_workers=int(mp.cpu_count() / 4)
         ) as executor:
             with tqdm.tqdm(total=len(matched_meta_data_files), smoothing=0.0) as pbar:
