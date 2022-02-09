@@ -146,7 +146,7 @@ def load_json(filepath):
         filepath = f"{filepath}.json"
 
     with open(filepath) as json_file:
-        metrics_dict = json.load(json_file)
+        metrics_dict = json.loads(json_file)
 
     return metrics_dict
 
