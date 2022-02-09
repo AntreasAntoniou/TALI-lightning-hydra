@@ -348,7 +348,7 @@ class TALIMultiModalDataset(Dataset):
         path_dict = {}
 
         with concurrent.futures.ProcessPoolExecutor(
-            max_workers=int(mp.cpu_count())
+            max_workers=int(mp.cpu_count() * 0.66)
         ) as executor:
             with tqdm.tqdm(total=len(matched_meta_data_files), smoothing=0.0) as pbar:
                 for video_key, folder_list in executor.map(collect_files, args):
