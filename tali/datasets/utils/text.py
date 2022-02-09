@@ -94,7 +94,10 @@ def get_text_tokens(meta_data_filepath, start_timestamp, end_timestamp):
         if not isinstance(meta_data_filepath, pathlib.Path):
             meta_data_filepath = pathlib.Path(meta_data_filepath)
         meta_data_filepath.unlink(missing_ok=True)
-        log.debug(f"No captions found for {meta_data_filepath}")
+        if log.getEffectiveLevel() == logging.DEBUG:
+            log.exception(f"No captions found for {meta_data_filepath}")
+        else:
+            return None
 
     temp_timestamp_to_caption_dict = {}
 
