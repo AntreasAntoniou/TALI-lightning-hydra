@@ -96,9 +96,7 @@ def get_text_tokens(meta_data_filepath, start_timestamp, end_timestamp):
         meta_data_filepath.unlink(missing_ok=True)
         if log.getEffectiveLevel() == logging.DEBUG:
             log.exception(f"No captions found for {meta_data_filepath}")
-        else:
-            return None
-
+        return None
     temp_timestamp_to_caption_dict = {}
 
     for current_start_timestamp in sorted(timestamp_to_caption_dict.keys()):
