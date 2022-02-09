@@ -68,7 +68,7 @@ def load_to_tensor(
         "ffmpeg",
         "-hide_banner",
         "-loglevel",
-        "error",  # if log.level >= logging.DEBUG else "quiet",
+        "error" if log.level >= logging.DEBUG else "quiet",
         "-i",
         filename,
         "-f",
