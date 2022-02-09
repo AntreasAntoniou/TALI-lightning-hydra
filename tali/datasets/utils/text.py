@@ -79,6 +79,10 @@ def load_text_into_language_time_stamps(filepath):
     return timestamp_to_caption_dict
 
 
+class CaptionDataReadingError(Exception):
+    pass
+
+
 def get_text_tokens(meta_data_filepath, start_timestamp, end_timestamp):
     timestamp_to_caption_dict = load_text_into_language_time_stamps(
         filepath=meta_data_filepath
@@ -86,6 +90,8 @@ def get_text_tokens(meta_data_filepath, start_timestamp, end_timestamp):
     start_timestamp = float(np.floor(start_timestamp))
     end_timestamp = float(np.floor(end_timestamp))
 
+    if not timestamp_to_caption_dict:
+        raise CaptionDataReadingError(f"No captions found for {meta_data_filepath}")
     temp_timestamp_to_caption_dict = {}
 
     for current_start_timestamp in sorted(timestamp_to_caption_dict.keys()):
