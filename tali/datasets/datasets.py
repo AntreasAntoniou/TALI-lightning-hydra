@@ -60,53 +60,36 @@ class TALIMultiModalDataset(Dataset):
         self.start_index = start_index
         self.pre_scanned_dataset_json_filepath = os.path.join(
             self.dataset_dir,
-            f"tali_path_cache_{self.config.training_set_size_identifier}.shelf",
+            f"tali_path_cache_{self.config.training_set_size_identifier}.json",
         )
 
         logging.info(self.pre_scanned_dataset_json_filepath)
 
         if (
             self.config.rescan_paths
-            and pathlib.Path(self.pre_scanned_dataset_json_filepath)
-            .with_suffix(".shelf.dat")
-            .exists()
+            and pathlib.Path(self.pre_scanned_dataset_json_filepath).exists()
         ):
-            pathlib.Path(self.pre_scanned_dataset_json_filepath).with_suffix(
-                ".shelf.dat"
-            ).unlink()
+            pathlib.Path(self.pre_scanned_dataset_json_filepath).unlink()
 
-            pathlib.Path(self.pre_scanned_dataset_json_filepath).with_suffix(
-                ".shelf.bak"
-            ).unlink()
-
-            pathlib.Path(self.pre_scanned_dataset_json_filepath).with_suffix(
-                ".shelf.dir"
-            ).unlink()
-
-        if (
-            not pathlib.Path(self.pre_scanned_dataset_json_filepath)
-            .with_suffix(".shelf.dat")
-            .exists()
-        ):
-            self._scan_paths_return_dict(
+        if not pathlib.Path(self.pre_scanned_dataset_json_filepath).exists():
+            path_dict = self._scan_paths_return_dict(
                 training_set_fraction_value=self.training_set_fraction_value
             )
+        else:
+            path_dict = load_json(self.pre_scanned_dataset_json_filepath)
 
-        with closing(shelve.open(self.pre_scanned_dataset_json_filepath)) as path_dict:
+        logging.info(
+            f"{np.sum(len(value) for key, value in path_dict.items())} " f"files found"
+        )
 
-            logging.info(
-                f"{np.sum(len(value) for key, value in path_dict.items())} "
-                f"files found"
-            )
+        self.index_to_video_path = [
+            video_path
+            for folder_list in path_dict.values()
+            for video_path in folder_list
+        ]
 
-            self.index_to_video_path = [
-                video_path
-                for folder_list in path_dict.values()
-                for video_path in folder_list
-            ]
-
-            self.num_video_clips = len(self.index_to_video_path)
-            logging.info(f"num video clips: {self.num_video_clips}")
+        self.num_video_clips = len(self.index_to_video_path)
+        logging.info(f"num video clips: {self.num_video_clips}")
 
     def get_frames(
         self,
@@ -362,16 +345,15 @@ class TALIMultiModalDataset(Dataset):
         args = [(item, training_set_fraction_value) for item in matched_meta_data_files]
 
         logging.info("Scanning folders for media files")
+        path_dict = {}
 
-        with closing(shelve.open(self.pre_scanned_dataset_json_filepath, "c")) as shelf:
-            with concurrent.futures.ProcessPoolExecutor(
-                max_workers=int(mp.cpu_count())
-            ) as executor:
-                with tqdm.tqdm(
-                    total=len(matched_meta_data_files), smoothing=0.0
-                ) as pbar:
-                    for video_key, folder_list in executor.map(collect_files, args):
-                        if len(folder_list) > 0:
-                            shelf[video_key] = folder_list
+        with concurrent.futures.ProcessPoolExecutor(
+            max_workers=int(mp.cpu_count())
+        ) as executor:
+            with tqdm.tqdm(total=len(matched_meta_data_files), smoothing=0.0) as pbar:
+                for video_key, folder_list in executor.map(collect_files, args):
+                    if len(folder_list) > 0:
+                        path_dict[video_key] = folder_list
 
-                        pbar.update(1)
+                    pbar.update(1)
+        return path_dict

@@ -1,7 +1,7 @@
 """
 Storage associated utilities
 """
-import json
+import orjson as json
 import logging as log
 import os
 import os.path
