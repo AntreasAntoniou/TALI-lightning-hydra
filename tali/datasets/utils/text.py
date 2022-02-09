@@ -93,8 +93,8 @@ def get_text_tokens(meta_data_filepath, start_timestamp, end_timestamp):
     if not timestamp_to_caption_dict:
         if not isinstance(meta_data_filepath, pathlib.Path):
             meta_data_filepath = pathlib.Path(meta_data_filepath)
-            meta_data_filepath.unlink(missing_ok=True)
-        raise CaptionDataReadingError(f"No captions found for {meta_data_filepath}")
+        meta_data_filepath.unlink(missing_ok=True)
+        log.debug(f"No captions found for {meta_data_filepath}")
 
     temp_timestamp_to_caption_dict = {}
 
