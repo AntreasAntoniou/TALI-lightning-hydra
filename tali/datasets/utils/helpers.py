@@ -7,6 +7,10 @@ from functools import wraps
 import numpy as np
 import torch
 from torch.utils.data import dataloader
+import concurrent.futures
+import logging
+import multiprocessing as mp
+import tqdm.rich as tqdm
 
 log = logging.getLogger(__name__)
 
@@ -142,43 +146,64 @@ def timeout(timeout_secs: int):
     return wrapper
 
 
+def collect_subclip_data(input_tuple):
+
+    filepath, json_filepath, training_set_size_fraction_value = input_tuple
+
+    if not np.random.random() <= training_set_size_fraction_value:
+        return None
+    video_data_filepath = os.fspath(filepath.resolve())
+    frame_list = list(pathlib.Path(filepath).glob("**/*.jpg"))
+    frame_list = [os.fspath(frame.resolve()) for frame in frame_list]
+
+    if len(frame_list) > 0:
+        frame_idx_to_filepath = {
+            int(frame_filepath.split("_")[-1].replace(".jpg", "")): frame_filepath
+            for frame_filepath in frame_list
+        }
+
+        frame_idx_to_filepath = {
+            k: v for k, v in sorted(list(frame_idx_to_filepath.items()))
+        }
+        frame_list = list(frame_idx_to_filepath.values())
+        audio_data_filepath = os.fspath(filepath.resolve()).replace(".frames", ".aac")
+        meta_data_filepath = os.fspath(json_filepath.resolve())
+
+        if (
+            pathlib.Path(video_data_filepath).exists()
+            and pathlib.Path(meta_data_filepath).exists()
+            and pathlib.Path(audio_data_filepath).exists()
+        ):
+            data_tuple = (
+                frame_list,
+                video_data_filepath,
+                audio_data_filepath,
+                meta_data_filepath,
+            )
+
+            return data_tuple
+
+    return None
+
+
 def collect_files(args):
     # sourcery skip: identity-comprehension, simplify-len-comparison, use-named-expression
     json_file_path, training_set_size_fraction_value = args
     video_files = list(pathlib.Path(json_file_path.parent).glob("**/*.frames"))
     video_key = json_file_path.parent.stem
     folder_list = []
-    for file in video_files:
-        video_data_filepath = os.fspath(file.resolve())
-        frame_list = list(pathlib.Path(file).glob("**/*.jpg"))
-        frame_list = [os.fspath(frame.resolve()) for frame in frame_list]
-
-        if len(frame_list) > 0:
-            frame_idx_to_filepath = {
-                int(frame_filepath.split("_")[-1].replace(".jpg", "")): frame_filepath
-                for frame_filepath in frame_list
-            }
-
-            frame_idx_to_filepath = {
-                k: v for k, v in sorted(list(frame_idx_to_filepath.items()))
-            }
-            frame_list = list(frame_idx_to_filepath.values())
-            audio_data_filepath = os.fspath(file.resolve()).replace(".frames", ".aac")
-            meta_data_filepath = os.fspath(json_file_path.resolve())
-
-            if (
-                pathlib.Path(video_data_filepath).exists()
-                and pathlib.Path(meta_data_filepath).exists()
-                and pathlib.Path(audio_data_filepath).exists()
-            ) and np.random.random() <= training_set_size_fraction_value:
-                folder_list.append(
-                    (
-                        frame_list,
-                        video_data_filepath,
-                        audio_data_filepath,
-                        meta_data_filepath,
-                    )
-                )
+    multiprocessing_tuple = [
+        (filepath, json_file_path, training_set_size_fraction_value)
+        for filepath in video_files
+    ]
+    with concurrent.futures.ThreadPoolExecutor(
+        max_workers=int(mp.cpu_count())
+    ) as executor:
+        with tqdm.tqdm(total=len(multiprocessing_tuple), smoothing=0.0) as pbar:
+            for data_tuple in executor.map(collect_subclip_data, multiprocessing_tuple):
+                if data_tuple is not None:
+                    folder_list.append(data_tuple)
+                pbar.update(1)
 
     return video_key, folder_list
 

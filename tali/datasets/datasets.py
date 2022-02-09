@@ -26,6 +26,7 @@ from tali.datasets.utils.video import load_frames
 from tali.utils.arg_parsing import DictWithDotNotation
 from tali.utils.storage import load_json, save_json
 
+
 log = utils.get_logger(__name__)
 
 
@@ -363,8 +364,8 @@ class TALIMultiModalDataset(Dataset):
         logging.info("Scanning folders for media files")
 
         with closing(shelve.open(self.pre_scanned_dataset_json_filepath, "c")) as shelf:
-            with concurrent.futures.ProcessPoolExecutor(
-                max_workers=int(mp.cpu_count() / 2)
+            with concurrent.futures.ThreadPoolExecutor(
+                max_workers=int(mp.cpu_count())
             ) as executor:
                 with tqdm.tqdm(
                     total=len(matched_meta_data_files), smoothing=0.0
