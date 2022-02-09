@@ -196,7 +196,7 @@ def collect_files(args):
         (filepath, json_file_path, training_set_size_fraction_value)
         for filepath in video_files
     ]
-    with concurrent.futures.ThreadPoolExecutor(max_workers=16) as executor:
+    with concurrent.futures.ThreadPoolExecutor(max_workers=4) as executor:
         folder_list.extend(
             data_tuple
             for data_tuple in executor.map(collect_subclip_data, multiprocessing_tuple)
