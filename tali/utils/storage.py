@@ -127,8 +127,8 @@ def save_json(filepath, metrics_dict, overwrite):
     # '+'       open a disk file for updating (reading and writing)
     # 'U'       universal newline mode (deprecated)
 
-    with open(metrics_file_path, "w") as json_file:
-        json.dump(metrics_dict, json_file, indent=4, sort_keys=True)
+    with open(metrics_file_path, "wb") as json_file:
+        json.dumps(metrics_dict, json_file, indent=4, sort_keys=True)
 
 
 def load_json(filepath):
@@ -145,7 +145,7 @@ def load_json(filepath):
     if ".json" not in filepath:
         filepath = f"{filepath}.json"
 
-    with open(filepath) as json_file:
+    with open(filepath, "rb") as json_file:
         metrics_dict = json.loads(json_file)
 
     return metrics_dict
