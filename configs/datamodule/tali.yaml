@@ -15,12 +15,12 @@ config:
   num_audio_sample_rate: 44100
   image_shape:
     channels: 3
-    width: 224
-    height: 224
+    width: 288
+    height: 176
   text_context_length: 77
 batch_size: ${batch_size}
-persistent_workers: true
-pin_memory: True
+persistent_workers: False
+pin_memory: False
 prefetch_factor: 2
 num_workers: 2
 shuffle_train: True
