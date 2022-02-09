@@ -26,7 +26,6 @@ from tali.datasets.utils.video import load_frames
 from tali.utils.arg_parsing import DictWithDotNotation
 from tali.utils.storage import load_json, save_json
 
-
 log = utils.get_logger(__name__)
 
 
@@ -64,9 +63,12 @@ class TALIMultiModalDataset(Dataset):
         )
 
         logging.info(self.pre_scanned_dataset_json_filepath)
-
+        logging.debug(
+            f"{self.config.rescan_paths == True and pathlib.Path(self.pre_scanned_dataset_json_filepath).exists()} "
+            f"{self.config.rescan_paths} {pathlib.Path(self.pre_scanned_dataset_json_filepath).exists()}"
+        )
         if (
-            self.config.rescan_paths
+            self.config.rescan_paths == True
             and pathlib.Path(self.pre_scanned_dataset_json_filepath).exists()
         ):
             pathlib.Path(self.pre_scanned_dataset_json_filepath).unlink()
@@ -74,6 +76,11 @@ class TALIMultiModalDataset(Dataset):
         if not pathlib.Path(self.pre_scanned_dataset_json_filepath).exists():
             path_dict = self._scan_paths_return_dict(
                 training_set_fraction_value=self.training_set_fraction_value
+            )
+            save_json(
+                filepath=self.pre_scanned_dataset_json_filepath,
+                metrics_dict=path_dict,
+                overwrite=True,
             )
         else:
             path_dict = load_json(self.pre_scanned_dataset_json_filepath)

@@ -15,8 +15,8 @@ config:
   num_audio_sample_rate: 44100
   image_shape:
     channels: 3
-    width: 288
-    height: 176
+    width: 224
+    height: 224
   text_context_length: 77
 batch_size: ${batch_size}
 persistent_workers: False

@@ -93,7 +93,7 @@ def download_file_from_url(url, filename=None, verbose=False):
     return local_filename
 
 
-def save_json(filepath, metrics_dict, overwrite):
+def save_json(filepath, metrics_dict, overwrite=True):
     """
     Saves a metrics .json file with the metrics
     :param log_dir: Directory of log
@@ -128,7 +128,7 @@ def save_json(filepath, metrics_dict, overwrite):
     # 'U'       universal newline mode (deprecated)
 
     with open(metrics_file_path, "wb") as json_file:
-        json.dumps(metrics_dict, json_file, indent=4, sort_keys=True)
+        json_file.write(json.dumps(metrics_dict, option=json.OPT_SORT_KEYS))
 
 
 def load_json(filepath):
@@ -146,7 +146,7 @@ def load_json(filepath):
         filepath = f"{filepath}.json"
 
     with open(filepath, "rb") as json_file:
-        metrics_dict = json.loads(json_file)
+        metrics_dict = json.loads(json_file.read())
 
     return metrics_dict
 
