@@ -208,7 +208,7 @@ class TALIMultiModalDataset(Dataset):
         return text
 
     @prevent_error_kill
-    @timeout(3)
+    @timeout(5)
     def __getitem__(self, index):
         index = self.start_index + index
         actual_index = index % self.num_video_clips
