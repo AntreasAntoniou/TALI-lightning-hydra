@@ -128,7 +128,7 @@ def save_json(filepath, metrics_dict, overwrite=True):
     # 'U'       universal newline mode (deprecated)
 
     with open(metrics_file_path, "wb") as json_file:
-        json_file.write(json.dumps(metrics_dict, option=json.OPT_SORT_KEYS))
+        json_file.write(json.dumps(metrics_dict))
 
 
 def load_json(filepath):
