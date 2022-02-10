@@ -100,8 +100,6 @@ def load_to_tensor(
 
     audio = torch.Tensor(audio)
 
-    num_audio_frames = audio.shape[0]
-
     return audio
 
 

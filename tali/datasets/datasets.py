@@ -158,7 +158,6 @@ class TALIMultiModalDataset(Dataset):
                 video_frame_idx_list=selected_frame_list_idx,
                 total_video_frames=len(frame_list),
             )
-            frames_dict.audio = frames_dict.audio.view(-1, 2)
             frames_dict.audio = frames_dict.audio.permute([1, 0])
 
         if self.config.modality_config.image:
