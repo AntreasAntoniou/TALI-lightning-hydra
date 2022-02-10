@@ -197,7 +197,7 @@ def load_yaml(filepath):
 
     with open(filepath) as yaml_file:
         config_dict = yaml.safe_load(yaml_file)
-    log.debug(f"Loaded yaml file: {filepath}")
+    # log.debug(f"Loaded yaml file: {filepath}")
     return config_dict
 
 
