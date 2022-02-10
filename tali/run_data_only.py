@@ -40,7 +40,7 @@ def sample_datamodule(config: DictConfig):
     datamodule.setup(stage="fit")
     datamodule.setup(stage="test")
 
-    with tqdm.tqdm(total=len(datamodule.test_dataloader()), smoothing=0.0) as pbar:
+    with tqdm.tqdm(total=len(datamodule.val_dataloader()), smoothing=0.0) as pbar:
         for idx, item_batch in enumerate(datamodule.val_dataloader()):
             pbar.update(1)
             # text_batch = decode_and_store_text(
@@ -50,7 +50,7 @@ def sample_datamodule(config: DictConfig):
             # )
             # pbar.set_description(f"{text_batch}")
 
-    with tqdm.tqdm(total=len(datamodule.val_dataloader()), smoothing=0.0) as pbar:
+    with tqdm.tqdm(total=len(datamodule.test_dataloader()), smoothing=0.0) as pbar:
         for idx, item_batch in enumerate(datamodule.test_dataloader()):
             pbar.update(1)
             # text_batch = decode_and_store_text(
