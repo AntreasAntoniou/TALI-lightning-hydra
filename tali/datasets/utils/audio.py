@@ -44,16 +44,13 @@ class AudioLoadingError(Exception):
 
 
 # load_audio can not detect the input type
-# @timeit
 def load_to_tensor(
     filename: str,
     sample_rate: int = 44100,
-    num_audio_frames_per_datapoint: int = 88200,
     mono: bool = False,
     in_type=np.float32,
     out_type=np.float32,
-    video_frame_idx_list=None,
-    total_video_frames=1,
+    log_time=False,
 ):
     channels = 1 if mono else 2
     format_strings = {
@@ -81,6 +78,7 @@ def load_to_tensor(
         str(sample_rate),
         "-",
     ]
+    ts = time.time()
     process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=None, stdin=None)
     out, err = process.communicate(None)
 
@@ -92,7 +90,12 @@ def load_to_tensor(
             f"{inspect.stack()[0][3]} returned non-zero exit code {retcode}"
         )
 
+    te = time.time()
+    log.info(f"ffmpeg {filename} took {te - ts:.4f} sec")
+    ts = time.time()
     audio = np.frombuffer(out, dtype=in_type).astype(out_type)
+    te = time.time()
+    log.info(f"np {filename} took {te - ts:.4f} sec")
 
     audio = audio.reshape(-1, channels)
 

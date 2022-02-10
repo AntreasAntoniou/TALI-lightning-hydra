@@ -155,8 +155,6 @@ class TALIMultiModalDataset(Dataset):
                 mono=True,
                 in_type=np.float32,
                 out_type=np.float32,
-                video_frame_idx_list=selected_frame_list_idx,
-                total_video_frames=len(frame_list),
             )
             frames_dict.audio = frames_dict.audio.permute([1, 0])
 
