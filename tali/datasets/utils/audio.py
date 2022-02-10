@@ -55,7 +55,7 @@ def load_to_tensor(
     video_frame_idx_list=None,
     total_video_frames=1,
 ):
-    channels = 1 if mono else 2
+    channels = 1  # if mono else 2
     format_strings = {
         np.float64: "f64le",
         np.float32: "f32le",
