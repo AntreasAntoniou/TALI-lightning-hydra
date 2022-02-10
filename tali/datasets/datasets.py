@@ -153,7 +153,7 @@ class TALIMultiModalDataset(Dataset):
                 filename=audio_filepath,
                 sample_rate=self.config.num_audio_sample_rate,
                 mono=True,
-                in_type=np.float32,
+                in_type=np.int16,
                 out_type=np.float32,
             )
             frames_dict.audio = frames_dict.audio.permute([1, 0])
