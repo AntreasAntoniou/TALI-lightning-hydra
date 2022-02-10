@@ -17,7 +17,7 @@ from torch.utils.data import Dataset
 from tali.base import utils
 from tali.config_repository import TALIDatasetConfig
 from tali.datasets.utils import audio
-from tali.datasets.utils.audio import prevent_error_kill
+from tali.datasets.utils.audio import prevent_error_kill, convert_aac_to_npy
 from tali.datasets.utils.helpers import (
     collect_files,
 )
@@ -146,8 +146,18 @@ class TALIMultiModalDataset(Dataset):
             )
 
         if self.config.modality_config.audio:
-            if not pathlib.Path(audio_filepath).exists():
+            if (
+                not pathlib.Path(audio_filepath).exists()
+                and not pathlib.Path(audio_filepath).with_suffix(".npy").exists()
+            ):
                 return None
+
+            if pathlib.Path(audio_filepath).with_suffix(".npy").exists():
+                frames_dict.audio = torch.Tensor(np.load(audio_filepath))
+            else:
+                frames_dict.audio = convert_aac_to_npy(
+                    filepath=audio_filepath, delete_original=True
+                )
 
             frames_dict.audio = audio.load_to_tensor(
                 filename=audio_filepath,

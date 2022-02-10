@@ -1,8 +1,10 @@
 import inspect
 import logging
+import os
 import pathlib
 import subprocess
 import time
+from typing import Any
 
 import numpy as np
 import torch
@@ -96,6 +98,21 @@ def load_to_tensor(
     audio = torch.Tensor(audio)
 
     return audio
+
+
+def convert_aac_to_npy(filepath: Any[str, pathlib.Path], delete_original: bool = True):
+    if isinstance(filepath, pathlib.Path):
+        filepath = os.fspath(filepath.resolve())
+
+    if pathlib.Path(filepath).exists():
+
+        audio = load_to_tensor(filepath, out_type=np.float32).numpy()
+
+        np.save(filepath.replace(".aac", ".npy"), audio)
+        if delete_original and pathlib.Path(filepath).exists():
+            pathlib.Path(filepath).unlink()
+        audio = torch.Tensor(audio)
+        return audio
 
 
 def tensor_to_audio(
