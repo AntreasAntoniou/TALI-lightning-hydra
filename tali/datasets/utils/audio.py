@@ -78,7 +78,6 @@ def load_to_tensor(
         str(sample_rate),
         "-",
     ]
-    # ts = time.time()
     process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=None, stdin=None)
     out, err = process.communicate(None)
 
@@ -90,12 +89,7 @@ def load_to_tensor(
             f"{inspect.stack()[0][3]} returned non-zero exit code {retcode}"
         )
 
-    # te = time.time()
-    # log.info(f"ffmpeg {filename} took {te - ts:.4f} sec")
-    # ts = time.time()
     audio = np.frombuffer(out, dtype=in_type).astype(out_type)
-    # te = time.time()
-    # log.info(f"np {filename} took {te - ts:.4f} sec")
 
     audio = audio.reshape(-1, channels)
 
