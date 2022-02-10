@@ -9,6 +9,32 @@ from tali.utils.storage import load_json, load_yaml, save_yaml, save_json
 log = logging.getLogger(__name__)
 
 
+def convert_keys_to_float(d: dict):
+    new_dict = {}
+    for k, v in d.items():
+        try:
+            new_key = float(k)
+        except ValueError:
+            new_key = k
+        if type(v) == dict:
+            v = convert_keys_to_float(v)
+        new_dict[new_key] = v
+    return new_dict
+
+
+def convert_keys_to_str(d: dict):
+    new_dict = {}
+    for k, v in d.items():
+        try:
+            new_key = str(k)
+        except ValueError:
+            new_key = k
+        if type(v) == dict:
+            v = convert_keys_to_str(v)
+        new_dict[new_key] = v
+    return new_dict
+
+
 def load_text_into_language_time_stamps(filepath):
     filepath = pathlib.Path(f"{filepath}".replace("\n", ""))
 
@@ -28,7 +54,7 @@ def load_text_into_language_time_stamps(filepath):
 
     if caption_data_filepath.exists():
         try:
-            return load_json(caption_data_filepath)
+            return convert_keys_to_float(load_json(caption_data_filepath))
         except Exception:
             caption_data_filepath.unlink(missing_ok=True)
 
@@ -76,7 +102,7 @@ def load_text_into_language_time_stamps(filepath):
                 )
 
     save_json(
-        metrics_dict=timestamp_to_caption_dict,
+        metrics_dict=convert_keys_to_str(timestamp_to_caption_dict),
         filepath=caption_data_filepath,
     )
 
