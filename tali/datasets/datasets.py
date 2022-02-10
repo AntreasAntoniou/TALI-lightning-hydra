@@ -166,13 +166,6 @@ class TALIMultiModalDataset(Dataset):
                     out_type=np.float32,
                 )
 
-            frames_dict.audio = audio.load_to_tensor(
-                filename=audio_filepath,
-                sample_rate=self.config.num_audio_sample_rate,
-                mono=False,
-                in_type=np.float32,
-                out_type=np.float32,
-            )
             frames_dict.audio = frames_dict.audio.permute([1, 0])
 
         if self.config.modality_config.image:
