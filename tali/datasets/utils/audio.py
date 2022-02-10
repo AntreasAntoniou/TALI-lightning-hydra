@@ -71,7 +71,7 @@ def load_to_tensor(
         "-f",
         format_string,
         "-acodec",
-        f"copy",
+        f"pcm_{format_string}",
         "-ac",
         str(channels),
         "-ar",

@@ -9,7 +9,7 @@ import hydra
 import matplotlib.pyplot as plt
 import numpy as np
 import torch
-import tqdm.rich as tqdm
+import tqdm
 import wandb
 from omegaconf import DictConfig
 from pytorch_lightning import LightningDataModule, seed_everything

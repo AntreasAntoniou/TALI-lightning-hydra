@@ -10,7 +10,7 @@ from dataclasses import dataclass
 from typing import Dict
 
 import requests
-import tqdm.rich as tqdm  # progress bar
+import tqdm  # progress bar
 import yaml
 from google.cloud import storage
 from omegaconf import DictConfig

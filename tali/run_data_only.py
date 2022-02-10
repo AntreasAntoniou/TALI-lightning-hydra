@@ -3,7 +3,7 @@ import logging
 import hydra
 import matplotlib.pyplot as plt
 import numpy as np
-import tqdm.rich as tqdm
+import tqdm
 from omegaconf import DictConfig
 from pytorch_lightning import LightningDataModule, seed_everything
 

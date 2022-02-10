@@ -11,7 +11,7 @@ from typing import Callable, Dict, List, Union
 
 import numpy as np
 import torch
-import tqdm.rich as tqdm
+import tqdm
 from torch.utils.data import Dataset
 
 from tali.base import utils

@@ -10,7 +10,7 @@ import pprint
 import shutil
 import sys
 
-import tqdm.rich as tqdm
+import tqdm
 from gate.utils.logging_helpers import get_logging
 
 from tali.datasets.utils.helpers import load_text_into_language_time_stamps
