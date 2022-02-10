@@ -63,6 +63,7 @@ def load_text_into_language_time_stamps(filepath):
     except Exception:
         filepath.unlink(missing_ok=True)
         logging.exception(f"Could not load {filepath}")
+        return None
 
     captions = meta_data["captions"]
 
