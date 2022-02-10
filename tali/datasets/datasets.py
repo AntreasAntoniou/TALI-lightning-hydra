@@ -20,6 +20,7 @@ from tali.datasets.utils import audio
 from tali.datasets.utils.audio import prevent_error_kill, convert_aac_to_npy
 from tali.datasets.utils.helpers import (
     collect_files,
+    timeout,
 )
 from tali.datasets.utils.text import get_text_tokens
 from tali.datasets.utils.video import load_frames
@@ -207,6 +208,7 @@ class TALIMultiModalDataset(Dataset):
         return text
 
     @prevent_error_kill
+    @timeout(15)
     def __getitem__(self, index):
         index = self.start_index + index
         actual_index = index % self.num_video_clips
@@ -363,7 +365,7 @@ class TALIMultiModalDataset(Dataset):
         path_dict = {}
 
         with concurrent.futures.ProcessPoolExecutor(
-            max_workers=int(mp.cpu_count() / 2)
+            max_workers=int(mp.cpu_count())
         ) as executor:
             with tqdm.tqdm(total=len(matched_meta_data_files), smoothing=0.0) as pbar:
                 for video_key, folder_list in executor.map(collect_files, args):
