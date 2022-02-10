@@ -49,7 +49,7 @@ def load_to_tensor(
     filename: str,
     sample_rate: int = 44100,
     num_audio_frames_per_datapoint: int = 88200,
-    mono: bool = True,
+    mono: bool = False,
     in_type=np.float32,
     out_type=np.float32,
     video_frame_idx_list=None,

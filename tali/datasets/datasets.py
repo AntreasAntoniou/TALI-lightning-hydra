@@ -152,7 +152,7 @@ class TALIMultiModalDataset(Dataset):
             frames_dict.audio = audio.load_to_tensor(
                 filename=audio_filepath,
                 sample_rate=self.config.num_audio_sample_rate,
-                mono=False,
+                mono=True,
                 in_type=np.float32,
                 out_type=np.float32,
                 video_frame_idx_list=selected_frame_list_idx,
