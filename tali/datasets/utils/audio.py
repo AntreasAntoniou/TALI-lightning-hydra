@@ -4,7 +4,7 @@ import os
 import pathlib
 import subprocess
 import time
-from typing import Any
+from typing import Any, Union
 
 import numpy as np
 import torch
@@ -100,7 +100,9 @@ def load_to_tensor(
     return audio
 
 
-def convert_aac_to_npy(filepath: Any[str, pathlib.Path], delete_original: bool = True):
+def convert_aac_to_npy(
+    filepath: Union[str, pathlib.Path], delete_original: bool = True
+):
     if isinstance(filepath, pathlib.Path):
         filepath = os.fspath(filepath.resolve())
 
