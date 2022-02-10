@@ -8,6 +8,7 @@ from omegaconf import DictConfig
 from pytorch_lightning import LightningDataModule, seed_everything
 
 from tali.datasets.tokenizers import HuggingFaceBPETokenizer
+from tali.sample_actuate_pred_and_data import decode_and_store_text
 from tali.utils.storage import pretty_print_dict
 
 log = logging.getLogger(__name__)
@@ -42,11 +43,29 @@ def sample_datamodule(config: DictConfig):
         with tqdm.tqdm(total=len(datamodule.train_dataloader()), smoothing=0.0) as pbar:
             for idx, item_batch in enumerate(datamodule.train_dataloader()):
                 pbar.update(1)
+                text_batch = decode_and_store_text(
+                    text_frames=item_batch["text"],
+                    save=False,
+                    show=False,
+                )
+                pbar.set_description(f"{text_batch}")
 
         with tqdm.tqdm(total=len(datamodule.test_dataloader()), smoothing=0.0) as pbar:
             for idx, item_batch in enumerate(datamodule.val_dataloader()):
                 pbar.update(1)
+                text_batch = decode_and_store_text(
+                    text_frames=item_batch["text"],
+                    save=False,
+                    show=False,
+                )
+                pbar.set_description(f"{text_batch}")
 
         with tqdm.tqdm(total=len(datamodule.val_dataloader()), smoothing=0.0) as pbar:
             for idx, item_batch in enumerate(datamodule.test_dataloader()):
                 pbar.update(1)
+                text_batch = decode_and_store_text(
+                    text_frames=item_batch["text"],
+                    save=False,
+                    show=False,
+                )
+                pbar.set_description(f"{text_batch}")
