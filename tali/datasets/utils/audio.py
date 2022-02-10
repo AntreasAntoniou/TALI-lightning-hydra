@@ -92,7 +92,7 @@ def load_to_tensor(
             f"{inspect.stack()[0][3]} returned non-zero exit code {retcode}"
         )
 
-    audio = np.frombuffer(out, dtype=in_type).astype(out_type)
+    audio = np.frombuffer(out).astype(out_type)
 
     audio = audio.reshape(-1, channels)
 
