@@ -14,4 +14,4 @@ log_every_n_steps: 1
 precision: 32
 num_sanity_val_steps: 2
 auto_scale_batch_size: False
-
+profiler: advanced
