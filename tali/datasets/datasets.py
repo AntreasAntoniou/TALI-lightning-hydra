@@ -153,7 +153,7 @@ class TALIMultiModalDataset(Dataset):
                 filename=audio_filepath,
                 sample_rate=self.config.num_audio_sample_rate,
                 mono=False,
-                in_type=np.int16,
+                in_type=np.float32,
                 out_type=np.float32,
                 video_frame_idx_list=selected_frame_list_idx,
                 total_video_frames=len(frame_list),
