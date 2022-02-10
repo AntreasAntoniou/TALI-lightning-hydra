@@ -52,7 +52,6 @@ def load_to_tensor(
     mono: bool = False,
     in_type=np.float32,
     out_type=np.float32,
-    log_time=False,
 ):
     channels = 1 if mono else 2
     format_strings = {
@@ -101,14 +100,25 @@ def load_to_tensor(
 
 
 def convert_aac_to_npy(
-    filepath: Union[str, pathlib.Path], delete_original: bool = True
+    filepath: Union[str, pathlib.Path],
+    delete_original: bool = True,
+    sample_rate: int = 44100,
+    mono: bool = False,
+    in_type: Any = np.float32,
+    out_type: Any = np.float32,
 ):
     if isinstance(filepath, pathlib.Path):
         filepath = os.fspath(filepath.resolve())
 
     if pathlib.Path(filepath).exists():
 
-        audio = load_to_tensor(filepath, out_type=np.float32).numpy()
+        audio = load_to_tensor(
+            filepath,
+            sample_rate=sample_rate,
+            mono=mono,
+            in_type=in_type,
+            out_type=out_type,
+        ).numpy()
 
         np.save(filepath.replace(".aac", ".npy"), audio)
         if delete_original and pathlib.Path(filepath).exists():
