@@ -69,8 +69,6 @@ def load_to_tensor(
         "-hide_banner",
         "-loglevel",
         "error" if log.level >= logging.DEBUG else "quiet",
-        "-ss",
-        "5",
         "-i",
         filename,
         "-f",
