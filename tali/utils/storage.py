@@ -112,7 +112,7 @@ def save_json(filepath, metrics_dict, overwrite=True):
     metrics_file_path = filepath
 
     if overwrite and os.path.exists(metrics_file_path):
-        os.remove(metrics_file_path)
+        pathlib.Path(metrics_file_path).unlink(missing_ok=True)
 
     parent_folder = "/".join(filepath.split("/")[:-1])
     if not os.path.exists(parent_folder):
