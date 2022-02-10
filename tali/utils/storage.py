@@ -172,10 +172,24 @@ def load_model_config_from_yaml(config_filepath, model_name):
     return DictWithDotNotation(config[model_name])
 
 
+from yaml import CLoader as Loader, CDumper as Dumper
+
+# dump = yaml.dump(
+#     dummy_data, fh, encoding="utf-8", default_flow_style=False, Dumper=Dumper
+# )
+# data = yaml.load(fh, Loader=Loader)
+
+
 def save_yaml(filepath, object_to_store):
     try:
         with open(filepath, mode="w+") as file_reader:
-            yaml.dump(object_to_store, file_reader)
+            yaml.dump(
+                object_to_store,
+                file_reader,
+                encoding="utf-8",
+                default_flow_style=False,
+                Dumper=Dumper,
+            )
             return True
     except Exception:
         return False
@@ -196,7 +210,7 @@ def load_yaml(filepath):
         filepath = f"{filepath}.yaml"
 
     with open(filepath) as yaml_file:
-        config_dict = yaml.safe_load(yaml_file)
+        config_dict = yaml.safe_load(yaml_file, Loader=Loader)
     # log.debug(f"Loaded yaml file: {filepath}")
     return config_dict
 
