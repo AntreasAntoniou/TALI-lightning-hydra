@@ -23,6 +23,9 @@ def load_text_into_language_time_stamps(filepath):
     if old_caption_data_filepath.exists():
         old_caption_data_filepath.unlink(missing_ok=True)
 
+    if old_caption_data_filepath.with_suffix(".yaml").exists():
+        old_caption_data_filepath.with_suffix(".yaml").unlink(missing_ok=True)
+
     if caption_data_filepath.exists():
         try:
             return load_json(caption_data_filepath)
