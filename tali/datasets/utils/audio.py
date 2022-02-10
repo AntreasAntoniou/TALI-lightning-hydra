@@ -49,13 +49,13 @@ def load_to_tensor(
     filename: str,
     sample_rate: int = 44100,
     num_audio_frames_per_datapoint: int = 88200,
-    mono: bool = False,
+    mono: bool = True,
     in_type=np.float32,
     out_type=np.float32,
     video_frame_idx_list=None,
     total_video_frames=1,
 ):
-    channels = 1  # if mono else 2
+    channels = 1 if mono else 2
     format_strings = {
         np.float64: "f64le",
         np.float32: "f32le",
@@ -69,12 +69,14 @@ def load_to_tensor(
         "-hide_banner",
         "-loglevel",
         "error" if log.level >= logging.DEBUG else "quiet",
+        "-ss",
+        "5",
         "-i",
         filename,
         "-f",
         format_string,
         "-acodec",
-        f"copy",
+        f"pcm_{format_string}",
         "-ac",
         str(channels),
         "-ar",
@@ -92,7 +94,7 @@ def load_to_tensor(
             f"{inspect.stack()[0][3]} returned non-zero exit code {retcode}"
         )
 
-    audio = np.frombuffer(out).astype(out_type)
+    audio = np.frombuffer(out, dtype=in_type).astype(out_type)
 
     audio = audio.reshape(-1, channels)
 
