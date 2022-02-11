@@ -123,10 +123,9 @@ def convert_audiofile_to_tensor(
             out_type=out_type,
         ).numpy()
 
-        np.savez_compressed(pathlib.Path(filepath).with_suffix(".npz"), audio)
         if delete_original and pathlib.Path(filepath).exists():
             pathlib.Path(filepath).unlink()
-        audio = torch.Tensor(audio)
+
         return audio
 
 

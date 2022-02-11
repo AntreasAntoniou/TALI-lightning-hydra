@@ -155,12 +155,11 @@ class TALIMultiModalDataset(Dataset):
 
             if pathlib.Path(audio_filepath).with_suffix(".npz").exists():
                 try:
-                    frames_dict.audio = torch.Tensor(
-                        np.load(
-                            pathlib.Path(audio_filepath).with_suffix(".npz"),
-                            allow_pickle=True,
-                        )
+                    frames_dict.audio = np.load(
+                        pathlib.Path(audio_filepath).with_suffix(".npz"),
+                        allow_pickle=True,
                     )
+
                 except Exception:
                     log.exception(f"Failed to load audio file {audio_filepath}")
                     if pathlib.Path(audio_filepath).exists():
@@ -172,6 +171,10 @@ class TALIMultiModalDataset(Dataset):
                             in_type=np.float32,
                             out_type=np.float32,
                         )
+                        np.savez_compressed(
+                            pathlib.Path(audio_filepath).with_suffix(".npz"),
+                            frames_dict.audio,
+                        )
             else:
                 frames_dict.audio = convert_audiofile_to_tensor(
                     filepath=audio_filepath,
@@ -181,7 +184,12 @@ class TALIMultiModalDataset(Dataset):
                     in_type=np.float32,
                     out_type=np.float32,
                 )
+                np.savez_compressed(
+                    pathlib.Path(audio_filepath).with_suffix(".npz"),
+                    frames_dict.audio,
+                )
 
+            frames_dict.audio = torch.Tensor(frames_dict.audio)
             frames_dict.audio = frames_dict.audio.permute([1, 0])
 
         if self.config.modality_config.image:
