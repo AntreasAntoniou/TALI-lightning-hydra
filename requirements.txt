@@ -48,6 +48,7 @@ pudb            # debugger
 regex
 tqdm
 testresources
+orjson
 # --------scaling up on the cloud ----------#
 ray
 GPUtil
