@@ -6,7 +6,7 @@ config:
   densenet_num_blocks: 1
   densenet_adaptive_pool_output_features: 512
   densenet_dilated: false
-  grid_patch_size: 16
+  grid_patch_size: 32
   transformer_num_filters: 512
   transformer_num_layers: 12
   transformer_num_heads: 8

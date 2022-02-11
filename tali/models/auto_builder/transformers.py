@@ -6,7 +6,7 @@ from typing import Optional
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from clip.model import ModifiedResNet
+from clip.model import ModifiedResNet, AttentionPool2d
 from einops import rearrange, repeat
 from gate.model_blocks.auto_builder_modules.auto_builder_conv_blocks import (
     SqueezeExciteConv1dBNLeakyReLU,
@@ -275,8 +275,13 @@ class VideoTransformer(nn.Module):
 
         _, out = self.image_embedding(out)
 
-        if self.image_embedding is not None:
-            _, out = self.image_embedding(out)
+        out = out.view(dummy_x.shape[0] * dummy_x.shape[1], -1)
+
+        self.linear_projection = nn.Linear(
+            out.shape[-1], self.transformer_num_filters, bias=True
+        )
+
+        out = self.linear_projection.forward(out)
 
         out = out.view(dummy_x.shape[0], dummy_x.shape[1], -1)
 
@@ -313,12 +318,13 @@ class VideoTransformer(nn.Module):
         if not self.is_built:
             self.build(input_shape=x.shape)
 
-        self.type_as(x)
-
         out = x.view(-1, x.shape[-3], x.shape[-2], x.shape[-1])
 
-        if self.image_embedding is not None:
-            _, out = self.image_embedding(out)
+        _, out = self.image_embedding(out)
+
+        out = out.view(x.shape[0] * x.shape[1], -1)
+
+        out = self.linear_projection.forward(out)
 
         out = out.view(x.shape[0], x.shape[1], -1)
 
@@ -498,13 +504,36 @@ class AutoCLIPVisionTransformer(BaseLinearOutputModel):
         )
 
 
+class ModifiedResNetNonSquareImages(ModifiedResNet):
+    """
+    A ResNet class that is similar to torchvision's but contains the following changes:
+    - There are now 3 "stem" convolutions as opposed to 1, with an average pool instead of a max pool.
+    - Performs anti-aliasing strided convolutions, where an avgpool is prepended to convolutions with stride > 1
+    - The final pooling layer is a QKV attention instead of an average pool
+    """
+
+    def __init__(self, layers, output_dim, heads, input_resolution=224, width=64):
+        super(ModifiedResNetNonSquareImages, self).__init__(
+            layers, output_dim, heads, input_resolution, width
+        )
+
+        embed_dim = width * 32  # the ResNet feature dimension
+        self.attnpool = AttentionPool2d(
+            height=input_resolution[0] // 32,
+            width=input_resolution[1] // 32,
+            embed_dim=embed_dim,
+            num_heads=heads,
+            output_dim=output_dim,
+        )
+
+
 class AutoCLIPResNet(BaseLinearOutputModel):
     def __init__(self, config: AutoCLIPResNetConfig):
         vision_heads = config.vision_width * 32 // 64
 
         feature_embedding_modules = [
             nn.InstanceNorm2d,
-            ModifiedResNet,
+            ModifiedResNetNonSquareImages,
         ]
 
         feature_embeddings_args = [

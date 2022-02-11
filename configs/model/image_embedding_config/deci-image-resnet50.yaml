@@ -6,5 +6,7 @@ config:
   - 6
   - 3
   embedding_output_features: 512
-  image_resolution: 224
+  image_resolution:
+    - ${datamodule.config.image_shape.width}
+    - ${datamodule.config.image_shape.height}
   vision_width: 128

@@ -118,6 +118,7 @@ class AutoVideoTransformersConfig:
     transformer_num_heads: int = 8
     transformer_dim_feedforward: int = 2048
     embedding_output_features: int = 512
+    dim: int = 1
 
 
 @dataclass
