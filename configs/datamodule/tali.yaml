@@ -10,13 +10,13 @@ config:
     text: True
     name: video-${datamodule.config.modality_config.video}-audio-${datamodule.config.modality_config.audio}-text-${datamodule.config.modality_config.text}-image-${datamodule.config.modality_config.image}
   rescan_paths: False
-  num_video_frames_per_datapoint: 4
-  num_audio_frames_per_datapoint: 441000
+  num_video_frames_per_datapoint: 10
+  num_audio_frames_per_datapoint: 220500
   num_audio_sample_rate: 44100
   image_shape:
     channels: 3
-    width: 360
-    height: 180
+    width: 288
+    height: 176
   text_context_length: 77
 batch_size: ${batch_size}
 persistent_workers: False

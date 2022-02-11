@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import Any, List, Optional, Union
+from typing import Any, List, Optional, Union, Tuple
 
 
 @dataclass
@@ -96,7 +96,7 @@ class AutoCLIPTextTransformerConfig:
 @dataclass
 class AutoCLIPVisionTransformerConfig:
     embedding_output_features: int = 512
-    image_resolution: int = 224
+    image_resolution: Tuple[int] = (176, 288)
     grid_patch_size: int = 16
     transformer_num_filters: int = 768
     transformer_num_layers: int = 12

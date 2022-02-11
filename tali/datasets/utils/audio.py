@@ -99,6 +99,9 @@ def load_to_tensor(
     return audio
 
 
+import pytorch_lightning.loggers.wandb
+
+
 def convert_aac_to_npy(
     filepath: Union[str, pathlib.Path],
     delete_original: bool = True,

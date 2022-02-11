@@ -7,7 +7,7 @@ einops
 scipy
 imutils
 ftfy
-transformers
+git+https://github.com/AntreasAntoniou/transformers.git@master
 git+https://github.com/openai/CLIP.git@main
 cryptography
 google-api-python-client

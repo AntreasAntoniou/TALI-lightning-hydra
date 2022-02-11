@@ -3,12 +3,11 @@
 wandb:
   _target_: pytorch_lightning.loggers.wandb.WandbLogger
   project: ${wandb_project_name}
-  name: ${name}
   offline: False # set True to store all logs only locally
   resume: ${resume}
   save_dir: ${current_experiment_dir}/
   log_model: 'all'
-  id: ${name}
+  id: ${datamodule.config.dataset_name}-${model.name}-${datamodule.config.modality_config.name}-${seed}
   prefix: ""
   job_type: "train"
   group: ""

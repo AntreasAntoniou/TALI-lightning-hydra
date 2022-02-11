@@ -6,12 +6,12 @@ import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from gate.architectures.auto_builder_models import (
-    ClassificationModel,
-    Conv1dBNLeakyReLU,
+from gate.model_blocks.auto_builder_modules.auto_builder_conv_blocks import (
     Conv2dBNLeakyReLU,
-    SqueezeExciteConv1dBNLeakyReLU,
+    ClassificationModel,
     SqueezeExciteConv2dBNLeakyReLU,
+    SqueezeExciteConv1dBNLeakyReLU,
+    Conv1dBNLeakyReLU,
 )
 
 

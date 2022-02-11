@@ -7,4 +7,4 @@ defaults:
   - optimizer_config: adam.yaml
   - lr_scheduler_config: cosine_annealing.yaml
 
-name: base_modus_prime_vi-transformer16
+name: base_modus_prime_vit16
