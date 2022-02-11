@@ -38,6 +38,7 @@ class TALIDatasetConfig:
     dataset_name: str = "base-tali"
     modality_config: ModalityConfig = ModalityConfig()
     rescan_paths: bool = False
+    num_train_samples: int = 1000000 * 50
     num_video_frames_per_datapoint: int = 10
     num_audio_frames_per_datapoint: int = 88200
     num_audio_sample_rate: int = 44100
