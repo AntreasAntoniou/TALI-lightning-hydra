@@ -332,7 +332,7 @@ class TALIMultiModalDataset(Dataset):
         # intervals no matter what the size of the dataset
         return (
             self.config.num_train_samples
-            if self.set_name == "train"
+            if self.set_name == "train" and self.config.num_train_samples != -1
             else self.num_video_clips
         )
 

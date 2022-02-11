@@ -10,7 +10,7 @@ config:
     text: True
     name: v.${datamodule.config.modality_config.video}-a.${datamodule.config.modality_config.audio}-t.${datamodule.config.modality_config.text}-i.${datamodule.config.modality_config.image}
   rescan_paths: False
-  num_train_samples: 50000000
+  num_train_samples: -1
   num_video_frames_per_datapoint: 10
   num_audio_frames_per_datapoint: 220500
   num_audio_sample_rate: 44100
