@@ -22,5 +22,5 @@ upload_code_as_artifact:
 #log_confusion_matrix:
 #  _target_: tali.base.callbacks.wandb_callbacks.LogConfusionMatrix
 #
-log_multi_modal_similarity_prediction_heatmap:
-  _target_: tali.base.callbacks.wandb_callbacks.LogMultiModalPredictionHeatmaps
+#log_multi_modal_similarity_prediction_heatmap:
+#  _target_: tali.base.callbacks.wandb_callbacks.LogMultiModalPredictionHeatmaps

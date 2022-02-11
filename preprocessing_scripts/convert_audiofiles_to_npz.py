@@ -76,7 +76,7 @@ def convert_audiofile_to_npz(path_tuple: Tuple[pathlib.Path, pathlib.Path]):
         audio_array = audio_array.astype(np.float16)
 
         if audio_array is None:
-            log.exception(f"Error converting file {video_filepath_string}")
+            log.exception(f"Error converting file {audio_filepath_string}")
             return source_audio_filepath, False
         else:
             np.savez_compressed(path_to_string(target_numpy_filepath), audio_array)
@@ -138,12 +138,12 @@ if __name__ == "__main__":
             with concurrent.futures.ProcessPoolExecutor(
                 max_workers=args.num_processes
             ) as executor:
-                for job_idx, (video_filepath_string, return_code) in enumerate(
+                for job_idx, (audio_filepath_string, return_code) in enumerate(
                     executor.map(target_func, matching_files[file_type]),
                     start=1,
                 ):
                     if return_code is False:
-                        failed_jobs.append(video_filepath_string)
+                        failed_jobs.append(audio_filepath_string)
                     pbar.update(1)
 
     log.info("Done")
