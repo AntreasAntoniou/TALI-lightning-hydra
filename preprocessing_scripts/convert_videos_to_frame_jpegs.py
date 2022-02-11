@@ -19,6 +19,9 @@ from typing import Tuple
 from rich.logging import RichHandler
 import tqdm as tqdm
 
+from tali.datasets.utils.audio import convert_audiofile_to_tensor
+import numpy as np
+
 log = logging.getLogger(__name__)
 log.setLevel(logging.DEBUG)
 ch = RichHandler()
@@ -54,9 +57,9 @@ def get_base_arguments():
     return parser.parse_args()
 
 
-def convert_video_to_frames(path_tuple: Tuple[pathlib.Path, pathlib.Path]):
-    video_filepath, output_dir = path_tuple
-    video_filepath_string = os.fspath(video_filepath.resolve())
+def convert_audiofile_to_npz(path_tuple: Tuple[pathlib.Path, pathlib.Path]):
+    audio_filepath, output_dir = path_tuple
+    video_filepath_string = os.fspath(audio_filepath.resolve())
     output_dir_string = os.fspath(output_dir.resolve())
 
     if not output_dir.exists():
@@ -64,36 +67,22 @@ def convert_video_to_frames(path_tuple: Tuple[pathlib.Path, pathlib.Path]):
 
     return_code = 0
 
-    if pathlib.Path(f"{output_dir_string}".replace(".frames", ".mp4")).exists():
-
-        command_string = [
-            f"ffmpeg",
-            f"-hide_banner",
-            f"-loglevel",
-            f"error",  # if log.level >= logging.DEBUG else "quiet",
-            f"-i",
-            f"{video_filepath_string}",
-            f"-r",
-            f"8/1",
-            f"-qscale:v",
-            f"4",
-            f"-vf",
-            f"scale=320:-1",
-            f"{output_dir_string}/{video_filepath.stem}_%04d.jpg",
-        ]
-
-        process = subprocess.Popen(command_string, stdout=None, stderr=None, stdin=None)
-
-        out, err = process.communicate(None)
-
-        return_code = process.poll()
-        if return_code != 0:
-            log.exception(f"Error converting file {video_filepath_string}")
-        else:
-            delete_file_if_exists(
-                path=pathlib.Path(f"{output_dir_string}".replace(".frames", ".mp4")),
-                verbose=False,
-            )
+    audio_array = convert_audiofile_to_tensor(
+        video_filepath_string,
+        sample_rate=44100,
+        mono=False,
+        in_type=np.float32,
+        out_type=np.float32,
+    )
+    audio_array = audio_array.astype(np.float16)
+    if audio_array is None:
+        log.exception(f"Error converting file {video_filepath_string}")
+    else:
+        np.savez_compressed(output_dir_string, audio_array)
+        delete_file_if_exists(
+            path=audio_filepath,
+            verbose=False,
+        )
 
     return video_filepath_string, return_code
 

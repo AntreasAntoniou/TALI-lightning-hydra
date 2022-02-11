@@ -104,7 +104,6 @@ import pytorch_lightning.loggers.wandb
 
 def convert_audiofile_to_tensor(
     filepath: Union[str, pathlib.Path],
-    delete_original: bool = True,
     sample_rate: int = 44100,
     mono: bool = False,
     in_type: Any = np.float32,
@@ -115,7 +114,7 @@ def convert_audiofile_to_tensor(
 
     if pathlib.Path(filepath).exists():
 
-        audio = load_to_tensor(
+        return load_to_tensor(
             filepath,
             sample_rate=sample_rate,
             mono=mono,
@@ -123,10 +122,7 @@ def convert_audiofile_to_tensor(
             out_type=out_type,
         ).numpy()
 
-        if delete_original and pathlib.Path(filepath).exists():
-            pathlib.Path(filepath).unlink()
-
-        return audio
+    return None
 
 
 def tensor_to_audio(

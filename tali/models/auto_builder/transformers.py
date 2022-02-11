@@ -514,7 +514,7 @@ class ModifiedResNetNonSquareImages(ModifiedResNet):
 
     def __init__(self, layers, output_dim, heads, input_resolution=224, width=64):
         super(ModifiedResNetNonSquareImages, self).__init__(
-            layers, output_dim, heads, input_resolution, width
+            layers, output_dim, heads, input_resolution[0], width
         )
 
         embed_dim = width * 32  # the ResNet feature dimension
