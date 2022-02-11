@@ -154,9 +154,22 @@ class TALIMultiModalDataset(Dataset):
                 return None
 
             if pathlib.Path(audio_filepath).with_suffix(".npy").exists():
-                frames_dict.audio = torch.Tensor(
-                    np.load(audio_filepath.replace(".aac", ".npy"), allow_pickle=True)
-                )
+                try:
+                    frames_dict.audio = torch.Tensor(
+                        np.load(
+                            audio_filepath.replace(".aac", ".npy"), allow_pickle=True
+                        )
+                    )
+                except Exception:
+                    if pathlib.Path(audio_filepath).exists():
+                        frames_dict.audio = convert_aac_to_npy(
+                            filepath=audio_filepath,
+                            delete_original=True,
+                            sample_rate=self.config.num_audio_sample_rate,
+                            mono=False,
+                            in_type=np.float32,
+                            out_type=np.float32,
+                        )
             else:
                 frames_dict.audio = convert_aac_to_npy(
                     filepath=audio_filepath,
