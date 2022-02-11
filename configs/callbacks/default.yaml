@@ -6,7 +6,7 @@ model_checkpoint_eval:
   save_last: False # additionaly always save model from last epoch
   verbose: False
   dirpath: "${current_experiment_dir}/checkpoints/"
-  filename: "eval_epoch_{epoch:03d}"
+  filename: "eval_epoch"
   auto_insert_metric_name: False
 
 model_checkpoint_train:
