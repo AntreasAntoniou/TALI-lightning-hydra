@@ -19,6 +19,9 @@ from typing import Tuple
 from rich.logging import RichHandler
 import tqdm as tqdm
 
+from tali.datasets.utils.audio import convert_audiofile_to_tensor
+import numpy as np
+
 log = logging.getLogger(__name__)
 log.setLevel(logging.DEBUG)
 ch = RichHandler()
@@ -54,48 +57,36 @@ def get_base_arguments():
     return parser.parse_args()
 
 
-def convert_video_to_frames(path_tuple: Tuple[pathlib.Path, pathlib.Path]):
-    video_filepath, output_dir = path_tuple
-    video_filepath_string = os.fspath(video_filepath.resolve())
-    output_dir_string = os.fspath(output_dir.resolve())
+path_to_string = lambda x: os.fspath(x.resolve())
 
-    if not output_dir.exists():
-        output_dir.mkdir(parents=True)
 
-    return_code = 0
+def convert_audiofile_to_npz(path_tuple: Tuple[pathlib.Path, pathlib.Path]):
+    source_audio_filepath, target_numpy_filepath = path_tuple
+    try:
+        if not target_numpy_filepath.parent.exists():
+            target_numpy_filepath.parent.mkdir(parents=True)
 
-    if pathlib.Path(f"{output_dir_string}".replace(".frames", ".mp4")).exists():
+        audio_array = convert_audiofile_to_tensor(
+            path_to_string(source_audio_filepath),
+            sample_rate=44100,
+            mono=False,
+            in_type=np.float32,
+            out_type=np.float32,
+        )
+        audio_array = audio_array.astype(np.float16)
 
-        command_string = [
-            f"ffmpeg",
-            f"-hide_banner",
-            f"-loglevel",
-            f"error",  # if log.level >= logging.DEBUG else "quiet",
-            f"-i",
-            f"{video_filepath_string}",
-            f"-r",
-            f"8/1",
-            f"-qscale:v",
-            f"4",
-            f"-vf",
-            f"scale=320:-1",
-            f"{output_dir_string}/{video_filepath.stem}_%04d.jpg",
-        ]
-
-        process = subprocess.Popen(command_string, stdout=None, stderr=None, stdin=None)
-
-        out, err = process.communicate(None)
-
-        return_code = process.poll()
-        if return_code != 0:
+        if audio_array is None:
             log.exception(f"Error converting file {video_filepath_string}")
+            return source_audio_filepath, False
         else:
+            np.savez_compressed(path_to_string(target_numpy_filepath), audio_array)
             delete_file_if_exists(
-                path=pathlib.Path(f"{output_dir_string}".replace(".frames", ".mp4")),
+                path=source_audio_filepath,
                 verbose=False,
             )
-
-    return video_filepath_string, return_code
+            return source_audio_filepath, True
+    except Exception:
+        return source_audio_filepath, False
 
 
 def delete_file_if_exists(path: pathlib.Path, verbose: bool = True):
@@ -115,7 +106,7 @@ if __name__ == "__main__":
     if not os.path.exists(args.target_filepath):
         os.makedirs(args.target_filepath, exist_ok=True)
 
-    target_file_types = [".mp4"]
+    target_file_types = [".aac"]
 
     failed_jobs = []
     matching_files = defaultdict(list)
@@ -124,12 +115,12 @@ if __name__ == "__main__":
     with tqdm.tqdm(total=4700000) as pbar:
         for file_type in target_file_types:
             for filepath in pathlib.Path(args.source_filepath).glob(f"**/*{file_type}"):
-                source_filepath_string = os.fspath(filepath.resolve())
+                source_filepath_string = path_to_string(filepath)
                 target_folderpath_string = source_filepath_string.replace(
                     args.source_filepath, args.target_filepath
                 )
                 target_folderpath_string = target_folderpath_string.replace(
-                    ".mp4", ".frames"
+                    ".aac", ".npz"
                 )
                 matching_files[file_type].append(
                     (filepath, pathlib.Path(target_folderpath_string))
@@ -141,8 +132,8 @@ if __name__ == "__main__":
 
     for file_type in target_file_types:
         num_samples = len(matching_files[file_type])
-        log.info(f"Converting {num_samples}  {file_type} files to jpeg frames")
-        target_func = convert_video_to_frames
+        log.info(f"Converting {num_samples}  {file_type} files to npz")
+        target_func = convert_audiofile_to_npz
         with tqdm.tqdm(total=num_samples, smoothing=0.0) as pbar:
             with concurrent.futures.ProcessPoolExecutor(
                 max_workers=args.num_processes
@@ -151,7 +142,7 @@ if __name__ == "__main__":
                     executor.map(target_func, matching_files[file_type]),
                     start=1,
                 ):
-                    if return_code != 0:
+                    if return_code is False:
                         failed_jobs.append(video_filepath_string)
                     pbar.update(1)
 
