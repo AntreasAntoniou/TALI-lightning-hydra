@@ -162,6 +162,7 @@ class TALIMultiModalDataset(Dataset):
                         )
                     )
                 except Exception:
+                    log.exception(f"Failed to load audio file {audio_filepath}")
                     if pathlib.Path(audio_filepath).exists():
                         frames_dict.audio = convert_audiofile_to_tensor(
                             filepath=audio_filepath,
