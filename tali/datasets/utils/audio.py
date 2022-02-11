@@ -102,7 +102,7 @@ def load_to_tensor(
 import pytorch_lightning.loggers.wandb
 
 
-def convert_aac_to_npy(
+def convert_audiofile_to_tensor(
     filepath: Union[str, pathlib.Path],
     delete_original: bool = True,
     sample_rate: int = 44100,
@@ -123,7 +123,7 @@ def convert_aac_to_npy(
             out_type=out_type,
         ).numpy()
 
-        np.save(filepath.replace(".aac", ".npy"), audio)
+        np.savez_compressed(pathlib.Path(filepath).with_suffix(".npz"), audio)
         if delete_original and pathlib.Path(filepath).exists():
             pathlib.Path(filepath).unlink()
         audio = torch.Tensor(audio)

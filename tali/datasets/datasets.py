@@ -17,7 +17,7 @@ from torch.utils.data import Dataset
 from tali.base import utils
 from tali.config_repository import TALIDatasetConfig
 from tali.datasets.utils import audio
-from tali.datasets.utils.audio import prevent_error_kill, convert_aac_to_npy
+from tali.datasets.utils.audio import prevent_error_kill, convert_audiofile_to_tensor
 from tali.datasets.utils.helpers import (
     collect_files,
     timeout,
@@ -149,20 +149,21 @@ class TALIMultiModalDataset(Dataset):
         if self.config.modality_config.audio:
             if (
                 not pathlib.Path(audio_filepath).exists()
-                and not pathlib.Path(audio_filepath).with_suffix(".npy").exists()
+                and not pathlib.Path(audio_filepath).with_suffix(".npz").exists()
             ):
                 return None
 
-            if pathlib.Path(audio_filepath).with_suffix(".npy").exists():
+            if pathlib.Path(audio_filepath).with_suffix(".npz").exists():
                 try:
                     frames_dict.audio = torch.Tensor(
                         np.load(
-                            audio_filepath.replace(".aac", ".npy"), allow_pickle=True
+                            pathlib.Path(audio_filepath).with_suffix(".npz"),
+                            allow_pickle=True,
                         )
                     )
                 except Exception:
                     if pathlib.Path(audio_filepath).exists():
-                        frames_dict.audio = convert_aac_to_npy(
+                        frames_dict.audio = convert_audiofile_to_tensor(
                             filepath=audio_filepath,
                             delete_original=True,
                             sample_rate=self.config.num_audio_sample_rate,
@@ -171,7 +172,7 @@ class TALIMultiModalDataset(Dataset):
                             out_type=np.float32,
                         )
             else:
-                frames_dict.audio = convert_aac_to_npy(
+                frames_dict.audio = convert_audiofile_to_tensor(
                     filepath=audio_filepath,
                     delete_original=True,
                     sample_rate=self.config.num_audio_sample_rate,
