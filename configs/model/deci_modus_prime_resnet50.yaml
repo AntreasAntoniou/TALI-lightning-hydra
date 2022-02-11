@@ -7,4 +7,4 @@ defaults:
   - optimizer_config: adam.yaml
   - lr_scheduler_config: cosine_annealing.yaml
 
-name: deci_modus_prime_resnet50
+name: deci_resnet50

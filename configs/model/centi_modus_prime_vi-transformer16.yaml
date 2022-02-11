@@ -7,4 +7,4 @@ defaults:
   - optimizer_config: adam.yaml
   - lr_scheduler_config: cosine_annealing.yaml
 
-name: centi_modus_prime_vit16
+name: centi_vit16

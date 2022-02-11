@@ -7,7 +7,6 @@ setup(
         "tali.datasets",
         "tali.models",
         "tali.runner",
-        "tali.trainer",
         "tali.utils",
         "tali.base.callbacks",
         "tali.base.utils",

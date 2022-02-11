@@ -45,7 +45,7 @@ test_after_training: True
 
 batch_size: null
 # seed for random number generators in pytorch, numpy and python.random
-seed: 20220204
+seed: 0
 
 wandb_project_name: TALI-v3-4-experiments #${env:WANDB_PROJECT}
 # name of the run, should be used along with experiment mode

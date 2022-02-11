@@ -8,7 +8,10 @@ import torch.nn as nn
 import torch.nn.functional as F
 from clip.model import ModifiedResNet
 from einops import rearrange, repeat
-from gate.architectures import SqueezeExciteConv1dBNLeakyReLU
+from gate.model_blocks.auto_builder_modules.auto_builder_conv_blocks import (
+    SqueezeExciteConv1dBNLeakyReLU,
+)
+
 from transformers import (
     CLIPTextConfig,
     CLIPTextModel,

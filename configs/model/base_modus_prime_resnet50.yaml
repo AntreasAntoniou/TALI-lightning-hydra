@@ -7,5 +7,5 @@ defaults:
   - optimizer_config: adam.yaml
   - lr_scheduler_config: cosine_annealing.yaml
 
-name: base_modus_prime_resnet50
+name: base_resnet50
 #sub_batch_size_dict: {'video': 8}

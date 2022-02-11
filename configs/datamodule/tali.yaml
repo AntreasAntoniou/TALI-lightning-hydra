@@ -8,7 +8,7 @@ config:
     audio: True
     video: True
     text: True
-    name: video-${datamodule.config.modality_config.video}-audio-${datamodule.config.modality_config.audio}-text-${datamodule.config.modality_config.text}-image-${datamodule.config.modality_config.image}
+    name: v.${datamodule.config.modality_config.video}-a.${datamodule.config.modality_config.audio}-t.${datamodule.config.modality_config.text}-i.${datamodule.config.modality_config.image}
   rescan_paths: False
   num_video_frames_per_datapoint: 10
   num_audio_frames_per_datapoint: 220500
