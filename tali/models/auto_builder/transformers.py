@@ -474,12 +474,12 @@ class AutoAverager(BaseLinearOutputModel):
 class AutoCLIPVisionTransformer(BaseLinearOutputModel):
     def __init__(self, config: AutoCLIPVisionTransformerConfig):
         feature_embedding_modules = [
-            nn.InstanceNorm2d,
+            # nn.InstanceNorm2d,
             CLIPVisionModel,
         ]
 
         feature_embeddings_args = [
-            dict(num_features=3, affine=True, track_running_stats=True),
+            # dict(num_features=3, affine=True, track_running_stats=True),
             dict(
                 config=CLIPVisionConfig(
                     hidden_size=config.transformer_num_filters,
@@ -584,12 +584,12 @@ class AutoCLIPResNet(BaseLinearOutputModel):
         vision_heads = config.vision_width * 32 // 64
 
         feature_embedding_modules = [
-            nn.InstanceNorm2d,
+            # nn.InstanceNorm2d,
             ModifiedResNetNonSquareImages,
         ]
 
         feature_embeddings_args = [
-            dict(num_features=3, affine=True, track_running_stats=True),
+            # dict(num_features=3, affine=True, track_running_stats=True),
             dict(
                 layers=config.vision_layers,
                 output_dim=config.embedding_output_features,
