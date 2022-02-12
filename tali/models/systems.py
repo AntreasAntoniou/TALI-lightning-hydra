@@ -301,16 +301,16 @@ class ModusPrime(LightningModule):
                     measurement_value.detach().cpu(),
                     target_value.detach().cpu(),
                 )
-
-                self.log(
-                    name=f"{phase_name}/{cur_key}",
-                    value=value,
-                    prog_bar=False,
-                    logger=True,
-                    on_step=True,
-                    on_epoch=False,
-                    sync_dist=True,
-                )
+                if value is not None:
+                    self.log(
+                        name=f"{phase_name}/{cur_key}",
+                        value=value,
+                        prog_bar=False,
+                        logger=True,
+                        on_step=True,
+                        on_epoch=False,
+                        sync_dist=True,
+                    )
 
             cur_key = f"overall_{metric_key}"
 
@@ -323,22 +323,22 @@ class ModusPrime(LightningModule):
                 torch.stack(list(logits.values())).detach().cpu(),
                 targets.detach().cpu(),
             )
-
-            self.log(
-                name=f"{phase_name}/{cur_key}",
-                value=value,
-                prog_bar=False,
-                logger=True,
-                on_step=True,
-                on_epoch=True,
-                sync_dist=True,
-            )
+            if value is not None:
+                self.log(
+                    name=f"{phase_name}/{cur_key}",
+                    value=value,
+                    prog_bar=False,
+                    logger=True,
+                    on_step=True,
+                    on_epoch=True,
+                    sync_dist=True,
+                )
 
     def collect_metrics_epoch(self, phase_name):
 
         for key, value in self.per_modality_metrics_computed_dict[phase_name].items():
 
-            if isinstance(value, Accuracy):
+            if isinstance(value, Accuracy) and value is not None:
                 self.log(
                     name=f"{key}/epoch",
                     value=value.compute(),
@@ -349,8 +349,9 @@ class ModusPrime(LightningModule):
                     sync_dist=True,
                 )
 
-            if isinstance(value, CrossEntropyLossMetric):
+            if isinstance(value, CrossEntropyLossMetric) and value is not None:
                 value.compute()
+
                 self.log(
                     name=f"{key}/epoch_mean",
                     value=value.mean,

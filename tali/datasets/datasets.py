@@ -14,7 +14,7 @@ import torch
 import tqdm
 from torch.utils.data import Dataset
 
-from tali.base import utils
+
 from tali.config_repository import TALIDatasetConfig
 from tali.datasets.utils import audio
 from tali.datasets.utils.audio import prevent_error_kill, convert_audiofile_to_tensor
@@ -26,6 +26,7 @@ from tali.datasets.utils.text import get_text_tokens
 from tali.datasets.utils.video import load_frames
 from tali.utils.arg_parsing import DictWithDotNotation
 from tali.utils.storage import load_json, save_json
+from tali.base import utils
 
 log = utils.get_logger(__name__)
 

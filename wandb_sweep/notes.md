@@ -7,6 +7,7 @@
 - centi + image + text = 1g for 64 batch size (can probably fit 256)
 - centi + image + text + audio = 1g for 64 batch size
 - centi + image + text + audio + video = 2g for 64 batch size (70% memory utilized can probably fit 96)
+- centi + image + text + video = 2g for 48
 
 ### ViTransformer16
 
@@ -24,3 +25,10 @@
 ````
 
 Write script that generates scripts that include the target command in the startup script of an instance, and also starts said instance. This is probably by far the easiest and most well controlled way of doing what we need without many bells or whistles.
+
+
+###########################################################################Updates
+
+- centi + image + text(77) + video(10) = 2g for 48 👍
+- centi + image + video(10) = 2g for 48 👀
+- centi + image + text(77) = 2g for 512 👀

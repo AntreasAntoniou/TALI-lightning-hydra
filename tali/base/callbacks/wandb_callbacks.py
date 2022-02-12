@@ -21,6 +21,9 @@ from tali.sample_actuate_pred_and_data import (
     decode_and_store_text,
     make_image_frame_grid,
 )
+from tali.base import utils
+
+log = utils.get_logger(__name__)
 
 
 def get_wandb_logger(trainer: Trainer) -> WandbLogger:
@@ -267,6 +270,36 @@ class LogF1PrecRecHeatmap(Callback):
             self.targets.clear()
 
 
+def get_video_log_file(video_tensor: torch.Tensor) -> wandb.Video:
+    video_tensor = video_tensor.cpu().permute([0, 2, 3, 1]).cpu().numpy()
+    video_shape = video_tensor.shape
+    video_tensor = video_tensor.reshape(
+        -1, video_tensor.shape[2], video_tensor.shape[3]
+    )
+    video_tensor = cv2.cvtColor(video_tensor, cv2.COLOR_BGR2RGB)
+    video_tensor = video_tensor.reshape(video_shape) * 255
+    video_tensor = torch.Tensor(video_tensor).permute([0, 3, 1, 2]).type(torch.uint8)
+
+    return wandb.Video(video_tensor, fps=8, format="gif")
+
+
+def get_image_log_file(image_tensor: torch.Tensor) -> wandb.Image:
+    return wandb.Image(
+        make_image_frame_grid(
+            image_frames=image_tensor.cpu().unsqueeze(0),
+            num_video_frames_per_datapoint=1,
+            save=False,
+            store_dir=None,
+            filename=None,
+            show=False,
+        )
+    )
+
+
+def get_audio_log_file(audio_tensor: torch.Tensor) -> wandb.Audio:
+    return wandb.Audio(audio_tensor.cpu().permute([1, 0]), sample_rate=44100)
+
+
 class LogMultiModalPredictionHeatmaps(Callback):
     """Logs a validation batch and their predictions to wandb.
     Example adapted from:
@@ -285,63 +318,51 @@ class LogMultiModalPredictionHeatmaps(Callback):
         self.ready = True
 
     def build_data_table(self, data_dict):
-        image_batch = data_dict["image"].cpu()
-        video_batch = data_dict["video"].cpu()
-        audio_batch = data_dict["audio"].cpu()
-        text_batch = data_dict["text"].cpu()
-        filepath_batch = data_dict["filepath"]
-
-        text_batch = decode_and_store_text(
-            text_frames=text_batch,
-            save=False,
-            show=False,
-        )
-        filepath_batch = [
-            filepath.replace(os.environ.get("DATASET_DIR"), "")
-            .replace("full_video_360p", "")
-            .replace(".frames", "")
-            for filepath in filepath_batch
+        available_modalities = [
+            key for key, value in data_dict.items() if value is not None
         ]
-        # rich_media_dict = defaultdict(list)
+
+        filepath_batch = data_dict["filepath"]
+        log_batch_dict = {
+            "filepath": [
+                filepath.replace(os.environ.get("DATASET_DIR"), "")
+                .replace("full_video_360p", "")
+                .replace(".frames", "")
+                for filepath in filepath_batch
+            ]
+        }
+
+        if "video" in available_modalities:
+            log_batch_dict["video"] = [
+                get_video_log_file(item) for item in data_dict["video"]
+            ]
+
+        if "image" in available_modalities:
+            log_batch_dict["image"] = [
+                get_image_log_file(item) for item in data_dict["image"]
+            ]
+
+        if "audio" in available_modalities:
+            log_batch_dict["audio"] = [
+                get_audio_log_file(item) for item in data_dict["audio"]
+            ]
+
+        if "text" in available_modalities:
+            log_batch_dict["text"] = decode_and_store_text(
+                text_frames=data_dict["text"].cpu(),
+                save=False,
+                show=False,
+            )
+
+        batch_zip = (list(value) for value in log_batch_dict.values())
+        zip_list = []
+        for value in batch_zip:
+            zip_list.append(value)
         rows = []
-        for image, video, audio, text, filepath in zip(
-            image_batch,
-            video_batch,
-            audio_batch,
-            text_batch,
-            filepath_batch,
-        ):
-            video = video.permute([0, 2, 3, 1]).cpu().numpy()
-            video_shape = video.shape
-            video = video.reshape(-1, video.shape[2], video.shape[3])
-            video = cv2.cvtColor(video, cv2.COLOR_BGR2RGB)
-            video = video.reshape(video_shape) * 255
-            video = torch.Tensor(video).permute([0, 3, 1, 2]).type(torch.uint8)
+        for item in zip(*zip_list):
+            rows.append(item)
 
-            video_log_file = wandb.Video(video, fps=8, format="gif")
-            image_log_file = wandb.Image(
-                make_image_frame_grid(
-                    image_frames=image.unsqueeze(0),
-                    num_video_frames_per_datapoint=1,
-                    save=False,
-                    store_dir=None,
-                    filename=None,
-                    show=False,
-                )
-            )
-
-            audio_log_file = wandb.Audio(audio.permute([1, 0]), sample_rate=44100)
-
-            # rich_media_dict["video"].append(video_log_file)
-            # rich_media_dict["image"].append(image_log_file)
-            # rich_media_dict["audio"].append(audio_log_file)
-            # rich_media_dict["text"].append(text)
-            # rich_media_dict["id"].append(filepath)
-            rows.append(
-                (filepath, video_log_file, image_log_file, audio_log_file, text)
-            )
-        columns = ["id", "video", "image", "audio", "text"]
-        return wandb.Table(columns=columns, data=rows), filepath_batch
+        return wandb.Table(columns=available_modalities, data=rows), filepath_batch
 
     def log_similarity_heatmaps_multi_modal(self, trainer, pl_module, set_name):
         if not self.ready:
