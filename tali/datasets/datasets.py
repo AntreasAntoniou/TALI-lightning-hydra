@@ -317,7 +317,7 @@ class TALIMultiModalDataset(Dataset):
     def __len__(self):
         # use 25000 to keep training very long to ensure even val
         # intervals no matter what the size of the dataset
-        return 90 * 10 ** 6 if self.set_name == "train" else self.num_video_clips
+        return self.num_video_clips
 
     # 25 * 10 ** 6 if self.set_name == "train" else
     def apply_transforms_if_available(self, modality_name, data):
@@ -363,157 +363,157 @@ class TALIMultiModalDataset(Dataset):
         return path_dict
 
 
-class DummyMultiModalDataset(Dataset):
-    def __init__(
-        self,
-        config: TALIDatasetConfig,
-        set_name: str,
-        transforms: Dict[str, Union[List[Callable], Callable]],
-        start_index: int = 0,
-    ):
-        super(DummyMultiModalDataset, self).__init__()
-
-        self.config = config
-        self.dataset_root = config.dataset_root
-        self.set_name = set_name
-        self.num_youtube_video_dict = {"train": 141468, "val": 6369, "test": 6500}
-        self.transforms = transforms
-
-        self.start_index = start_index
-
-    def __getitem__(self, index):
-        index = self.start_index + index
-        actual_index = index % self.num_video_clips
-        rng = np.random.RandomState(index)
-        torch_rng = torch.Generator()
-        torch_rng.manual_seed(index)
-
-        (
-            frame_list,
-            video_filepath,
-            audio_filepath,
-            meta_data_filepath,
-        ) = self.index_to_video_path[actual_index]
-
-        audio_filepath = pathlib.Path(audio_filepath)
-        video_segment_idx = int(
-            re.match(
-                r"full_video_360p(.*).frames", video_filepath.split("/")[-1]
-            ).groups()[0]
-        )
-
-        total_frames = len(frame_list)
-        fps = 8
-        duration_in_seconds = total_frames / float(fps)
-
-        start_time_relative_to_full_video = int(video_segment_idx * 10)
-
-        data_dict = DictWithDotNotation()
-        data_dict.filepath = video_filepath
-        data_dict.text = None
-        data_dict.video = None
-        data_dict.audio = None
-        data_dict.image = None
-
-        # write script that cleans up clips without any captions, write script that
-        # cleans something in video space (removes videos smaller than 10 seconds)
-
-        if self.config.modality_config.text:
-            data_dict.text = self.get_text_data_tensors(
-                rng,
-                meta_data_filepath,
-                start_time_relative_to_full_video,
-                duration_in_seconds,
-            )
-
-            if data_dict.text is not None:
-                data_dict.text = self.apply_transforms_if_available(
-                    modality_name="text", data=data_dict.text
-                )
-
-                data_dict.text = data_dict.text.type(torch.int32)
-
-        frames_dict = self.get_frames(
-            frame_list=frame_list,
-            audio_filepath=audio_filepath,
-            rng=rng,
-        )
-
-        if frames_dict is not None:
-            data_dict.update(frames_dict)
-
-        if self.config.modality_config.video and data_dict.video is not None:
-            data_dict.video = self.apply_transforms_if_available(
-                modality_name="video", data=data_dict.video
-            )
-
-            data_dict.video = data_dict.video.type(torch.float32)
-
-        if self.config.modality_config.image and data_dict.image is not None:
-            data_dict.image = self.apply_transforms_if_available(
-                modality_name="image", data=data_dict.image
-            )
-
-            data_dict.image = data_dict.image.type(torch.float32)
-
-        if self.config.modality_config.audio and data_dict.audio is not None:
-            data_dict.audio = self.apply_transforms_if_available(
-                modality_name="audio", data=data_dict.audio
-            )
-            data_dict.audio = data_dict.audio.type(torch.float32)
-
-        data_dict = {
-            key: value
-            for key, value in data_dict.items()
-            if isinstance(value, torch.Tensor)
-        }
-
-        return data_dict
-
-    def __len__(self):
-        # use 25000 to keep training very long to ensure even val
-        # intervals no matter what the size of the dataset
-        return 90 * 10 ** 6 if self.set_name == "train" else self.num_video_clips
-
-    # 25 * 10 ** 6 if self.set_name == "train" else
-    def apply_transforms_if_available(self, modality_name, data):
-        if self.transforms[modality_name]:
-            if isinstance(self.transforms[modality_name], list):
-                for transform in self.transforms[modality_name]:
-                    data = transform(data)
-            else:
-                data = self.transforms[modality_name](data)
-
-        return data
-
-    def _scan_paths_return_dict(self, training_set_fraction_value):
-
-        logging.info(self.dataset_dir)
-
-        matched_meta_data_files = []
-        with tqdm.tqdm(
-            total=self.num_youtube_video_dict[self.set_name], smoothing=0.0
-        ) as pbar:
-            for dir_path in pathlib.Path(self.dataset_dir).iterdir():
-                cur_file = dir_path / "meta_data.json"
-                if cur_file.exists():
-                    matched_meta_data_files.append(cur_file)
-                pbar.update(1)
-
-        logging.info(f"Found {len(matched_meta_data_files)} matched meta_data files")
-
-        args = [(item, training_set_fraction_value) for item in matched_meta_data_files]
-
-        logging.info("Scanning folders for media files")
-        path_dict = {}
-
-        with concurrent.futures.ProcessPoolExecutor(
-            max_workers=int(mp.cpu_count())
-        ) as executor:
-            with tqdm.tqdm(total=len(matched_meta_data_files), smoothing=0.0) as pbar:
-                for video_key, folder_list in executor.map(collect_files, args):
-                    if len(folder_list) > 0:
-                        path_dict[video_key] = folder_list
-
-                    pbar.update(1)
-        return path_dict
+# class DummyMultiModalDataset(Dataset):
+#     def __init__(
+#         self,
+#         config: TALIDatasetConfig,
+#         set_name: str,
+#         transforms: Dict[str, Union[List[Callable], Callable]],
+#         start_index: int = 0,
+#     ):
+#         super(DummyMultiModalDataset, self).__init__()
+#
+#         self.config = config
+#         self.dataset_root = config.dataset_root
+#         self.set_name = set_name
+#         self.num_youtube_video_dict = {"train": 141468, "val": 6369, "test": 6500}
+#         self.transforms = transforms
+#
+#         self.start_index = start_index
+#
+#     def __getitem__(self, index):
+#         index = self.start_index + index
+#         actual_index = index % self.num_video_clips
+#         rng = np.random.RandomState(index)
+#         torch_rng = torch.Generator()
+#         torch_rng.manual_seed(index)
+#
+#         (
+#             frame_list,
+#             video_filepath,
+#             audio_filepath,
+#             meta_data_filepath,
+#         ) = self.index_to_video_path[actual_index]
+#
+#         audio_filepath = pathlib.Path(audio_filepath)
+#         video_segment_idx = int(
+#             re.match(
+#                 r"full_video_360p(.*).frames", video_filepath.split("/")[-1]
+#             ).groups()[0]
+#         )
+#
+#         total_frames = len(frame_list)
+#         fps = 8
+#         duration_in_seconds = total_frames / float(fps)
+#
+#         start_time_relative_to_full_video = int(video_segment_idx * 10)
+#
+#         data_dict = DictWithDotNotation()
+#         data_dict.filepath = video_filepath
+#         data_dict.text = None
+#         data_dict.video = None
+#         data_dict.audio = None
+#         data_dict.image = None
+#
+#         # write script that cleans up clips without any captions, write script that
+#         # cleans something in video space (removes videos smaller than 10 seconds)
+#
+#         if self.config.modality_config.text:
+#             data_dict.text = self.get_text_data_tensors(
+#                 rng,
+#                 meta_data_filepath,
+#                 start_time_relative_to_full_video,
+#                 duration_in_seconds,
+#             )
+#
+#             if data_dict.text is not None:
+#                 data_dict.text = self.apply_transforms_if_available(
+#                     modality_name="text", data=data_dict.text
+#                 )
+#
+#                 data_dict.text = data_dict.text.type(torch.int32)
+#
+#         frames_dict = self.get_frames(
+#             frame_list=frame_list,
+#             audio_filepath=audio_filepath,
+#             rng=rng,
+#         )
+#
+#         if frames_dict is not None:
+#             data_dict.update(frames_dict)
+#
+#         if self.config.modality_config.video and data_dict.video is not None:
+#             data_dict.video = self.apply_transforms_if_available(
+#                 modality_name="video", data=data_dict.video
+#             )
+#
+#             data_dict.video = data_dict.video.type(torch.float32)
+#
+#         if self.config.modality_config.image and data_dict.image is not None:
+#             data_dict.image = self.apply_transforms_if_available(
+#                 modality_name="image", data=data_dict.image
+#             )
+#
+#             data_dict.image = data_dict.image.type(torch.float32)
+#
+#         if self.config.modality_config.audio and data_dict.audio is not None:
+#             data_dict.audio = self.apply_transforms_if_available(
+#                 modality_name="audio", data=data_dict.audio
+#             )
+#             data_dict.audio = data_dict.audio.type(torch.float32)
+#
+#         data_dict = {
+#             key: value
+#             for key, value in data_dict.items()
+#             if isinstance(value, torch.Tensor)
+#         }
+#
+#         return data_dict
+#
+#     def __len__(self):
+#         # use 25000 to keep training very long to ensure even val
+#         # intervals no matter what the size of the dataset
+#         return self.num_video_clips
+#
+#     # 25 * 10 ** 6 if self.set_name == "train" else
+#     def apply_transforms_if_available(self, modality_name, data):
+#         if self.transforms[modality_name]:
+#             if isinstance(self.transforms[modality_name], list):
+#                 for transform in self.transforms[modality_name]:
+#                     data = transform(data)
+#             else:
+#                 data = self.transforms[modality_name](data)
+#
+#         return data
+#
+#     def _scan_paths_return_dict(self, training_set_fraction_value):
+#
+#         logging.info(self.dataset_dir)
+#
+#         matched_meta_data_files = []
+#         with tqdm.tqdm(
+#             total=self.num_youtube_video_dict[self.set_name], smoothing=0.0
+#         ) as pbar:
+#             for dir_path in pathlib.Path(self.dataset_dir).iterdir():
+#                 cur_file = dir_path / "meta_data.json"
+#                 if cur_file.exists():
+#                     matched_meta_data_files.append(cur_file)
+#                 pbar.update(1)
+#
+#         logging.info(f"Found {len(matched_meta_data_files)} matched meta_data files")
+#
+#         args = [(item, training_set_fraction_value) for item in matched_meta_data_files]
+#
+#         logging.info("Scanning folders for media files")
+#         path_dict = {}
+#
+#         with concurrent.futures.ProcessPoolExecutor(
+#             max_workers=int(mp.cpu_count())
+#         ) as executor:
+#             with tqdm.tqdm(total=len(matched_meta_data_files), smoothing=0.0) as pbar:
+#                 for video_key, folder_list in executor.map(collect_files, args):
+#                     if len(folder_list) > 0:
+#                         path_dict[video_key] = folder_list
+#
+#                     pbar.update(1)
+#         return path_dict
