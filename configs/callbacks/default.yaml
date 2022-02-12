@@ -1,6 +1,6 @@
 model_checkpoint_eval:
   _target_: pytorch_lightning.callbacks.ModelCheckpoint
-  monitor: validation/overall_cross_entropy/epoch # name of the logged metric which determines when model is improving
+  monitor: validation/overall_cross_entropy_epoch # name of the logged metric which determines when model is improving
   mode: "min" # "max" means higher metric value is better, can be also "min"
   save_top_k: 3 # save k best models (determined by above metric)
   save_last: False # additionaly always save model from last epoch
