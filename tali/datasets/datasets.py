@@ -86,10 +86,6 @@ class TALIMultiModalDataset(Dataset):
         else:
             path_dict = load_json(self.pre_scanned_dataset_json_filepath)
 
-        logging.info(
-            f"{np.sum(len(value) for key, value in path_dict.items())} " f"files found"
-        )
-
         self.index_to_video_path = [
             video_path
             for folder_list in path_dict.values()
@@ -102,7 +98,6 @@ class TALIMultiModalDataset(Dataset):
     def get_frames(
         self,
         frame_list,
-        video_filepath,
         audio_filepath,
         rng,
     ):
@@ -147,47 +142,15 @@ class TALIMultiModalDataset(Dataset):
             )
 
         if self.config.modality_config.audio:
-            if (
-                not pathlib.Path(audio_filepath).exists()
-                and not pathlib.Path(audio_filepath).with_suffix(".npz").exists()
-            ):
+            if not pathlib.Path(audio_filepath).exists():
                 return None
 
-            if pathlib.Path(audio_filepath).with_suffix(".npz").exists():
-                try:
-                    frames_dict.audio = np.load(
-                        pathlib.Path(audio_filepath).with_suffix(".npz"),
-                        allow_pickle=True,
-                    )
-
-                except Exception:
-                    log.exception(f"Failed to load audio file {audio_filepath}")
-                    if pathlib.Path(audio_filepath).exists():
-                        frames_dict.audio = convert_audiofile_to_tensor(
-                            filepath=audio_filepath,
-                            delete_original=True,
-                            sample_rate=self.config.num_audio_sample_rate,
-                            mono=False,
-                            in_type=np.float32,
-                            out_type=np.float32,
-                        )
-                        np.savez_compressed(
-                            pathlib.Path(audio_filepath).with_suffix(".npz"),
-                            frames_dict.audio,
-                        )
-            else:
-                frames_dict.audio = convert_audiofile_to_tensor(
-                    filepath=audio_filepath,
-                    delete_original=True,
-                    sample_rate=self.config.num_audio_sample_rate,
-                    mono=False,
-                    in_type=np.float32,
-                    out_type=np.float32,
-                )
-                np.savez_compressed(
-                    pathlib.Path(audio_filepath).with_suffix(".npz"),
-                    frames_dict.audio,
-                )
+            frames_dict.audio = list(
+                np.load(
+                    audio_filepath,
+                    allow_pickle=True,
+                ).values()
+            )[0]
 
             frames_dict.audio = torch.Tensor(frames_dict.audio)
             frames_dict.audio = frames_dict.audio.permute([1, 0])
@@ -246,6 +209,7 @@ class TALIMultiModalDataset(Dataset):
             meta_data_filepath,
         ) = self.index_to_video_path[actual_index]
 
+        audio_filepath = pathlib.Path(audio_filepath)
         video_segment_idx = int(
             re.match(
                 r"full_video_360p(.*).frames", video_filepath.split("/")[-1]
@@ -284,7 +248,6 @@ class TALIMultiModalDataset(Dataset):
 
         frames_dict = self.get_frames(
             frame_list=frame_list,
-            video_filepath=video_filepath,
             audio_filepath=audio_filepath,
             rng=rng,
         )

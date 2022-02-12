@@ -79,7 +79,9 @@ def convert_audiofile_to_npz(path_tuple: Tuple[pathlib.Path, pathlib.Path]):
             log.exception(f"Error converting file {audio_filepath_string}")
             return source_audio_filepath, False
         else:
-            np.savez_compressed(path_to_string(target_numpy_filepath), audio_array)
+            np.savez_compressed(
+                path_to_string(target_numpy_filepath), audio_array=audio_array
+            )
             delete_file_if_exists(
                 path=source_audio_filepath,
                 verbose=False,

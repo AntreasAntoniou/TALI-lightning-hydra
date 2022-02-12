@@ -161,7 +161,7 @@ def collect_subclip_data(input_tuple):
             k: v for k, v in sorted(list(frame_idx_to_filepath.items()))
         }
         frame_list = list(frame_idx_to_filepath.values())
-        audio_data_filepath = os.fspath(filepath.resolve()).replace(".frames", ".aac")
+        audio_data_filepath = os.fspath(filepath.resolve()).replace(".frames", ".npz")
         meta_data_filepath = os.fspath(json_filepath.resolve())
 
         if (
