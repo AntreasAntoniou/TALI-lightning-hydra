@@ -340,7 +340,7 @@ class ModusPrime(LightningModule):
 
             if isinstance(value, Accuracy) and value is not None:
                 self.log(
-                    name=f"{key}/epoch",
+                    name=f"{phase_name}/{key}/epoch",
                     value=value.compute(),
                     prog_bar=False,
                     logger=True,
@@ -353,7 +353,7 @@ class ModusPrime(LightningModule):
                 value.compute()
 
                 self.log(
-                    name=f"{key}/epoch_mean",
+                    name=f"{phase_name}/{key}/epoch_mean",
                     value=value.mean,
                     prog_bar=False,
                     logger=True,
@@ -363,7 +363,7 @@ class ModusPrime(LightningModule):
                 )
 
                 self.log(
-                    name=f"{key}/epoch_std",
+                    name=f"{phase_name}/{key}/epoch_std",
                     value=value.std,
                     prog_bar=False,
                     logger=True,
