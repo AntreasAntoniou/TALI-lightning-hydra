@@ -355,14 +355,12 @@ class LogMultiModalPredictionHeatmaps(Callback):
             )
 
         batch_zip = (list(value) for value in log_batch_dict.values())
-        zip_list = []
-        for value in batch_zip:
-            zip_list.append(value)
-        rows = []
-        for item in zip(*zip_list):
-            rows.append(item)
-
-        return wandb.Table(columns=available_modalities, data=rows), filepath_batch
+        zip_list = list(batch_zip)
+        rows = list(zip(*zip_list))
+        return (
+            wandb.Table(columns=list(log_batch_dict.keys()), data=rows),
+            filepath_batch,
+        )
 
     def log_similarity_heatmaps_multi_modal(self, trainer, pl_module, set_name):
         if not self.ready:
