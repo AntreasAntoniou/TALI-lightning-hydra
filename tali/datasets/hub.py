@@ -60,6 +60,7 @@ class TALIDataModule(BaseDataModule):
         train_start_index: int = 0,
         val_start_index: int = 0,
         test_start_index: int = 0,
+        train_num_samples: int = None,
     ):
         super(TALIDataModule, self).__init__()
         self.save_hyperparameters(logger=False)
@@ -77,6 +78,7 @@ class TALIDataModule(BaseDataModule):
         self.tokenizer = HuggingFaceBPETokenizer(
             context_length=config.text_context_length
         )
+        self.train_num_samples = train_num_samples
 
         self.transform_train = {
             "image": [],
@@ -123,18 +125,19 @@ class TALIDataModule(BaseDataModule):
     def setup(self, stage: Optional[str] = None):
 
         if stage == "fit" or stage is None:
-            self.val_set = TALIMultiModalDataset(
-                config=self.config,
-                set_name="val",
-                transforms=self.transform_eval,
-                start_index=self.val_start_index,
-            )
-
             self.train_set = TALIMultiModalDataset(
                 config=self.config,
                 set_name="train",
                 transforms=self.transform_train,
                 start_index=self.train_start_index,
+                num_samples=self.train_num_samples,
+            )
+
+            self.val_set = TALIMultiModalDataset(
+                config=self.config,
+                set_name="val",
+                transforms=self.transform_eval,
+                start_index=self.val_start_index,
             )
 
         # Assign test dataset for use in dataloader(s)

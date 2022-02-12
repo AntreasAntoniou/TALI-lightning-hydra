@@ -38,6 +38,7 @@ class TALIMultiModalDataset(Dataset):
         set_name: str,
         transforms: Dict[str, Union[List[Callable], Callable]],
         start_index: int = 0,
+        num_samples: int = None,
     ):
         super(TALIMultiModalDataset, self).__init__()
 
@@ -93,8 +94,16 @@ class TALIMultiModalDataset(Dataset):
             for video_path in folder_list
         ]
 
-        self.num_video_clips = len(self.index_to_video_path)
-        logging.info(f"num video clips: {self.num_video_clips}")
+        self.num_samples = len(self.index_to_video_path)
+
+        if num_samples is not None:
+            self.num_samples = num_samples
+
+        logging.info(
+            f"👍 Loaded {self.set_name} set with: \n"
+            f"ℹ num video subclips (10 seconds each at 8 FPS): {self.num_samples} \n"
+            f"sampled from num video clips: {len(path_dict.keys())}"
+        )
 
     def get_frames(
         self,
@@ -198,7 +207,7 @@ class TALIMultiModalDataset(Dataset):
     @timeout(60)
     def __getitem__(self, index):
         index = self.start_index + index
-        actual_index = index % self.num_video_clips
+        actual_index = index % self.num_samples
         rng = np.random.RandomState(index)
         torch_rng = torch.Generator()
         torch_rng.manual_seed(index)
@@ -317,7 +326,7 @@ class TALIMultiModalDataset(Dataset):
     def __len__(self):
         # use 25000 to keep training very long to ensure even val
         # intervals no matter what the size of the dataset
-        return self.num_video_clips
+        return self.num_samples
 
     # 25 * 10 ** 6 if self.set_name == "train" else
     def apply_transforms_if_available(self, modality_name, data):
