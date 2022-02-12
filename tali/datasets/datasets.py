@@ -96,7 +96,7 @@ class TALIMultiModalDataset(Dataset):
 
         self.num_samples = len(self.index_to_video_path)
 
-        if num_samples is not None:
+        if num_samples != -1:
             self.num_samples = num_samples
 
         logging.info(
