@@ -47,7 +47,7 @@ batch_size: null
 # seed for random number generators in pytorch, numpy and python.random
 seed: 0
 
-wandb_project_name: TALI-v3-4-experiments #${env:WANDB_PROJECT}
+wandb_project_name: ${env:WANDB_PROJECT}
 # name of the run, should be used along with experiment mode
 name: ${datamodule.config.dataset_name}-${model.name}-${datamodule.config.modality_config.name}-${seed}
 

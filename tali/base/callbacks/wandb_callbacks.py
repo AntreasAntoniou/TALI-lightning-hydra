@@ -377,8 +377,10 @@ class LogMultiModalPredictionHeatmaps(Callback):
         else:
             data_dict = next(iter(trainer.datamodule.test_dataloader()))
 
+        data_dict = {key: value[: self.num_samples] for key, value in data_dict.items()}
+
         data_dict = {
-            key: value[: self.num_samples].to(device=pl_module.device)
+            key: value.to(device=pl_module.device)
             if isinstance(value, torch.Tensor)
             else value
             for key, value in data_dict.items()
