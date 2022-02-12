@@ -43,7 +43,7 @@ class TALIDatasetConfig:
     num_audio_frames_per_datapoint: int = 88200
     num_audio_sample_rate: int = 44100
     image_shape: ImageShape = ImageShape(channels=3, width=224, height=224)
-    text_context_length: int = 77
+    text_context_length: int = 120
 
 
 @dataclass
@@ -90,7 +90,7 @@ class AutoCLIPTextTransformerConfig:
     transformer_num_heads: int = 8
     transformer_dim_feedforward: int = 128
     vocab_size: int = 49408
-    context_length: int = 77
+    context_length: int = 120
     embedding_output_features: int = 512
 
 

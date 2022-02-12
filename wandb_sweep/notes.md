@@ -31,15 +31,15 @@ Write script that generates scripts that include the target command in the start
 
 ### ResNet50
 
-- centi + image + text(77) + video(10) = 2g for 32 👍
+- centi + image + text(120) + video(10) = 2g for 32 👍
 - centi + image + video(10) = 2g for 32 👍
-- centi + image + text(77) = 2g for 512 👍
+- centi + image + text(120) = 2g for 512 👍
 
-- deci + image + text(77) + video(10) = 2g for 16 👍
+- deci + image + text(120) + video(10) = 2g for 16 👍
 - deci + image + video(10) = 2g for 16 👍
-- deci + image + text(77) = 2g for 160 👍
+- deci + image + text(120) = 2g for 160 👍
 
-- base + image + text(77) + video(10) = 2g for 16 👍
+- base + image + text(120) + video(10) = 2g for 16 👍
 - base + image + video(10) = 2g for 48 👍
-- base + image + text(77) = 2g for 512 👍
+- base + image + text(120) = 2g for 512 👍
 

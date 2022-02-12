@@ -5,5 +5,5 @@ config:
   transformer_num_heads: 8
   transformer_dim_feedforward: 512
   vocab_size: 49408
-  context_length: 77
+  context_length: 120
   embedding_output_features: 512

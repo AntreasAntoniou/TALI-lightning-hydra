@@ -18,7 +18,7 @@ config:
     channels: 3
     width: 288
     height: 176
-  text_context_length: 77
+  text_context_length: 120
 batch_size: ${batch_size}
 persistent_workers: False
 pin_memory: False

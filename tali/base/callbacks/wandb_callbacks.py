@@ -323,13 +323,12 @@ class LogMultiModalPredictionHeatmaps(Callback):
             key for key, value in data_dict.items() if value is not None
         ]
 
-        filepath_batch = data_dict["filepath"]
         log_batch_dict = {
             "filepath": [
                 filepath.replace(os.environ.get("DATASET_DIR"), "")
                 .replace("full_video_360p", "")
                 .replace(".frames", "")
-                for filepath in filepath_batch
+                for filepath in data_dict["filepath"]
             ]
         }
 
@@ -360,7 +359,7 @@ class LogMultiModalPredictionHeatmaps(Callback):
         rows = list(zip(*zip_list))
         return (
             wandb.Table(columns=list(log_batch_dict.keys()), data=rows),
-            filepath_batch,
+            log_batch_dict["filepath"],
         )
 
     def log_similarity_heatmaps_multi_modal(self, trainer, pl_module, set_name):
