@@ -24,3 +24,4 @@ upload_code_as_artifact:
 #
 log_multi_modal_similarity_prediction_heatmap:
   _target_: tali.base.callbacks.wandb_callbacks.LogMultiModalPredictionHeatmaps
+  num_samples: 16

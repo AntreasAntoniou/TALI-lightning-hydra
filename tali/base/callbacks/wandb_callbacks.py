@@ -306,9 +306,10 @@ class LogMultiModalPredictionHeatmaps(Callback):
         https://wandb.ai/wandb/wandb-lightning/reports/Image-Classification-using-PyTorch-Lightning--VmlldzoyODk1NzY
     """
 
-    def __init__(self):
+    def __init__(self, num_samples):
         super().__init__()
         self.ready = True
+        self.num_samples = num_samples
 
     def on_sanity_check_start(self, trainer, pl_module):
         self.ready = False
@@ -377,7 +378,7 @@ class LogMultiModalPredictionHeatmaps(Callback):
             data_dict = next(iter(trainer.datamodule.test_dataloader()))
 
         data_dict = {
-            key: value.to(device=pl_module.device)
+            key: value[: self.num_samples].to(device=pl_module.device)
             if isinstance(value, torch.Tensor)
             else value
             for key, value in data_dict.items()
@@ -437,6 +438,9 @@ class LogMultiModalPredictionHeatmaps(Callback):
                             )
                         }
                     )
+
+    def on_test_epoch_start(self, trainer, pl_module):
+        self.log_similarity_heatmaps_multi_modal(trainer, pl_module, "test")
 
     def on_validation_epoch_start(self, trainer, pl_module):
         self.log_similarity_heatmaps_multi_modal(trainer, pl_module, "validation")
