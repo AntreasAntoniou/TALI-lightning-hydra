@@ -76,9 +76,3 @@ datamodule.config.rescan_paths=False \
 datamodule.prefetch_factor=2 \
 datamodule.config.num_train_samples=90000000
 ```
-
-TODOs:
-
-- Implement a dummy dataset for quick debugging -- to ensure that the model converges
-- Get DDP to work somehow, perhaps by using a dummy dataloader on the uni machines
-- Figure out why this shit gets stuck, using university machines

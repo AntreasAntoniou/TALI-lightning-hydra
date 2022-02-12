@@ -42,7 +42,7 @@
     "layer_norm_eps": 1e-05,
     "length_penalty": 1.0,
     "max_length": 20,
-    "max_position_embeddings": 120,
+    "max_position_embeddings": 77,
     "min_length": 0,
     "model_type": "clip_text_model",
     "no_repeat_ngram_size": 0,

@@ -20,7 +20,7 @@ from tali.datasets.tokenizers import HuggingFaceBPETokenizer
 from tali.datasets.utils.audio import tensor_to_audio
 
 log = logging.getLogger(__name__)
-tokenizer = HuggingFaceBPETokenizer(context_length=120)
+tokenizer = HuggingFaceBPETokenizer(context_length=77)
 
 
 def plot_with_spectrum(x, rate=48000):

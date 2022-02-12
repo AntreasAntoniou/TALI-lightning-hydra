@@ -6,7 +6,7 @@ import torch
 def tokenize(
     sequence_of_text: Union[str, List[str]],
     tokenizer: object,
-    context_length: int = 120,
+    context_length: int = 77,
 ) -> torch.LongTensor:
     """
     Returns the tokenized representation of given input string(s)
@@ -17,7 +17,7 @@ def tokenize(
         An input string or a list of input strings to tokenize
 
     context_length : int
-        The context length to use; all CLIP models use 120 as the context length
+        The context length to use; all CLIP models use 77 as the context length
 
     Returns
     -------
