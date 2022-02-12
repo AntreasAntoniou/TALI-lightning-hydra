@@ -16,6 +16,7 @@ conda install -c conda-forge git-lfs -y
 conda install pytorch torchvision torchaudio cudatoolkit=11.3 -c pytorch-nightly -y
 conda install opencv -y
 conda install h5py -y
+conda install screen -y
 ########################################################################################
 echo "export CODE_DIR=$HOME/target_codebase" >> $HOME/.bashrc
 echo "export MOUNT_DIR=/mnt/disk/tali/" >> $HOME/.bashrc
