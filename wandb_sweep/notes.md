@@ -30,5 +30,13 @@ Write script that generates scripts that include the target command in the start
 ###########################################################################Updates
 
 - centi + image + text(77) + video(10) = 2g for 48 👍
-- centi + image + video(10) = 2g for 48 👀
-- centi + image + text(77) = 2g for 512 👀
+- centi + image + video(10) = 2g for 48 👍
+- centi + image + text(77) = 2g for 512 👍
+
+- deci + image + text(77) + video(10) = 2g for 48 👍
+- deci + image + video(10) = 2g for 48 👍
+- deci + image + text(77) = 2g for 512 👍
+
+- deci + image + text(77) + video(10) = 2g for 48 👍
+- deci + image + video(10) = 2g for 48 👍
+- deci + image + text(77) = 2g for 512 👍

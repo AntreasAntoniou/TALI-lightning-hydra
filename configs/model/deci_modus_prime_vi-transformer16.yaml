@@ -3,7 +3,7 @@ defaults:
   - image_embedding_config: deci-image-vi-transformer16.yaml
   - audio_embedding_config: deci-audio-convformer.yaml
   - text_embedding_config: deci-text-transformer.yaml
-  - video_embedding_config: deci-video-averager.yaml
+  - video_embedding_config: deci-video-transformer.yaml
   - optimizer_config: adam.yaml
   - lr_scheduler_config: cosine_annealing.yaml
 
