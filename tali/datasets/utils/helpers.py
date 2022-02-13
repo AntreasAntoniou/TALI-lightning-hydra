@@ -198,17 +198,17 @@ def collect_files(args):
         if roll <= training_set_size_fraction_value:
             video_files_new.append(file)
 
+    log.info(f"{len(video_files)} {len(video_files_new)}")
+
     video_key = json_file_path.parent.stem
-    folder_list = []
+    media_tuples = []
     multiprocessing_tuple = [(filepath, json_file_path) for filepath in video_files_new]
     with concurrent.futures.ProcessPoolExecutor(max_workers=2) as executor:
-        folder_list.extend(
-            data_tuple
-            for data_tuple in executor.map(collect_subclip_data, multiprocessing_tuple)
-            if data_tuple is not None
-        )
+        for data_tuple in executor.map(collect_subclip_data, multiprocessing_tuple):
+            if data_tuple is not None:
+                media_tuples.append(data_tuple)
 
-    return video_key, folder_list
+    return video_key, media_tuples
 
 
 def collate_resample_none(batch):
