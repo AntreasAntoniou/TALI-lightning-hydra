@@ -2,5 +2,5 @@ defaults:
   - tali.yaml
 
 
-train_num_samples: 1000000
+train_num_samples: 90000000
 use_dummy_dataloader: False
