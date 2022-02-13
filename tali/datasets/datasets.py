@@ -64,7 +64,9 @@ class TALIMultiModalDataset(Dataset):
             f"tali_path_cache_{self.config.dataset_size_identifier}.json",
         )
 
-        logging.info(self.pre_scanned_dataset_json_filepath, self.percentage_to_keep)
+        logging.info(
+            f"{self.pre_scanned_dataset_json_filepath}, {self.percentage_to_keep}"
+        )
         temp_filepath = pathlib.Path(self.pre_scanned_dataset_json_filepath)
         logging.debug(
             f"{self.config.rescan_paths == True and temp_filepath.exists()} "
