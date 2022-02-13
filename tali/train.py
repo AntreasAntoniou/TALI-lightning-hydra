@@ -49,13 +49,14 @@ def train_eval(config: DictConfig) -> List[Dict[str, float]]:
         if not pathlib.Path(f"{config.current_experiment_dir}").exists():
             os.makedirs(f"{config.current_experiment_dir}", exist_ok=True)
 
-        google_storage_rsync_gs_to_local(
-            bucket_name=config.callbacks.gs_file_monitor.bucket_name,
-            experiments_root_dir=config.callbacks.gs_file_monitor.experiments_root_dir,
-            experiment_name=config.callbacks.gs_file_monitor.experiment_name,
-            exclude_list=config.callbacks.gs_file_monitor.exclude_list,
-            options_list=config.callbacks.gs_file_monitor.options_list,
-        )
+        if "google_storage_rsync_gs_to_local" in config.callbacks:
+            google_storage_rsync_gs_to_local(
+                bucket_name=config.callbacks.gs_file_monitor.bucket_name,
+                experiments_root_dir=config.callbacks.gs_file_monitor.experiments_root_dir,
+                experiment_name=config.callbacks.gs_file_monitor.experiment_name,
+                exclude_list=config.callbacks.gs_file_monitor.exclude_list,
+                options_list=config.callbacks.gs_file_monitor.options_list,
+            )
 
         checkpoint_path = f"{config.current_experiment_dir}/checkpoints/last.ckpt"
 

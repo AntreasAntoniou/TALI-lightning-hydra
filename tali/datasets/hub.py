@@ -8,7 +8,7 @@ from torch.utils.data import DataLoader
 
 import tali
 from tali.config_repository import TALIDatasetConfig
-from tali.datasets.datasets import TALIMultiModalDataset
+from tali.datasets.datasets import TALIMultiModalDataset, DummyMultiModalDataset
 from tali.datasets.tokenizers import HuggingFaceBPETokenizer
 from tali.datasets.utils.helpers import (
     SubSampleAudioFrames,
@@ -61,6 +61,7 @@ class TALIDataModule(BaseDataModule):
         val_start_index: int = 0,
         test_start_index: int = 0,
         train_num_samples: int = None,
+        use_dummy_dataloader: bool = False,
     ):
         super(TALIDataModule, self).__init__()
         self.save_hyperparameters(logger=False)
@@ -75,6 +76,9 @@ class TALIDataModule(BaseDataModule):
         self.train_start_index = train_start_index
         self.val_start_index = val_start_index
         self.test_start_index = test_start_index
+        self.dataset_class = (
+            DummyMultiModalDataset if use_dummy_dataloader else TALIMultiModalDataset
+        )
         self.tokenizer = HuggingFaceBPETokenizer(
             context_length=config.text_context_length
         )
@@ -125,7 +129,7 @@ class TALIDataModule(BaseDataModule):
     def setup(self, stage: Optional[str] = None):
 
         if stage == "fit" or stage is None:
-            self.train_set = TALIMultiModalDataset(
+            self.train_set = self.dataset_class(
                 config=self.config,
                 set_name="train",
                 transforms=self.transform_train,
@@ -133,7 +137,7 @@ class TALIDataModule(BaseDataModule):
                 num_samples=self.train_num_samples,
             )
 
-            self.val_set = TALIMultiModalDataset(
+            self.val_set = self.dataset_class(
                 config=self.config,
                 set_name="val",
                 transforms=self.transform_eval,
@@ -142,25 +146,12 @@ class TALIDataModule(BaseDataModule):
 
         # Assign test dataset for use in dataloader(s)
         if stage == "test" or stage is None:
-            self.test_set = TALIMultiModalDataset(
+            self.test_set = self.dataset_class(
                 config=self.config,
                 set_name="test",
                 transforms=self.transform_eval,
                 start_index=self.test_start_index,
             )
-
-    def dummy_dataloader(self):
-        return DataLoader(
-            self.train_set,
-            batch_size=self.batch_size,
-            shuffle=False,
-            num_workers=self.num_workers,
-            pin_memory=self.pin_memory,
-            prefetch_factor=self.prefetch_factor,
-            collate_fn=tali.datasets.utils.helpers.collate_resample_none,
-            persistent_workers=self.persistent_workers,
-            drop_last=True,
-        )
 
     def train_dataloader(self):
 

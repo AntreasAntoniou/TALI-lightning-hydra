@@ -7,7 +7,6 @@ wandb:
   resume: ${resume}
   save_dir: ${current_experiment_dir}/
   log_model: 'all'
-  id: ${datamodule.config.dataset_name}-${model.name}-${datamodule.config.modality_config.name}-${seed}
   prefix: ""
   job_type: "train"
   group: ""

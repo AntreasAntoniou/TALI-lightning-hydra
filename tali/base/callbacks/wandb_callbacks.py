@@ -2,7 +2,7 @@ import os
 import subprocess
 from collections import defaultdict
 from pathlib import Path
-from typing import List
+from typing import List, Dict, Any
 
 import cv2
 import matplotlib.pyplot as plt
@@ -447,4 +447,12 @@ class LogMultiModalPredictionHeatmaps(Callback):
         self.log_similarity_heatmaps_multi_modal(trainer, pl_module, "validation")
 
     def on_train_epoch_start(self, trainer, pl_module):
+        self.log_similarity_heatmaps_multi_modal(trainer, pl_module, "train")
+
+    def on_save_checkpoint(
+        self,
+        trainer: "pl.Trainer",
+        pl_module: "pl.LightningModule",
+        checkpoint: Dict[str, Any],
+    ) -> dict:
         self.log_similarity_heatmaps_multi_modal(trainer, pl_module, "train")
