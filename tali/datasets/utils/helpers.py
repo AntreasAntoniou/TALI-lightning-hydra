@@ -207,6 +207,7 @@ def collect_files(args):
         for data_tuple in executor.map(collect_subclip_data, multiprocessing_tuple):
             if data_tuple is not None:
                 media_tuples.append(data_tuple)
+            log.info(f"{len(video_files)} {len(video_files_new)} {len(media_tuples)}")
 
     return video_key, media_tuples
 
