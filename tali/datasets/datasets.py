@@ -51,7 +51,7 @@ class TALIMultiModalDataset(Dataset):
                 "milli": 0.001,
                 "centi": 0.01,
                 "deci": 0.1,
-                "base": 1,
+                "base": 1.0,
             }[self.config.dataset_size_identifier]
             if set_name == "train"
             else 1.0

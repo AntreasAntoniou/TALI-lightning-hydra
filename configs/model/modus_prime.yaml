@@ -1,3 +1,6 @@
+defaults:
+  - optimizer_config: adam.yaml
+  - lr_scheduler_config: reduce_lr_on_plateau.yaml
 
 _target_: tali.models.systems.ModusPrime
 

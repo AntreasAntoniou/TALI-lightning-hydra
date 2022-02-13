@@ -4,7 +4,6 @@ defaults:
   - audio_embedding_config: milli-audio-convformer.yaml
   - text_embedding_config: milli-text-transformer.yaml
   - video_embedding_config: milli-video-transformer.yaml
-  - optimizer_config: adam.yaml
-  - lr_scheduler_config: cosine_annealing.yaml
+
 
 name: milli_resnet50
