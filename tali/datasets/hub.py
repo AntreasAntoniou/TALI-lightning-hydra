@@ -129,19 +129,19 @@ class TALIDataModule(BaseDataModule):
     def setup(self, stage: Optional[str] = None):
 
         if stage == "fit" or stage is None:
+            self.val_set = self.dataset_class(
+                config=self.config,
+                set_name="val",
+                transforms=self.transform_eval,
+                start_index=self.val_start_index,
+            )
+
             self.train_set = self.dataset_class(
                 config=self.config,
                 set_name="train",
                 transforms=self.transform_train,
                 start_index=self.train_start_index,
                 num_samples=self.train_num_samples,
-            )
-
-            self.val_set = self.dataset_class(
-                config=self.config,
-                set_name="val",
-                transforms=self.transform_eval,
-                start_index=self.val_start_index,
             )
 
         # Assign test dataset for use in dataloader(s)
