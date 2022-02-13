@@ -94,11 +94,7 @@ class TALIMultiModalDataset(Dataset):
             for video_path in folder_list
         ]
 
-        self.num_samples = len(self.index_to_video_path)
-
-        if num_samples:
-            self.num_samples = num_samples
-
+        self.num_samples = num_samples or len(self.index_to_video_path)
         logging.info(
             f"👍 Loaded {self.set_name} set with: \n"
             f"ℹ num video subclips (10 seconds each at 8 FPS): {self.num_samples} \n"
@@ -369,6 +365,7 @@ class TALIMultiModalDataset(Dataset):
                         path_dict[video_key] = folder_list
 
                     pbar.update(1)
+                    pbar.set_description(f"{len(path_dict)} subclips found")
         return path_dict
 
 
