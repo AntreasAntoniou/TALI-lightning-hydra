@@ -200,7 +200,7 @@ def collect_files(args):
 
     video_key = json_file_path.parent.stem
     folder_list = []
-    multiprocessing_tuple = [(filepath, json_file_path) for filepath in video_files]
+    multiprocessing_tuple = [(filepath, json_file_path) for filepath in video_files_new]
     with concurrent.futures.ProcessPoolExecutor(max_workers=2) as executor:
         folder_list.extend(
             data_tuple
