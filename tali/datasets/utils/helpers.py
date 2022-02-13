@@ -174,8 +174,7 @@ def collect_subclip_data(input_tuple):
 
         if (
             filepath.exists()
-            and audio_data_filepath.exists()
-            and audio_data_raw_filepath.exists()
+            and (audio_data_filepath.exists() or audio_data_raw_filepath.exists())
             and json_filepath.exists()
         ):
             data_tuple = (
