@@ -353,7 +353,7 @@ class TALIMultiModalDataset(Dataset):
 
         logging.info(f"Found {len(matched_meta_data_files)} matched meta_data files")
 
-        args = [(item, training_set_fraction_value) for item in matched_meta_data_files]
+        args = [(item, percentage_to_keep) for item in matched_meta_data_files]
 
         logging.info("Scanning folders for media files")
         path_dict = {}
