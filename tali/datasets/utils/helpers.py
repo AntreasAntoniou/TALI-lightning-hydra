@@ -192,6 +192,9 @@ def collect_files(args):
 
     for file in video_files:
         roll = np.random.random()
+        log.info(
+            f"{roll} {training_set_size_fraction_value} {roll <= training_set_size_fraction_value}"
+        )
         if roll <= training_set_size_fraction_value:
             video_files_new.append(file)
 

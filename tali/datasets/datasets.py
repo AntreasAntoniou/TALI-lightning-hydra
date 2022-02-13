@@ -14,7 +14,6 @@ import torch
 import tqdm
 from torch.utils.data import Dataset
 
-
 from tali.config_repository import TALIDatasetConfig
 from tali.datasets.utils import audio
 from tali.datasets.utils.audio import prevent_error_kill, convert_audiofile_to_tensor
@@ -66,12 +65,13 @@ class TALIMultiModalDataset(Dataset):
         )
 
         logging.info(self.pre_scanned_dataset_json_filepath)
+        temp_filepath = pathlib.Path(self.pre_scanned_dataset_json_filepath)
         logging.debug(
-            f"{self.config.rescan_paths == True and pathlib.Path(self.pre_scanned_dataset_json_filepath).exists()} "
-            f"{self.config.rescan_paths} {pathlib.Path(self.pre_scanned_dataset_json_filepath).exists()}"
+            f"{self.config.rescan_paths == True and temp_filepath.exists()} "
+            f"{self.config.rescan_paths} {temp_filepath.exists()}"
         )
         if (
-            self.config.rescan_paths == True
+            self.config.rescan_paths is True
             and pathlib.Path(self.pre_scanned_dataset_json_filepath).exists()
         ):
             pathlib.Path(self.pre_scanned_dataset_json_filepath).unlink()
