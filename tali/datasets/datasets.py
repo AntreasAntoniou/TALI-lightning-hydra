@@ -101,7 +101,7 @@ class TALIMultiModalDataset(Dataset):
         self.num_samples = num_samples or len(self.index_to_video_path)
         logging.info(
             f"👍 Loaded {self.set_name} set with: \n"
-            f"ℹ num video subclips (10 seconds each at 8 FPS): {self.num_samples} \n"
+            f"📊 num video subclips (10 seconds each at 8 FPS): {self.num_samples} \n"
             f"sampled from num video clips: {len(path_dict.keys())}"
         )
 
