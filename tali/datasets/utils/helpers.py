@@ -176,7 +176,11 @@ def collect_subclip_data(input_tuple):
 
         if (
             filepath.exists()
-            and (audio_data_filepath.exists() or audio_data_raw_filepath.exists())
+            and (
+                audio_data_filepath.exists()
+                or audio_data_raw_filepath.exists()
+                or audio_data_filepath.with_suffix(".npy").exists()
+            )
             and json_filepath.exists()
         ):
             data_tuple = (
@@ -202,13 +206,13 @@ def collect_files(args):
 
     for file in video_files:
         roll = np.random.random()
-        log.info(
-            f"{roll} {training_set_size_fraction_value} {roll <= training_set_size_fraction_value}"
-        )
+        # log.info(
+        #     f"{roll} {training_set_size_fraction_value} {roll <= training_set_size_fraction_value}"
+        # )
         if roll <= training_set_size_fraction_value:
             video_files_new.append(file)
 
-    log.info(f"{len(video_files)} {len(video_files_new)}")
+    # log.info(f"{len(video_files)} {len(video_files_new)}")
 
     video_key = json_file_path.parent.stem
     media_tuples = []
