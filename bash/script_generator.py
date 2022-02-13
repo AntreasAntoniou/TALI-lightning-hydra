@@ -53,7 +53,7 @@ def main():
                                         f"datamodule.prefetch_factor=3 \\\n"
                                         f"datamodule.num_workers={num_workers} \\\n"
                                         f"model={model_name} \\\n"
-                                        f"datamodule.config.training_set_size_identifier={dataset_name} \\\n"
+                                        f"datamodule.config.dataset_size_identifier={dataset_name} \\\n"
                                         f"datamodule.config.modality_config.image={use_image_modality} \\\n"
                                         f"datamodule.config.modality_config.text={use_text_modality} \\\n"
                                         f"datamodule.config.modality_config.audio={use_audio_modality} \\\n"

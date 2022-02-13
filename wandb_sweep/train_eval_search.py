@@ -100,7 +100,7 @@ def main():
         f"datamodule.config.rescan_paths=True datamodule.prefetch_factor=3 "
         f"datamodule.num_workers={int(num_gpus * 12)} "
         f"model={config.model_name} "
-        f"datamodule.config.training_set_size_identifier={config.datamodule_name} "
+        f"datamodule.config.dataset_size_identifier={config.datamodule_name} "
         f"datamodule.config.modality_config.image={config.use_image_modality} "
         f"datamodule.config.modality_config.text={config.use_text_modality} "
         f"datamodule.config.modality_config.audio={config.use_audio_modality} "

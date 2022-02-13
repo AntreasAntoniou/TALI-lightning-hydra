@@ -34,7 +34,7 @@ class ModalityConfig:
 @dataclass
 class TALIDatasetConfig:
     dataset_root: str = "./data/tali-dataset/"
-    training_set_size_identifier: str = "base"
+    dataset_size_identifier: str = "base"
     dataset_name: str = "base-tali"
     modality_config: ModalityConfig = ModalityConfig()
     rescan_paths: bool = False

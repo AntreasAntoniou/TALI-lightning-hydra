@@ -46,25 +46,25 @@ class TALIMultiModalDataset(Dataset):
         self.set_name = set_name
         self.num_youtube_video_dict = {"train": 141468, "val": 6369, "test": 6500}
         self.transforms = transforms
-        self.training_set_fraction_value = (
+        self.percentage_to_keep = (
             {
                 "milli": 0.001,
                 "centi": 0.01,
                 "deci": 0.1,
                 "base": 1,
-            }[self.config.training_set_size_identifier]
+            }[self.config.dataset_size_identifier]
             if set_name == "train"
-            else 1
+            else 1.0
         )
 
         self.dataset_dir = os.path.join(self.dataset_root, self.set_name)
         self.start_index = start_index
         self.pre_scanned_dataset_json_filepath = os.path.join(
             self.dataset_dir,
-            f"tali_path_cache_{self.config.training_set_size_identifier}.json",
+            f"tali_path_cache_{self.config.dataset_size_identifier}.json",
         )
 
-        logging.info(self.pre_scanned_dataset_json_filepath)
+        logging.info(self.pre_scanned_dataset_json_filepath, self.percentage_to_keep)
         temp_filepath = pathlib.Path(self.pre_scanned_dataset_json_filepath)
         logging.debug(
             f"{self.config.rescan_paths == True and temp_filepath.exists()} "
@@ -78,7 +78,7 @@ class TALIMultiModalDataset(Dataset):
 
         if not pathlib.Path(self.pre_scanned_dataset_json_filepath).exists():
             path_dict = self._scan_paths_return_dict(
-                training_set_fraction_value=self.training_set_fraction_value
+                percentage_to_keep=self.percentage_to_keep
             )
             save_json(
                 filepath=self.pre_scanned_dataset_json_filepath,
@@ -335,7 +335,7 @@ class TALIMultiModalDataset(Dataset):
 
         return data
 
-    def _scan_paths_return_dict(self, training_set_fraction_value):
+    def _scan_paths_return_dict(self, percentage_to_keep: float):
 
         logging.info(self.dataset_dir)
 
