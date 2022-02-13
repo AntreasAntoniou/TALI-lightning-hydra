@@ -9,6 +9,8 @@ import numpy as np
 import torch
 from torch.utils.data import dataloader
 
+from preprocessing_scripts.convert_audiofiles_to_npz import path_to_string
+
 log = logging.getLogger(__name__)
 
 
@@ -147,13 +149,19 @@ def collect_subclip_data(input_tuple):
 
     filepath, json_filepath = input_tuple
 
-    video_data_filepath = os.fspath(filepath.resolve())
-    frame_list = list(pathlib.Path(filepath).glob("**/*.jpg"))
-    frame_list = [os.fspath(frame.resolve()) for frame in frame_list]
+    if not isinstance(filepath, pathlib.Path):
+        filepath = pathlib.Path(filepath)
+
+    if not isinstance(json_filepath, pathlib.Path):
+        json_filepath = pathlib.Path(json_filepath)
+
+    frame_list = list(filepath.glob("**/*.jpg"))
+
+    log.info(f"{len(frame_list)} frames found in {filepath}")
 
     if len(frame_list) > 0:
         frame_idx_to_filepath = {
-            int(frame_filepath.split("_")[-1].replace(".jpg", "")): frame_filepath
+            int(frame_filepath.name.split("_")[-1].replace(".jpg", "")): frame_filepath
             for frame_filepath in frame_list
         }
 
@@ -161,19 +169,20 @@ def collect_subclip_data(input_tuple):
             k: v for k, v in sorted(list(frame_idx_to_filepath.items()))
         }
         frame_list = list(frame_idx_to_filepath.values())
-        audio_data_filepath = os.fspath(filepath.resolve()).replace(".frames", ".npz")
-        meta_data_filepath = os.fspath(json_filepath.resolve())
+        audio_data_filepath = filepath.with_suffix(".npz")
+        audio_data_raw_filepath = filepath.with_suffix(".aac")
 
         if (
-            pathlib.Path(video_data_filepath).exists()
-            and pathlib.Path(meta_data_filepath).exists()
-            and pathlib.Path(audio_data_filepath).exists()
+            filepath.exists()
+            and audio_data_filepath.exists()
+            and audio_data_raw_filepath.exists()
+            and json_filepath.exists()
         ):
             data_tuple = (
                 frame_list,
-                video_data_filepath,
+                filepath,
                 audio_data_filepath,
-                meta_data_filepath,
+                json_filepath,
             )
 
             return data_tuple
