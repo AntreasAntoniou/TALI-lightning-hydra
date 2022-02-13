@@ -210,7 +210,7 @@ def collect_files(args):
         #     f"{roll} {training_set_size_fraction_value} {roll <= training_set_size_fraction_value}"
         # )
         if roll <= training_set_size_fraction_value:
-            video_files_new.append(file)
+            video_files_new.append(path_to_string(file))
 
     # log.info(f"{len(video_files)} {len(video_files_new)}")
 
