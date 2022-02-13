@@ -49,10 +49,10 @@ class TALIMultiModalDataset(Dataset):
         self.transforms = transforms
         self.training_set_fraction_value = (
             {
-                "milli": 1 / 10 ** 3,
-                "centi": 1 / 10 ** 2,
-                "deci": 1 / 10 ** 1,
-                "base": 1 / 10 ** 0,
+                "milli": 0.001,
+                "centi": 0.01,
+                "deci": 0.1,
+                "base": 1,
             }[self.config.training_set_size_identifier]
             if set_name == "train"
             else 1
