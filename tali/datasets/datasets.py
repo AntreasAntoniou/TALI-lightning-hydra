@@ -65,7 +65,9 @@ class TALIMultiModalDataset(Dataset):
         )
 
         logging.info(
-            f"{self.pre_scanned_dataset_json_filepath}, {self.percentage_to_keep}"
+            f"{self.pre_scanned_dataset_json_filepath}, "
+            f"{self.config.dataset_size_identifier}, "
+            f"{self.percentage_to_keep}"
         )
         temp_filepath = pathlib.Path(self.pre_scanned_dataset_json_filepath)
         logging.debug(
