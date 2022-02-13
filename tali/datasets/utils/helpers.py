@@ -188,11 +188,13 @@ def collect_files(args):
     # sourcery skip: identity-comprehension, simplify-len-comparison, use-named-expression
     json_file_path, training_set_size_fraction_value = args
     video_files = list(pathlib.Path(json_file_path.parent).glob("**/*.frames"))
-    video_files = [
-        file
-        for file in video_files
-        if np.random.random() <= training_set_size_fraction_value
-    ]
+    video_files_new = []
+
+    for file in video_files:
+        roll = np.random.random()
+        if roll <= training_set_size_fraction_value:
+            video_files_new.append(file)
+
     video_key = json_file_path.parent.stem
     folder_list = []
     multiprocessing_tuple = [(filepath, json_file_path) for filepath in video_files]
