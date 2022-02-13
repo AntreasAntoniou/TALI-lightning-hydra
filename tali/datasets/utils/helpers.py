@@ -161,7 +161,9 @@ def collect_subclip_data(input_tuple):
 
     if len(frame_list) > 0:
         frame_idx_to_filepath = {
-            int(frame_filepath.name.split("_")[-1].replace(".jpg", "")): frame_filepath
+            int(frame_filepath.name.split("_")[-1].replace(".jpg", "")): path_to_string(
+                frame_filepath
+            )
             for frame_filepath in frame_list
         }
 
@@ -179,9 +181,9 @@ def collect_subclip_data(input_tuple):
         ):
             data_tuple = (
                 frame_list,
-                filepath,
-                audio_data_filepath,
-                json_filepath,
+                path_to_string(filepath),
+                path_to_string(audio_data_filepath),
+                path_to_string(json_filepath),
             )
 
             return data_tuple
