@@ -40,26 +40,8 @@ gcloud beta compute instances create gpu-instance-large-0 \
 --provisioning-model=SPOT
 ```
 
-Currently running on gpu-small-2
-```bash
-python run.py hydra.verbose=False \
-resume=False \
-batch_size=32 \
-datamodule.num_workers=24 \
-trainer.gpus=2 \
-model=centi_modus_prime_resnet50 \
-datamodule=tali \
-datamodule.config.modality_config.image=True \
-datamodule.config.modality_config.text=True \
-datamodule.config.modality_config.audio=False \
-datamodule.config.modality_config.video=True \
-datamodule.config.rescan_paths=False \
-datamodule.config.num_video_frames_per_datapoint=10 \
-datamodule.prefetch_factor=2 \
-datamodule.config.num_train_samples=90000000
-```
 
-Currently running on gpu-small-1
+Currently running on gpu-instance-1
 ```bash
 python run.py hydra.verbose=False \
 resume=True \
@@ -72,6 +54,24 @@ datamodule.config.modality_config.image=True \
 datamodule.config.modality_config.text=True \
 datamodule.config.modality_config.audio=False \
 datamodule.config.modality_config.video=False \
+datamodule.config.rescan_paths=False \
+datamodule.prefetch_factor=2 \
+datamodule.config.dataset_size_identifier=base
+```
+
+Currently running on gpu-instance-2
+```bash
+python run.py hydra.verbose=False \
+resume=True \
+batch_size=32 \
+datamodule.num_workers=24 \
+trainer.gpus=2 \
+model=milli_modus_prime_resnet50 \
+datamodule=tali \
+datamodule.config.modality_config.image=True \
+datamodule.config.modality_config.text=True \
+datamodule.config.modality_config.audio=False \
+datamodule.config.modality_config.video=True \
 datamodule.config.rescan_paths=False \
 datamodule.prefetch_factor=2 \
 datamodule.config.dataset_size_identifier=base
