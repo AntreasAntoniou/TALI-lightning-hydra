@@ -60,8 +60,8 @@ class TALIMultiModalDataset(Dataset):
         self.dataset_dir = os.path.join(self.dataset_root, self.set_name)
         self.start_index = start_index
         self.pre_scanned_dataset_json_filepath = os.path.join(
-            self.dataset_dir,
-            f"tali_path_cache_{self.config.dataset_size_identifier}.json",
+            os.environ.get("EXPERIMENT_DIR"),
+            f"tali_path_caches/{self.config.dataset_size_identifier}.json",
         )
 
         logging.info(
