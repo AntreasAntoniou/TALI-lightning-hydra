@@ -62,11 +62,11 @@ datamodule.config.num_train_samples=90000000
 Currently running on gpu-small-1
 ```bash
 python run.py hydra.verbose=False \
-resume=False \
-batch_size=512 \
+resume=True \
+batch_size=800 \
 datamodule.num_workers=24 \
 trainer.gpus=2 \
-model=centi_modus_prime_resnet50 \
+model=milli_modus_prime_resnet50 \
 datamodule=tali \
 datamodule.config.modality_config.image=True \
 datamodule.config.modality_config.text=True \

@@ -1,6 +1,6 @@
 export MOUNT_DIR="/mnt/disk/tali"
-export EXPERIMENTS_DIR="$MOUNT_DIR/experiments"
-export EXPERIMENT_DIR="$MOUNT_DIR/experiments"
+export EXPERIMENTS_DIR="$HOME/experiments"
+export EXPERIMENT_DIR="$HOME/experiments"
 export DATASET_DIR="$MOUNT_DIR/dataset"
 
 if [ ! -d "$MOUNT_DIR" ]; then
@@ -8,7 +8,9 @@ if [ ! -d "$MOUNT_DIR" ]; then
   chmod -Rv 777 $MOUNT_DIR
 fi
 
-mount -o discard,defaults /dev/sdb $MOUNT_DIR
+#mount -o discard,defaults /dev/sdb $MOUNT_DIR
+mount -o ro,noload /dev/sdb $MOUNT_DIR
+
 
 rm -rf $EXPERIMENTS_DIR
 
