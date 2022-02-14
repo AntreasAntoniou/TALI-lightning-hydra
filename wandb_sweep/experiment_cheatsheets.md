@@ -74,5 +74,5 @@ datamodule.config.modality_config.audio=False \
 datamodule.config.modality_config.video=False \
 datamodule.config.rescan_paths=False \
 datamodule.prefetch_factor=2 \
-datamodule.config.num_train_samples=90000000
+datamodule.config.dataset_size_identifier=base
 ```
