@@ -416,7 +416,11 @@ class ModusPrime(LightningModule):
             phase_name="training",
         )
 
-        return self.criterion(input=logits, target=targets)
+        loss = self.criterion(input=logits, target=targets)
+        if self.lr_scheduler_step_must_be_called_manually:
+            self.lr_scheduler.step(loss.detach().item(), self.global_step)
+
+        return loss
 
     def training_epoch_end(self, outputs: List[Any]):
         self.collect_metrics_epoch(phase_name="training")
@@ -460,18 +464,28 @@ class ModusPrime(LightningModule):
         self.reset_metric_caches(phase_name="test")
 
     def configure_optimizers(self):
+        optimizer_dict = {}
         optimizer = hydra.utils.instantiate(
             config=self.optimizer_config, params=self.parameters()
         )
 
+        optimizer_dict["optimizer"] = optimizer
+
         lr_scheduler = hydra.utils.instantiate(
             config=self.lr_scheduler_config, optimizer=optimizer
         )
-        return {
-            "optimizer": optimizer,
-            "lr_scheduler": {
-                "scheduler": lr_scheduler,
-                "interval": "step",
-                # "monitor": self.trainer.callback_metrics["loss"],
-            },
-        }
+
+        if isinstance(lr_scheduler, torch.optim.lr_scheduler.ReduceLROnPlateau):
+            self.lr_scheduler = lr_scheduler
+            self.lr_scheduler_step_must_be_called_manually = True
+        else:
+            self.lr_scheduler_step_must_be_called_manually = False
+            optimizer_dict["lr_scheduler"] = (
+                {
+                    "scheduler": lr_scheduler,
+                    "interval": "step",
+                    # "monitor": self.trainer.callback_metrics["loss"],
+                },
+            )
+
+        return optimizer_dict
