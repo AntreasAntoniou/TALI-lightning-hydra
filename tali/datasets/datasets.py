@@ -66,8 +66,8 @@ class TALIMultiModalDataset(Dataset):
             f"tali_path_cache_{self.config.dataset_size_identifier}.json",
         )
 
-        self.pre_scanned_dataset_json_filepath_on_experiment_disk = os.path.join(
-            os.environ.get("EXPERIMENT_DIR"),
+        self.pre_scanned_dataset_json_filepath_on_boot_disk = os.path.join(
+            os.environ.get("PATH_CACHE_DIR"),
             f"tali_path_caches/{set_name}-{self.config.dataset_size_identifier}.json",
         )
 
@@ -79,7 +79,7 @@ class TALIMultiModalDataset(Dataset):
             )
         else:
             self.pre_scanned_dataset_json_filepath = (
-                self.pre_scanned_dataset_json_filepath_on_experiment_disk
+                self.pre_scanned_dataset_json_filepath_on_boot_disk
             )
 
         logging.info(
@@ -99,7 +99,7 @@ class TALIMultiModalDataset(Dataset):
             # set the cache path to the experiment directory since
             # the dataset is read only and would cause issues when saving
             self.pre_scanned_dataset_json_filepath = (
-                self.pre_scanned_dataset_json_filepath_on_experiment_disk
+                self.pre_scanned_dataset_json_filepath_on_boot_disk
             )
             pathlib.Path(self.pre_scanned_dataset_json_filepath).unlink()
 

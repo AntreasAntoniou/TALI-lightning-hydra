@@ -1,7 +1,13 @@
 export MOUNT_DIR="/mnt/disk/tali"
 export EXPERIMENTS_DIR="$HOME/experiments"
 export EXPERIMENT_DIR="$HOME/experiments"
+export PATH_CACHE_DIR="$HOME/path_cache"
 export DATASET_DIR="$MOUNT_DIR/dataset"
+
+if [ ! -d "$PATH_CACHE_DIR" ]; then
+  mkdir -p $PATH_CACHE_DIR
+  chmod -Rv 777 $PATH_CACHE_DIR
+fi
 
 if [ ! -d "$MOUNT_DIR" ]; then
   mkdir -p $MOUNT_DIR

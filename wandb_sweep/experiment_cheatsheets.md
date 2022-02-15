@@ -76,3 +76,5 @@ datamodule.config.rescan_paths=False \
 datamodule.prefetch_factor=1 \
 datamodule.config.dataset_size_identifier=base
 ```
+
+python run.py hydra.verbose=False resume=True batch_size=800 datamodule.num_workers=8 trainer.gpus=2 model=milli_modus_prime_resnet50 datamodule=tali datamodule.config.modality_config.image=True datamodule.config.modality_config.text=True datamodule.config.modality_config.audio=False datamodule.config.modality_config.video=False datamodule.config.rescan_paths=False datamodule.prefetch_factor=1 datamodule.config.dataset_size_identifier=centi
