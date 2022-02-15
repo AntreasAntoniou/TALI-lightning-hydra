@@ -183,7 +183,7 @@ def collect_subclip_data(input_tuple):
             )
             and json_filepath.exists()
         ):
-            prefix = f"{dataset_dir}{video_key}".replace("//", "/")
+            prefix = f"{dataset_dir}/{video_key}".replace("//", "/")
             data_tuple = (
                 {frame.replace("//", "/").replace(prefix, "") for frame in frame_list},
                 path_to_string(filepath).replace("//", "/").replace(prefix, ""),
