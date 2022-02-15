@@ -472,6 +472,6 @@ class ModusPrime(LightningModule):
             "lr_scheduler": {
                 "scheduler": lr_scheduler,
                 "interval": "step",
-                "monitor": self.trainer.callback_metrics["loss"],
+                # "monitor": self.trainer.callback_metrics["loss"],
             },
         }
