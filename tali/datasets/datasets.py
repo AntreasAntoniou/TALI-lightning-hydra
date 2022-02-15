@@ -233,8 +233,8 @@ class TALIMultiModalDataset(Dataset):
                 image_width=self.config.image_shape.width,
                 image_channels=self.config.image_shape.channels,
                 selected_frame_list=[
-                    f"{path_prefix}/{frame_list[idx]}".replace("//", "/")
-                    for idx in rng.choice(frame_list, (1,))
+                    f"{path_prefix}/{frame}".replace("//", "/")
+                    for frame in rng.choice(frame_list, (1,))
                 ],
             )
 
