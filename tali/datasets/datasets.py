@@ -116,9 +116,9 @@ class TALIMultiModalDataset(Dataset):
             path_dict = load_json(self.pre_scanned_dataset_json_filepath)
 
         self.index_to_video_path = []
-
+        folder_keys = list(path_dict.keys())
         with tqdm.tqdm(total=len(path_dict)) as pbar:
-            for folder_key in list(path_dict.keys()):
+            for folder_key in folder_keys:
                 folder_key = folder_key.replace(self.dataset_dir, "")
                 prefix = f"{self.dataset_dir}/{folder_key}".replace("//", "/")
                 folder_list = path_dict[folder_key]
@@ -162,11 +162,12 @@ class TALIMultiModalDataset(Dataset):
             f"📊 num video subclips (10 seconds each at 8 FPS): "
             f"{len(self.index_to_video_path)} "
             f"with sampler length of {self.num_samples} \n"
-            f"sampled from num video clips: {len(path_dict.keys())}"
+            f"sampled from num video clips: {len(folder_keys)}"
         )
 
     def get_frames(
         self,
+        path_prefix,
         frame_list,
         audio_filepath,
         rng,
@@ -207,7 +208,8 @@ class TALIMultiModalDataset(Dataset):
                 image_width=self.config.image_shape.width,
                 image_channels=self.config.image_shape.channels,
                 selected_frame_list=[
-                    frame_list[idx] for idx in selected_frame_list_idx
+                    f"{path_prefix}/{frame_list[idx]}".replace("//", "/")
+                    for idx in selected_frame_list_idx
                 ],
             )
 
@@ -230,7 +232,10 @@ class TALIMultiModalDataset(Dataset):
                 image_height=self.config.image_shape.height,
                 image_width=self.config.image_shape.width,
                 image_channels=self.config.image_shape.channels,
-                selected_frame_list=rng.choice(frame_list, (1,)),
+                selected_frame_list=[
+                    f"{path_prefix}/{frame_list[idx]}".replace("//", "/")
+                    for idx in rng.choice(frame_list, (1,))
+                ],
             )
 
             frames_dict.image = frames_dict.image[0]
@@ -281,7 +286,6 @@ class TALIMultiModalDataset(Dataset):
         ) = self.index_to_video_path[actual_index]
 
         prefix = f"{self.dataset_dir}/{folder_key}".replace("//", "/")
-        frame_list = [f"{prefix}/{frame}".replace("//", "/") for frame in frame_list]
         video_filepath = f"{prefix}/{video_filepath}".replace("//", "/")
         audio_filepath = f"{prefix}/{audio_filepath}".replace("//", "/")
         meta_data_filepath = f"{prefix}/{meta_data_filepath}".replace("//", "/")
@@ -328,6 +332,7 @@ class TALIMultiModalDataset(Dataset):
                 data_dict.text = data_dict.text.type(torch.int32)
 
         frames_dict = self.get_frames(
+            path_prefix=path_prefix,
             frame_list=frame_list,
             audio_filepath=audio_filepath,
             rng=rng,
