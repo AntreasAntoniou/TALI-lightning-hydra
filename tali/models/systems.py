@@ -478,12 +478,9 @@ class ModusPrime(LightningModule):
             self.lr_scheduler_step_must_be_called_manually = True
         else:
             self.lr_scheduler_step_must_be_called_manually = False
-            optimizer_dict["lr_scheduler"] = (
-                {
-                    "scheduler": lr_scheduler,
-                    "interval": "step",
-                    "monitor": "your_loss",
-                },
-            )
+            optimizer_dict["lr_scheduler"] = {
+                "scheduler": lr_scheduler,
+                "interval": "step",
+            }
 
         return optimizer_dict
