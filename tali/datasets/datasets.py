@@ -127,7 +127,9 @@ class TALIMultiModalDataset(Dataset):
                     audio_filepath,
                     meta_data_filepath,
                 ) = media_tuple
-
+                log.info(
+                    f"{prefix} {video_filepath} {frame_list[0]} {audio_filepath} {meta_data_filepath}"
+                )
                 frame_list = [frame.replace(prefix, "") for frame in frame_list]
                 video_filepath = video_filepath.replace(prefix, "")
                 audio_filepath = audio_filepath.replace(prefix, "")
