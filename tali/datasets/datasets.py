@@ -114,11 +114,26 @@ class TALIMultiModalDataset(Dataset):
         else:
             path_dict = load_json(self.pre_scanned_dataset_json_filepath)
 
-        self.index_to_video_path = [
-            video_path
-            for folder_list in path_dict.values()
-            for video_path in folder_list
-        ]
+        self.index_to_video_path = []
+
+        for folder_list in path_dict.values():
+            for video_path in folder_list:
+                (
+                    frame_list,
+                    video_filepath,
+                    audio_filepath,
+                    meta_data_filepath,
+                ) = video_path
+
+                frame_list = [
+                    frame.replace(self.dataset_dir, "") for frame in frame_list
+                ]
+                video_filepath = video_filepath.replace(self.dataset_dir, "")
+                audio_filepath = audio_filepath.replace(self.dataset_dir, "")
+                meta_data_filepath = meta_data_filepath.replace(self.dataset_dir, "")
+                self.index_to_video_path.append(
+                    (frame_list, video_filepath, audio_filepath, meta_data_filepath)
+                )
 
         self.num_samples = num_samples or len(self.index_to_video_path)
         logging.info(
@@ -242,6 +257,11 @@ class TALIMultiModalDataset(Dataset):
             audio_filepath,
             meta_data_filepath,
         ) = self.index_to_video_path[actual_index]
+
+        frame_list = [os.path.join(self.dataset_dir, frame) for frame in frame_list]
+        video_filepath = os.path.join(self.dataset_dir, video_filepath)
+        audio_filepath = os.path.join(self.dataset_dir, audio_filepath)
+        meta_data_filepath = os.path.join(self.dataset_dir, meta_data_filepath)
 
         audio_filepath = pathlib.Path(audio_filepath)
         video_segment_idx = int(

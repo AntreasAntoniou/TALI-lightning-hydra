@@ -63,7 +63,7 @@ Currently running on gpu-instance-2
 ```bash
 python run.py hydra.verbose=False \
 resume=True \
-batch_size=32 \
+batch_size=800 \
 datamodule.num_workers=24 \
 trainer.gpus=2 \
 model=milli_modus_prime_resnet50 \
@@ -73,6 +73,6 @@ datamodule.config.modality_config.text=True \
 datamodule.config.modality_config.audio=False \
 datamodule.config.modality_config.video=True \
 datamodule.config.rescan_paths=False \
-datamodule.prefetch_factor=2 \
+datamodule.prefetch_factor=1 \
 datamodule.config.dataset_size_identifier=base
 ```
