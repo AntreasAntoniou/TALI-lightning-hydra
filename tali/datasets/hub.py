@@ -176,7 +176,7 @@ class TALIDataModule(BaseDataModule):
     def val_dataloader(self):
 
         collate_fn = functools.partial(
-            collate_fn_replace_corrupted, dataset=self.train_set
+            collate_fn_replace_corrupted, dataset=self.val_set
         )
 
         return DataLoader(
@@ -194,7 +194,7 @@ class TALIDataModule(BaseDataModule):
     def test_dataloader(self):
 
         collate_fn = functools.partial(
-            collate_fn_replace_corrupted, dataset=self.train_set
+            collate_fn_replace_corrupted, dataset=self.test_set
         )
 
         return DataLoader(
