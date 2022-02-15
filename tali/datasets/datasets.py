@@ -258,10 +258,10 @@ class TALIMultiModalDataset(Dataset):
             meta_data_filepath,
         ) = self.index_to_video_path[actual_index]
 
-        frame_list = [os.path.join(self.dataset_dir, frame) for frame in frame_list]
-        video_filepath = os.path.join(self.dataset_dir, video_filepath)
-        audio_filepath = os.path.join(self.dataset_dir, audio_filepath)
-        meta_data_filepath = os.path.join(self.dataset_dir, meta_data_filepath)
+        frame_list = [f"{self.dataset_dir}{frame}" for frame in frame_list]
+        video_filepath = f"{self.dataset_dir}{video_filepath}"
+        audio_filepath = f"{self.dataset_dir}{audio_filepath}"
+        meta_data_filepath = f"{self.dataset_dir}{meta_data_filepath}"
 
         log.info(
             f"{self.dataset_dir} {video_filepath} {audio_filepath} {meta_data_filepath} {frame_list}"
