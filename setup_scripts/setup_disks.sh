@@ -1,4 +1,6 @@
-export MOUNT_DIR="/mnt/disk/tali"
+#export MOUNT_DIR="/mnt/disk/tali"
+export MOUNT_DIR="/mnt/disk/scratch_ssd/antreas/"
+
 export EXPERIMENTS_DIR="$HOME/experiments"
 export EXPERIMENT_DIR="$HOME/experiments"
 export PATH_CACHE_DIR="$HOME/path_cache"

@@ -3,4 +3,11 @@ defaults:
 
 
 train_num_samples: 90000000
-use_dummy_dataloader: False
+use_dummy_dataloader: True
+config:
+  modality_config:
+      image: True
+      audio: True
+      video: True
+      text: True
+      name: debug-v.${datamodule.config.modality_config.video}-a.${datamodule.config.modality_config.audio}-t.${datamodule.config.modality_config.text}-i.${datamodule.config.modality_config.image}

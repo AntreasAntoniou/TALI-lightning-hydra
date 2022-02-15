@@ -16,10 +16,14 @@ conda install -c conda-forge git-lfs -y
 conda install pytorch torchvision torchaudio cudatoolkit=11.3 -c pytorch-nightly -y
 conda install opencv -y
 conda install h5py -y
-conda install screen -y
+conda install screen starship tmux -y
+conda install gh --channel conda-forge -y
+#apt install htop nvtop -y
+conda install google-cloud-sdk bat micro -y
 ########################################################################################
 echo "export CODE_DIR=$HOME/target_codebase" >> $HOME/.bashrc
-echo "export MOUNT_DIR=/mnt/disk/tali/" >> $HOME/.bashrc
+#echo "export MOUNT_DIR=/mnt/disk/tali/" >> $HOME/.bashrc
+echo "export MOUNT_DIR=/mnt/scratch_ssd/antreas" >> $HOME/.bashrc
 echo "export EXPERIMENTS_DIR=$MOUNT_DIR/experiments/" >> $HOME/.bashrc
 echo "export DATASET_DIR=$MOUNT_DIR/dataset/" >> $HOME/.bashrc
 echo "export TOKENIZERS_PARALLELISM=false" >> $HOME/.bashrc
@@ -43,6 +47,4 @@ pip install -e $CODE_DIR
 #git clone https://huggingface.co/openai/clip-vit-base-patch32
 
 ########################################################################################
-conda install gh --channel conda-forge -y
-apt install htop nvtop -y
-conda install google-cloud-sdk bat micro -y
+
