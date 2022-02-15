@@ -482,7 +482,7 @@ class DummyMultiModalDataset(Dataset):
 
         data_dict = DictWithDotNotation()
 
-        if self.config.modality_config.video:
+        if self.config.modality_config.text:
             data_dict.text = torch.randint(0, 77, size=(77,), generator=torch_rng).int()
 
         if self.config.modality_config.video:
