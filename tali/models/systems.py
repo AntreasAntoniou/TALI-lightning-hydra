@@ -464,13 +464,11 @@ class ModusPrime(LightningModule):
         self.reset_metric_caches(phase_name="test")
 
     def configure_optimizers(self):
-        optimizer_dict = {}
         optimizer = hydra.utils.instantiate(
             config=self.optimizer_config, params=self.parameters()
         )
 
-        optimizer_dict["optimizer"] = optimizer
-
+        optimizer_dict = {"optimizer": optimizer}
         lr_scheduler = hydra.utils.instantiate(
             config=self.lr_scheduler_config, optimizer=optimizer
         )
@@ -484,7 +482,7 @@ class ModusPrime(LightningModule):
                 {
                     "scheduler": lr_scheduler,
                     "interval": "step",
-                    # "monitor": self.trainer.callback_metrics["loss"],
+                    "monitor": "your_loss",
                 },
             )
 
