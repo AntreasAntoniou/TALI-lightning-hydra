@@ -1,6 +1,6 @@
 defaults:
   - optimizer_config: adam.yaml
-  - lr_scheduler_config: cosine_annealing_warm_restarts.yaml
+  - lr_scheduler_config: cosine_annealing.yaml
 
 _target_: tali.models.systems.ModusPrime
 
