@@ -285,10 +285,10 @@ class TALIMultiModalDataset(Dataset):
             meta_data_filepath,
         ) = self.index_to_video_path[actual_index]
 
-        prefix = f"{self.dataset_dir}/{folder_key}".replace("//", "/")
-        video_filepath = f"{prefix}/{video_filepath}".replace("//", "/")
-        audio_filepath = f"{prefix}/{audio_filepath}".replace("//", "/")
-        meta_data_filepath = f"{prefix}/{meta_data_filepath}".replace("//", "/")
+        path_prefix = f"{self.dataset_dir}/{folder_key}".replace("//", "/")
+        video_filepath = f"{path_prefix}/{video_filepath}".replace("//", "/")
+        audio_filepath = f"{path_prefix}/{audio_filepath}".replace("//", "/")
+        meta_data_filepath = f"{path_prefix}/{meta_data_filepath}".replace("//", "/")
 
         # log.info(
         #     f"{self.dataset_dir} {video_filepath} {audio_filepath} {meta_data_filepath} {frame_list}"
