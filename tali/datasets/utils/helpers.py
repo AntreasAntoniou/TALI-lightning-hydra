@@ -147,7 +147,7 @@ def timeout(timeout_secs: int):
 
 def collect_subclip_data(input_tuple):
 
-    filepath, json_filepath = input_tuple
+    dataset_dir, video_key, filepath, json_filepath = input_tuple
 
     if not isinstance(filepath, pathlib.Path):
         filepath = pathlib.Path(filepath)
@@ -183,11 +183,14 @@ def collect_subclip_data(input_tuple):
             )
             and json_filepath.exists()
         ):
+            prefix = f"{dataset_dir}{video_key}".replace("//", "/")
             data_tuple = (
-                frame_list,
-                path_to_string(filepath),
-                path_to_string(audio_data_filepath),
-                path_to_string(json_filepath),
+                {frame.replace("//", "/").replace(prefix, "") for frame in frame_list},
+                path_to_string(filepath).replace("//", "/").replace(prefix, ""),
+                path_to_string(audio_data_filepath)
+                .replace("//", "/")
+                .replace(prefix, ""),
+                path_to_string(json_filepath).replace("//", "/").replace(prefix, ""),
             )
 
             return data_tuple
@@ -200,8 +203,9 @@ import multiprocessing as mp
 
 def collect_files(args):
     # sourcery skip: identity-comprehension, simplify-len-comparison, use-named-expression
-    json_file_path, training_set_size_fraction_value = args
-    video_files = list(pathlib.Path(json_file_path.parent).glob("**/*.frames"))
+    dataset_dir, json_file_path, training_set_size_fraction_value = args
+    json_file_path = pathlib.Path(f"{dataset_dir}/{json_file_path}")
+    video_files = list(json_file_path.parent.glob("**/*.frames"))
     video_files_new = []
 
     for file in video_files:
@@ -211,13 +215,16 @@ def collect_files(args):
 
     video_key = json_file_path.parent.stem
     media_tuples = []
-    multiprocessing_tuple = [(filepath, json_file_path) for filepath in video_files_new]
+    multiprocessing_tuple = [
+        (dataset_dir, video_key, filepath, json_file_path)
+        for filepath in video_files_new
+    ]
     with concurrent.futures.ProcessPoolExecutor(max_workers=2) as executor:
         for data_tuple in executor.map(collect_subclip_data, multiprocessing_tuple):
             if data_tuple is not None:
                 media_tuples.append(data_tuple)
 
-    return video_key, media_tuples
+    return dataset_dir, video_key, media_tuples
 
 
 def collate_resample_none(batch):

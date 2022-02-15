@@ -14,6 +14,7 @@ import torch
 import tqdm
 from torch.utils.data import Dataset
 
+from preprocessing_scripts.convert_audiofiles_to_npz import path_to_string
 from tali.config_repository import TALIDatasetConfig
 from tali.datasets.utils import audio
 from tali.datasets.utils.audio import prevent_error_kill, convert_audiofile_to_tensor
@@ -116,23 +117,29 @@ class TALIMultiModalDataset(Dataset):
 
         self.index_to_video_path = []
 
-        for folder_list in path_dict.values():
-            for video_path in folder_list:
+        for folder_key, folder_list in path_dict.items():
+            folder_key = folder_key.replace(self.dataset_dir, "")
+            prefix = f"{self.dataset_dir}/{folder_key}".replace("//", "/")
+            for media_tuple in folder_list:
                 (
                     frame_list,
                     video_filepath,
                     audio_filepath,
                     meta_data_filepath,
-                ) = video_path
+                ) = media_tuple
 
-                frame_list = [
-                    frame.replace(self.dataset_dir, "") for frame in frame_list
-                ]
-                video_filepath = video_filepath.replace(self.dataset_dir, "")
-                audio_filepath = audio_filepath.replace(self.dataset_dir, "")
-                meta_data_filepath = meta_data_filepath.replace(self.dataset_dir, "")
+                frame_list = [frame.replace(prefix, "") for frame in frame_list]
+                video_filepath = video_filepath.replace(prefix, "")
+                audio_filepath = audio_filepath.replace(prefix, "")
+                meta_data_filepath = meta_data_filepath.replace(prefix, "")
                 self.index_to_video_path.append(
-                    (frame_list, video_filepath, audio_filepath, meta_data_filepath)
+                    (
+                        folder_key,
+                        frame_list,
+                        video_filepath,
+                        audio_filepath,
+                        meta_data_filepath,
+                    )
                 )
 
         self.num_samples = num_samples or len(self.index_to_video_path)
@@ -252,20 +259,22 @@ class TALIMultiModalDataset(Dataset):
         torch_rng.manual_seed(index)
 
         (
+            folder_key,
             frame_list,
             video_filepath,
             audio_filepath,
             meta_data_filepath,
         ) = self.index_to_video_path[actual_index]
 
-        frame_list = [f"{self.dataset_dir}{frame}" for frame in frame_list]
-        video_filepath = f"{self.dataset_dir}{video_filepath}"
-        audio_filepath = f"{self.dataset_dir}{audio_filepath}"
-        meta_data_filepath = f"{self.dataset_dir}{meta_data_filepath}"
+        prefix = f"{self.dataset_dir}/{folder_key}".replace("//", "/")
+        frame_list = [f"{prefix}/{frame}".replace("//", "/") for frame in frame_list]
+        video_filepath = f"{prefix}/{video_filepath}".replace("//", "/")
+        audio_filepath = f"{prefix}/{audio_filepath}".replace("//", "/")
+        meta_data_filepath = f"{prefix}/{meta_data_filepath}".replace("//", "/")
 
-        log.info(
-            f"{self.dataset_dir} {video_filepath} {audio_filepath} {meta_data_filepath} {frame_list}"
-        )
+        # log.info(
+        #     f"{self.dataset_dir} {video_filepath} {audio_filepath} {meta_data_filepath} {frame_list}"
+        # )
 
         audio_filepath = pathlib.Path(audio_filepath)
         video_segment_idx = int(
@@ -398,12 +407,18 @@ class TALIMultiModalDataset(Dataset):
             for dir_path in pathlib.Path(self.dataset_dir).iterdir():
                 cur_file = dir_path / "meta_data.json"
                 if cur_file.exists():
-                    matched_meta_data_files.append(cur_file)
+                    meta_data_string_path = path_to_string(cur_file).replace(
+                        self.dataset_dir, ""
+                    )
+                    matched_meta_data_files.append(meta_data_string_path)
                 pbar.update(1)
 
         logging.info(f"Found {len(matched_meta_data_files)} matched meta_data files")
 
-        args = [(item, percentage_to_keep) for item in matched_meta_data_files]
+        args = [
+            (self.dataset_dir, item, percentage_to_keep)
+            for item in matched_meta_data_files
+        ]
 
         logging.info("Scanning folders for media files")
         path_dict = {}
@@ -412,9 +427,11 @@ class TALIMultiModalDataset(Dataset):
             max_workers=int(mp.cpu_count())
         ) as executor:
             with tqdm.tqdm(total=len(matched_meta_data_files), smoothing=0.0) as pbar:
-                for video_key, folder_list in executor.map(collect_files, args):
-                    if len(folder_list) > 0:
-                        path_dict[video_key] = folder_list
+                for dataset_dir, video_key, media_tuples in executor.map(
+                    collect_files, args
+                ):
+                    if len(media_tuples) > 0:
+                        path_dict[video_key] = media_tuples
 
                     pbar.update(1)
                     pbar.set_description(f"{len(path_dict)} subclips found")
