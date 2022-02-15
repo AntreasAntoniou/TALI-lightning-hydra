@@ -183,10 +183,9 @@ class CrossEntropyLossMetric(Metric):
         self.cross_entropy_cache.append(current_loss)
 
     def compute(self):
-        # compute final result
-        self.mean = torch.mean(torch.Tensor(self.cross_entropy_cache))
-        self.std = torch.std(torch.Tensor(self.cross_entropy_cache))
         if len(self.cross_entropy_cache) > 0:
+            self.mean = torch.mean(torch.Tensor(self.cross_entropy_cache))
+            self.std = torch.std(torch.Tensor(self.cross_entropy_cache))
             return self.cross_entropy_cache[-1]
         else:
             return torch.tensor(np.inf)
