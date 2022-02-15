@@ -117,9 +117,10 @@ class TALIMultiModalDataset(Dataset):
 
         self.index_to_video_path = []
 
-        for folder_key, folder_list in path_dict.items():
+        for folder_key in list(path_dict.keys()):
             folder_key = folder_key.replace(self.dataset_dir, "")
             prefix = f"{self.dataset_dir}/{folder_key}".replace("//", "/")
+            folder_list = path_dict[folder_key]
             for media_tuple in folder_list:
                 (
                     frame_list,
@@ -128,7 +129,9 @@ class TALIMultiModalDataset(Dataset):
                     meta_data_filepath,
                 ) = media_tuple
                 log.info(
-                    f"{prefix} {video_filepath} {frame_list[0]} {audio_filepath} {meta_data_filepath}"
+                    f"{prefix} {video_filepath} "
+                    f"{frame_list[0]} {audio_filepath} "
+                    f"{meta_data_filepath}"
                 )
                 frame_list = [frame.replace(prefix, "") for frame in frame_list]
                 video_filepath = video_filepath.replace(prefix, "")
@@ -143,6 +146,7 @@ class TALIMultiModalDataset(Dataset):
                         meta_data_filepath,
                     )
                 )
+            path_dict.pop(folder_key)
 
         self.num_samples = num_samples or len(self.index_to_video_path)
         logging.info(
