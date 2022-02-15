@@ -83,6 +83,11 @@ def train_eval(config: DictConfig) -> List[Dict[str, float]]:
 
     dummy_data_dict = iter(datamodule.train_dataloader()).__next__()
 
+    str_data_descr_dict = {
+        key: value.shape if isinstance(value, torch.Tensor) else value
+        for key, value in dummy_data_dict.items()
+    }
+    log.info(f"Data description: {str_data_descr_dict}")
     _ = model.forward(dummy_data_dict)
 
     callbacks: List[Callback] = []
