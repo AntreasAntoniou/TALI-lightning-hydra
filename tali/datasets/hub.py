@@ -1,3 +1,4 @@
+import functools
 import logging as log
 import multiprocessing as mp
 from typing import Any, Optional
@@ -13,6 +14,7 @@ from tali.datasets.tokenizers import HuggingFaceBPETokenizer
 from tali.datasets.utils.helpers import (
     SubSampleAudioFrames,
     SubSampleVideoFrames,
+    collate_fn_replace_corrupted,
 )
 
 
@@ -155,6 +157,10 @@ class TALIDataModule(BaseDataModule):
 
     def train_dataloader(self):
 
+        collate_fn = functools.partial(
+            collate_fn_replace_corrupted, dataset=self.train_set
+        )
+
         return DataLoader(
             dataset=self.train_set,
             batch_size=self.batch_size,
@@ -162,12 +168,16 @@ class TALIDataModule(BaseDataModule):
             num_workers=self.num_workers,
             pin_memory=self.pin_memory,
             prefetch_factor=self.prefetch_factor,
-            collate_fn=tali.datasets.utils.helpers.collate_resample_none,
+            collate_fn=collate_fn,
             persistent_workers=self.persistent_workers,
             drop_last=True,
         )
 
     def val_dataloader(self):
+
+        collate_fn = functools.partial(
+            collate_fn_replace_corrupted, dataset=self.train_set
+        )
 
         return DataLoader(
             dataset=self.val_set,
@@ -176,12 +186,16 @@ class TALIDataModule(BaseDataModule):
             num_workers=self.num_workers,
             pin_memory=self.pin_memory,
             prefetch_factor=self.prefetch_factor,
-            collate_fn=tali.datasets.utils.helpers.collate_resample_none,
+            collate_fn=collate_fn,
             persistent_workers=self.persistent_workers,
             drop_last=True,
         )
 
     def test_dataloader(self):
+
+        collate_fn = functools.partial(
+            collate_fn_replace_corrupted, dataset=self.train_set
+        )
 
         return DataLoader(
             dataset=self.test_set,
@@ -190,7 +204,7 @@ class TALIDataModule(BaseDataModule):
             num_workers=self.num_workers,
             pin_memory=self.pin_memory,
             prefetch_factor=self.prefetch_factor,
-            collate_fn=tali.datasets.utils.helpers.collate_resample_none,
+            collate_fn=collate_fn,
             persistent_workers=self.persistent_workers,
             drop_last=True,
         )
