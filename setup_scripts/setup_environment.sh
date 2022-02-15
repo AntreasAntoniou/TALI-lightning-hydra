@@ -22,8 +22,8 @@ conda install gh --channel conda-forge -y
 conda install google-cloud-sdk bat micro -y
 ########################################################################################
 echo "export CODE_DIR=$HOME/target_codebase" >> $HOME/.bashrc
-#echo "export MOUNT_DIR=/mnt/disk/tali/" >> $HOME/.bashrc
-echo "export MOUNT_DIR=/mnt/scratch_ssd/antreas" >> $HOME/.bashrc
+echo "export MOUNT_DIR=/mnt/disk/tali/" >> $HOME/.bashrc
+#echo "export MOUNT_DIR=/mnt/scratch_ssd/antreas" >> $HOME/.bashrc
 echo "export EXPERIMENTS_DIR=$MOUNT_DIR/experiments/" >> $HOME/.bashrc
 echo "export DATASET_DIR=$MOUNT_DIR/dataset/" >> $HOME/.bashrc
 echo "export TOKENIZERS_PARALLELISM=false" >> $HOME/.bashrc
