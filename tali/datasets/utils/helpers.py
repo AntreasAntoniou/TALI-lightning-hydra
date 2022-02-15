@@ -185,7 +185,7 @@ def collect_subclip_data(input_tuple):
         ):
             prefix = f"{dataset_dir}/{video_key}".replace("//", "/")
             data_tuple = (
-                {frame.replace("//", "/").replace(prefix, "") for frame in frame_list},
+                [frame.replace("//", "/").replace(prefix, "") for frame in frame_list],
                 path_to_string(filepath).replace("//", "/").replace(prefix, ""),
                 path_to_string(audio_data_filepath)
                 .replace("//", "/")
