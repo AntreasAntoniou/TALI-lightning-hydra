@@ -126,11 +126,11 @@ def save_json(filepath, metrics_dict, overwrite=True):
     # 't'       text mode (default)
     # '+'       open a disk file for updating (reading and writing)
     # 'U'       universal newline mode (deprecated)
-    log.info(f"{isinstance(metrics_dict, dict)} {len(metrics_dict)}")
-    folder_keys = list(metrics_dict.keys())[:5]
-
-    for folder_key in folder_keys:
-        log.info(f"{metrics_dict[folder_key]}")
+    # log.info(f"{isinstance(metrics_dict, dict)} {len(metrics_dict)}")
+    # folder_keys = list(metrics_dict.keys())[:5]
+    #
+    # for folder_key in folder_keys:
+    #     log.info(f"{metrics_dict[folder_key]}")
 
     with open(metrics_file_path, "wb") as json_file:
         json_file.write(json.dumps(metrics_dict))
