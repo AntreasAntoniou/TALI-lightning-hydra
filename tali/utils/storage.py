@@ -126,7 +126,7 @@ def save_json(filepath, metrics_dict, overwrite=True):
     # 't'       text mode (default)
     # '+'       open a disk file for updating (reading and writing)
     # 'U'       universal newline mode (deprecated)
-
+    log.info(f"{metrics_dict}")
     with open(metrics_file_path, "wb") as json_file:
         json_file.write(json.dumps(metrics_dict))
 
