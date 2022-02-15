@@ -95,6 +95,11 @@ class TALIMultiModalDataset(Dataset):
             self.config.rescan_paths is True
             and pathlib.Path(self.pre_scanned_dataset_json_filepath).exists()
         ):
+            # set the cache path to the experiment directory since
+            # the dataset is read only and would cause issues when saving
+            self.pre_scanned_dataset_json_filepath = (
+                self.pre_scanned_dataset_json_filepath_on_experiment_disk
+            )
             pathlib.Path(self.pre_scanned_dataset_json_filepath).unlink()
 
         if not pathlib.Path(self.pre_scanned_dataset_json_filepath).exists():
