@@ -117,36 +117,41 @@ class TALIMultiModalDataset(Dataset):
 
         self.index_to_video_path = []
 
-        for folder_key in list(path_dict.keys()):
-            folder_key = folder_key.replace(self.dataset_dir, "")
-            prefix = f"{self.dataset_dir}/{folder_key}".replace("//", "/")
-            folder_list = path_dict[folder_key]
-            for media_tuple in folder_list:
-                (
-                    frame_list,
-                    video_filepath,
-                    audio_filepath,
-                    meta_data_filepath,
-                ) = media_tuple
-                # log.info(
-                #     f"{prefix} {video_filepath} "
-                #     f"{frame_list[0]} {audio_filepath} "
-                #     f"{meta_data_filepath}"
-                # )
-                frame_list = [frame.replace(prefix, "") for frame in frame_list]
-                video_filepath = video_filepath.replace(prefix, "")
-                audio_filepath = audio_filepath.replace(prefix, "")
-                meta_data_filepath = meta_data_filepath.replace(prefix, "")
-                self.index_to_video_path.append(
+        with tqdm.tqdm(total=len(path_dict)) as pbar:
+            for folder_key in list(path_dict.keys()):
+                folder_key = folder_key.replace(self.dataset_dir, "")
+                prefix = f"{self.dataset_dir}/{folder_key}".replace("//", "/")
+                folder_list = path_dict[folder_key]
+                for media_tuple in folder_list:
                     (
-                        folder_key,
                         frame_list,
                         video_filepath,
                         audio_filepath,
                         meta_data_filepath,
+                    ) = media_tuple
+                    # log.info(
+                    #     f"{prefix} {video_filepath} "
+                    #     f"{frame_list[0]} {audio_filepath} "
+                    #     f"{meta_data_filepath}"
+                    # )
+                    frame_list = [frame.replace(prefix, "") for frame in frame_list]
+                    video_filepath = video_filepath.replace(prefix, "")
+                    audio_filepath = audio_filepath.replace(prefix, "")
+                    meta_data_filepath = meta_data_filepath.replace(prefix, "")
+                    output_string = f"{video_filepath} {frame_list[0]} {audio_filepath} {meta_data_filepath}"
+                    log.info(f"{output_string}")
+
+                    self.index_to_video_path.append(
+                        (
+                            folder_key,
+                            frame_list,
+                            video_filepath,
+                            audio_filepath,
+                            meta_data_filepath,
+                        )
                     )
-                )
-            path_dict.pop(folder_key)
+                path_dict.pop(folder_key)
+            pbar.update(1)
 
         self.num_samples = num_samples or len(self.index_to_video_path)
         logging.info(
