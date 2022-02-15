@@ -396,7 +396,7 @@ class TALIMultiModalDataset(Dataset):
             return None
 
         data_dict["filepath"] = video_filepath
-        log.info(f"{index}")
+
         return data_dict
 
     def __len__(self):
