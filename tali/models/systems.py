@@ -173,6 +173,9 @@ class CrossEntropyLossMetric(Metric):
     ) -> None:
         super().__init__(dist_sync_on_step=dist_sync_on_step)
         self.add_state("mean", default=torch.tensor(np.inf), dist_reduce_fx="mean")
+        self.add_state(
+            "current_loss", default=torch.tensor(np.inf), dist_reduce_fx="mean"
+        )
         self.add_state("std", default=torch.tensor(0), dist_reduce_fx="mean")
         self.add_state("cross_entropy_cache", default=[], dist_reduce_fx="cat")
         self.criterion = nn.CrossEntropyLoss()
@@ -180,6 +183,7 @@ class CrossEntropyLossMetric(Metric):
     def update(self, preds: torch.Tensor, target: torch.Tensor):
         # update metric states
         current_loss = self.criterion(input=preds, target=target)
+        self.current_loss = current_loss
         self.cross_entropy_cache.append(current_loss)
 
     def compute(self):
@@ -189,10 +193,7 @@ class CrossEntropyLossMetric(Metric):
         self.mean = torch.mean(torch.Tensor(self.cross_entropy_cache))
         self.std = torch.std(torch.Tensor(self.cross_entropy_cache))
 
-        if len(self.cross_entropy_cache) > 1:
-            return self.cross_entropy_cache[-1]
-        else:
-            return self.cross_entropy_cache[0]
+        return self.current_loss
 
 
 class ModusPrime(LightningModule):
