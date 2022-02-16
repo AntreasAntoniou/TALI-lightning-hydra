@@ -426,9 +426,9 @@ class ModusPrime(LightningModule):
 
         return loss
 
-    def training_epoch_end(self, outputs: List[Any]):
-        self.collect_metrics_epoch(phase_name="training")
-        self.reset_metric_caches(phase_name="training")
+    # def training_epoch_end(self, outputs: List[Any]):
+    #     self.collect_metrics_epoch(phase_name="training")
+    #     self.reset_metric_caches(phase_name="training")
 
     def validation_step(self, batch, batch_idx):
         # logging.debug(f'{[(key, value.shape) for key, value in batch.items()]}')
@@ -445,9 +445,9 @@ class ModusPrime(LightningModule):
             phase_name="validation",
         )
 
-    def validation_epoch_end(self, outputs: List[Any]):
-        self.collect_metrics_epoch(phase_name="validation")
-        self.reset_metric_caches(phase_name="validation")
+    # def validation_epoch_end(self, outputs: List[Any]):
+    #     self.collect_metrics_epoch(phase_name="validation")
+    #     self.reset_metric_caches(phase_name="validation")
 
     def test_step(self, batch, batch_idx):
 
@@ -463,9 +463,9 @@ class ModusPrime(LightningModule):
             phase_name="test",
         )
 
-    def testing_epoch_end(self, outputs: List[Any]):
-        self.collect_metrics_epoch(phase_name="test")
-        self.reset_metric_caches(phase_name="test")
+    # def testing_epoch_end(self, outputs: List[Any]):
+    #     self.collect_metrics_epoch(phase_name="test")
+    #     self.reset_metric_caches(phase_name="test")
 
     def configure_optimizers(self):
         optimizer = hydra.utils.instantiate(

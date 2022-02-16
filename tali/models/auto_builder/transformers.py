@@ -603,6 +603,33 @@ class AutoCLIPResNet(BaseLinearOutputModel):
         )
 
 
+class MeanLayer(nn.Module):
+    def __init__(
+        self,
+    ):
+        super().__init__()
+
+    def forward(self, x):
+        x = x.view(x.shape[0], -1, x.shape[-1])
+        x = x.mean(dim=1)
+        x = x.view(x.shape[0], -1)
+        return x
+
+
+class AutoDumbNet(BaseLinearOutputModel):
+    def __init__(self, embedding_output_features):
+        feature_embedding_modules = [MeanLayer]
+
+        feature_embeddings_args = [
+            dict(),
+        ]
+        super(AutoDumbNet, self).__init__(
+            embedding_output_features=embedding_output_features,
+            feature_embedding_module_list=feature_embedding_modules,
+            feature_embedding_args=feature_embeddings_args,
+        )
+
+
 class AutoCLIPTextTransformer(BaseLinearOutputModel):
     def __init__(self, config: AutoCLIPTextTransformerConfig):
         text_config = CLIPTextConfig(
