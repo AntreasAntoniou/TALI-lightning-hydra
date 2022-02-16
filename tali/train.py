@@ -4,6 +4,7 @@ from typing import Dict, List, Optional
 
 import hydra
 import torch.cuda
+import wandb
 from omegaconf import DictConfig
 from pytorch_lightning import (
     Callback,
@@ -14,6 +15,7 @@ from pytorch_lightning import (
 )
 from pytorch_lightning.loggers import LightningLoggerBase
 from pytorch_lightning.tuner.tuning import Tuner
+from wandb.util import generate_id
 
 from tali.base import utils
 
@@ -96,6 +98,9 @@ def train_eval(config: DictConfig) -> List[Dict[str, float]]:
             if "_target_" in cb_conf:
                 log.info(f"Instantiating callback <{cb_conf._target_}>")
                 callbacks.append(hydra.utils.instantiate(cb_conf))
+
+    os.environ["WANDB_RESUME"] = "allow"
+    os.environ["WANDB_RUN_ID"] = generate_id()
 
     # Init lightning loggers
     logger: List[LightningLoggerBase] = []
