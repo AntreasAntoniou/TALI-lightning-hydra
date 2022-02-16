@@ -231,16 +231,16 @@ class ModusPrime(LightningModule):
         self.batch_size = batch_size
         self.is_built = False
 
-        self.metrics_to_track = {
-            "cross_entropy": CrossEntropyLossMetric,
-            "accuracy": Accuracy,
-        }
-
-        self.per_modality_metrics_computed_dict = {
-            "training": nn.ModuleDict(),
-            "validation": nn.ModuleDict(),
-            "test": nn.ModuleDict(),
-        }
+        # self.metrics_to_track = {
+        #     "cross_entropy": CrossEntropyLossMetric,
+        #     "accuracy": Accuracy,
+        # }
+        #
+        # self.per_modality_metrics_computed_dict = {
+        #     "training": nn.ModuleDict(),
+        #     "validation": nn.ModuleDict(),
+        #     "test": nn.ModuleDict(),
+        # }
         self.criterion = nn.CrossEntropyLoss()
         self.optimizer_config = optimizer_config
         self.lr_scheduler_config = lr_scheduler_config
@@ -288,93 +288,93 @@ class ModusPrime(LightningModule):
         return embedding_feature_dict, cross_modal_cosine_similarities, targets
 
     def collect_metrics_step(self, logits, targets, phase_name):
-
-        for metric_key, metric_function in self.metrics_to_track.items():
-            for measurement_key, measurement_value, target_value in zip(
-                logits.keys(), logits.values(), targets
-            ):
-                # logging.debug(f"{measurement_value'].shape} {target_value.shape}")
-                cur_key = f"{metric_key}_{measurement_key}"
-
-                if cur_key not in self.per_modality_metrics_computed_dict[phase_name]:
-                    self.per_modality_metrics_computed_dict[phase_name][
-                        cur_key
-                    ] = metric_function(dist_sync_on_step=True)
-
-                value = self.per_modality_metrics_computed_dict[phase_name][cur_key](
-                    measurement_value.detach().cpu(),
-                    target_value.detach().cpu(),
-                )
-                if value is not None:
-                    self.log(
-                        name=f"{phase_name}/{cur_key}",
-                        value=value,
-                        prog_bar=False,
-                        logger=True,
-                        on_step=True,
-                        on_epoch=False,
-                        sync_dist=True,
-                    )
-
-            cur_key = f"overall_{metric_key}"
-
-            if cur_key not in self.per_modality_metrics_computed_dict[phase_name]:
-                self.per_modality_metrics_computed_dict[phase_name][
-                    cur_key
-                ] = metric_function(dist_sync_on_step=True)
-
-            value = self.per_modality_metrics_computed_dict[phase_name][cur_key](
-                torch.stack(list(logits.values())).detach().cpu(),
-                targets.detach().cpu(),
-            )
-            if value is not None:
-                self.log(
-                    name=f"{phase_name}/{cur_key}",
-                    value=value,
-                    prog_bar=False,
-                    logger=True,
-                    on_step=True,
-                    on_epoch=True,
-                    sync_dist=True,
-                )
+        pass
+        # for metric_key, metric_function in self.metrics_to_track.items():
+        #     for measurement_key, measurement_value, target_value in zip(
+        #         logits.keys(), logits.values(), targets
+        #     ):
+        #         # logging.debug(f"{measurement_value'].shape} {target_value.shape}")
+        #         cur_key = f"{metric_key}_{measurement_key}"
+        #
+        #         if cur_key not in self.per_modality_metrics_computed_dict[phase_name]:
+        #             self.per_modality_metrics_computed_dict[phase_name][
+        #                 cur_key
+        #             ] = metric_function(dist_sync_on_step=True)
+        #
+        #         value = self.per_modality_metrics_computed_dict[phase_name][cur_key](
+        #             measurement_value.detach().cpu(),
+        #             target_value.detach().cpu(),
+        #         )
+        #         if value is not None:
+        #             self.log(
+        #                 name=f"{phase_name}/{cur_key}",
+        #                 value=value,
+        #                 prog_bar=False,
+        #                 logger=True,
+        #                 on_step=True,
+        #                 on_epoch=False,
+        #                 sync_dist=True,
+        #             )
+        #
+        #     cur_key = f"overall_{metric_key}"
+        #
+        #     if cur_key not in self.per_modality_metrics_computed_dict[phase_name]:
+        #         self.per_modality_metrics_computed_dict[phase_name][
+        #             cur_key
+        #         ] = metric_function(dist_sync_on_step=True)
+        #
+        #     value = self.per_modality_metrics_computed_dict[phase_name][cur_key](
+        #         torch.stack(list(logits.values())).detach().cpu(),
+        #         targets.detach().cpu(),
+        #     )
+        #     if value is not None:
+        #         self.log(
+        #             name=f"{phase_name}/{cur_key}",
+        #             value=value,
+        #             prog_bar=False,
+        #             logger=True,
+        #             on_step=True,
+        #             on_epoch=True,
+        #             sync_dist=True,
+        #         )
 
     def collect_metrics_epoch(self, phase_name):
-
-        for key, value in self.per_modality_metrics_computed_dict[phase_name].items():
-
-            if isinstance(value, Accuracy) and value is not None:
-                self.log(
-                    name=f"{phase_name}/{key}/epoch",
-                    value=value.compute(),
-                    prog_bar=False,
-                    logger=True,
-                    on_step=False,
-                    on_epoch=True,
-                    sync_dist=True,
-                )
-
-            if isinstance(value, CrossEntropyLossMetric) and value is not None:
-                value.compute()
-
-                self.log(
-                    name=f"{phase_name}/{key}/epoch_mean",
-                    value=value.mean,
-                    prog_bar=False,
-                    logger=True,
-                    on_step=False,
-                    on_epoch=True,
-                    sync_dist=True,
-                )
-
-                self.log(
-                    name=f"{phase_name}/{key}/epoch_std",
-                    value=value.std,
-                    prog_bar=False,
-                    logger=True,
-                    on_step=False,
-                    on_epoch=True,
-                    sync_dist=True,
-                )
+        pass
+        # for key, value in self.per_modality_metrics_computed_dict[phase_name].items():
+        #
+        #     if isinstance(value, Accuracy) and value is not None:
+        #         self.log(
+        #             name=f"{phase_name}/{key}/epoch",
+        #             value=value.compute(),
+        #             prog_bar=False,
+        #             logger=True,
+        #             on_step=False,
+        #             on_epoch=True,
+        #             sync_dist=True,
+        #         )
+        #
+        #     if isinstance(value, CrossEntropyLossMetric) and value is not None:
+        #         value.compute()
+        #
+        #         self.log(
+        #             name=f"{phase_name}/{key}/epoch_mean",
+        #             value=value.mean,
+        #             prog_bar=False,
+        #             logger=True,
+        #             on_step=False,
+        #             on_epoch=True,
+        #             sync_dist=True,
+        #         )
+        #
+        #         self.log(
+        #             name=f"{phase_name}/{key}/epoch_std",
+        #             value=value.std,
+        #             prog_bar=False,
+        #             logger=True,
+        #             on_step=False,
+        #             on_epoch=True,
+        #             sync_dist=True,
+        #         )
 
     def step(self, batch, batch_idx):
 
