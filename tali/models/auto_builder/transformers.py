@@ -474,12 +474,10 @@ class AutoAverager(BaseLinearOutputModel):
 class AutoCLIPVisionTransformer(BaseLinearOutputModel):
     def __init__(self, config: AutoCLIPVisionTransformerConfig):
         feature_embedding_modules = [
-            # nn.InstanceNorm2d,
             CLIPVisionModel,
         ]
 
         feature_embeddings_args = [
-            # dict(num_features=3, affine=True, track_running_stats=True),
             dict(
                 config=CLIPVisionConfig(
                     hidden_size=config.transformer_num_filters,
@@ -515,7 +513,7 @@ class AttentionPool2dNonSquare(nn.Module):
     ):
         super().__init__()
         self.positional_embedding = nn.Parameter(
-            torch.randn(height * width + 1, embed_dim) / embed_dim ** 0.5
+            torch.randn(height * width + 1, embed_dim) / embed_dim**0.5
         )
         self.k_proj = nn.Linear(embed_dim, embed_dim)
         self.q_proj = nn.Linear(embed_dim, embed_dim)
