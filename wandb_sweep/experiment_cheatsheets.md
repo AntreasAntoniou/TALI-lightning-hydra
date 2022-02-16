@@ -45,7 +45,7 @@ Currently running on gpu-instance-3
 ```bash
 python run.py hydra.verbose=False \
 resume=True \
-batch_size=800 \
+batch_size=50 \
 datamodule.num_workers=24 \
 trainer.gpus=2 \
 model=milli_modus_prime_resnet50 \

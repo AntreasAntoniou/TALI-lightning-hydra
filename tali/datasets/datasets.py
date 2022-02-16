@@ -447,7 +447,7 @@ class TALIMultiModalDataset(Dataset):
         with concurrent.futures.ProcessPoolExecutor(
             max_workers=int(mp.cpu_count())
         ) as executor:
-            futures = [executor.submit(collect_files, i) for i in range(args)]
+            futures = [executor.submit(collect_files, i) for i in args]
             with tqdm.tqdm(total=len(matched_meta_data_files), smoothing=0.0) as pbar:
                 for dataset_dir, video_key, media_tuples in as_completed(futures):
                     if len(media_tuples) > 0:
