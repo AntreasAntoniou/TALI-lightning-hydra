@@ -461,16 +461,13 @@ class DummyMultiModalDataset(Dataset):
     def __init__(
         self,
         config: TALIDatasetConfig,
-        set_name: str,
-        transforms: Dict[str, Union[List[Callable], Callable]],
-        start_index: int = 0,
+        set_name: str = "dummy",
         num_samples: int = 100000,
+        **kwargs,
     ):
         super(DummyMultiModalDataset, self).__init__()
 
-        self.config = config
         self.set_name = set_name
-        self.transforms = transforms
 
         self.num_samples = num_samples or 1000
         self.cache = []
@@ -478,7 +475,9 @@ class DummyMultiModalDataset(Dataset):
     def __getitem__(self, index):
         actual_index = index % self.num_samples
         torch_rng = torch.Generator()
+
         torch_rng.manual_seed(actual_index)
+        print("Sample index: ", index)
 
         data_dict = DictWithDotNotation()
 
@@ -516,7 +515,7 @@ class DummyMultiModalDataset(Dataset):
             ).float()
 
         data_dict.filepath = f"{self.set_name}-{index}-{actual_index}"
-
+        print(data_dict)
         return data_dict
 
     def __len__(self):
