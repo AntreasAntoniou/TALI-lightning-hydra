@@ -4,6 +4,7 @@ import logging
 import multiprocessing as mp
 import os
 import pathlib
+import random
 import re
 import shelve
 from concurrent.futures import as_completed
@@ -468,16 +469,17 @@ class DummyMultiModalDataset(Dataset):
         super(DummyMultiModalDataset, self).__init__()
 
         self.set_name = set_name
-
+        self.config = config
         self.num_samples = num_samples or 1000
         self.cache = []
 
     def __getitem__(self, index):
         actual_index = index % self.num_samples
-        torch_rng = torch.Generator()
 
-        torch_rng.manual_seed(actual_index)
-        print("Sample index: ", index)
+        torch.set_num_threads(1)
+        random.seed(actual_index)
+        torch.manual_seed(actual_index)
+        torch_rng = torch.Generator()
 
         data_dict = DictWithDotNotation()
 
@@ -515,7 +517,6 @@ class DummyMultiModalDataset(Dataset):
             ).float()
 
         data_dict.filepath = f"{self.set_name}-{index}-{actual_index}"
-        print(data_dict)
         return data_dict
 
     def __len__(self):
