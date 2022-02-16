@@ -37,8 +37,8 @@ class GoogleStorageBucketRSyncClient(Callback):
     ) -> Dict[str, Any]:
         google_storage_rsync_local_to_gs(
             bucket_name=self.bucket_name,
-            experiments_root_dir=f"{self.experiments_root_dir}",
-            experiment_name=f"{self.experiment_name}",
+            experiments_root_dir=self.experiments_root_dir,
+            experiment_name=self.experiment_name,
             exclude_list=self.exclude_list,
             options_list=self.options_list,
         )
