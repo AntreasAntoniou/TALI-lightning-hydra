@@ -6,6 +6,7 @@ import os
 import pathlib
 import re
 import shelve
+from concurrent.futures import as_completed
 from contextlib import closing
 from typing import Callable, Dict, List, Union
 
@@ -445,10 +446,9 @@ class TALIMultiModalDataset(Dataset):
         with concurrent.futures.ProcessPoolExecutor(
             max_workers=int(mp.cpu_count())
         ) as executor:
+            futures = [executor.submit(collect_files, i) for i in range(args)]
             with tqdm.tqdm(total=len(matched_meta_data_files), smoothing=0.0) as pbar:
-                for dataset_dir, video_key, media_tuples in executor.map(
-                    collect_files, args
-                ):
+                for dataset_dir, video_key, media_tuples in as_completed(futures):
                     if len(media_tuples) > 0:
                         path_dict[video_key] = media_tuples
 
