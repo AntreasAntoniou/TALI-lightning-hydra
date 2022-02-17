@@ -2,7 +2,7 @@ job_logging:
   version: 1
   formatters:
     simple:
-      level: 'NOTSET'
+      level: 'INFO'
       format: "%(message)s"
       datefmt: "[%X]"
   handlers:
@@ -12,7 +12,7 @@ job_logging:
 
   root:
     handlers: [rich]
-    level: 'NOTSET'
+    level: 'INFO'
 
   disable_existing_loggers: false
 
@@ -28,12 +28,12 @@ hydra_logging:
       class: rich.logging.RichHandler
       formatter: simple
   root:
-    level: NOTSET
+    level: INFO
     handlers:
       - rich
   loggers:
     logging_example:
-      level: NOTSET
+      level: INFO
   disable_existing_loggers: false
 
 

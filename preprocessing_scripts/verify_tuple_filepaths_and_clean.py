@@ -11,6 +11,7 @@ import os
 import pathlib
 import pprint
 import random
+import shutil
 import sys
 from collections import defaultdict
 
@@ -32,9 +33,12 @@ def get_base_arguments():
 
 
 def delete_file_if_exists(path: pathlib.Path):
-    logging.error(f"Deleting {path}")
+    logging.debug(f"Deleting {path}")
     if path.exists():
-        path.unlink()
+        if path.is_dir():
+            shutil.rmtree(path)
+        if path.is_file():
+            path.unlink()
 
 
 def verify_pairs(path: pathlib.Path):

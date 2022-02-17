@@ -488,3 +488,140 @@ class ModusPrime(LightningModule):
             }
 
         return optimizer_dict
+
+
+class DumbusPrime(LightningModule):
+    def __init__(
+        self,
+        name: str,
+        image_embedding_config: Union[
+            AutoCLIPVisionTransformerConfig, AutoCLIPResNetConfig
+        ],
+        audio_embedding_config: Union[AutoConv1DTransformersConfig],
+        text_embedding_config: Union[AutoCLIPTextTransformerConfig],
+        video_embedding_config: Union[AutoAveragerConfig, AutoVideoTransformersConfig],
+        optimizer_config: None,
+        lr_scheduler_config: None,
+        sub_batch_size_dict: Optional[Dict[str, int]] = None,
+        batch_size: int = 2,
+        embedding_output_features: int = 512,
+        logit_scale: float = 1.0,
+    ):
+        super(DumbusPrime, self).__init__()
+        self.system = CrossModalMatchingNetwork(
+            embedding_output_features=embedding_output_features,
+            modality_embeddings=nn.ModuleDict(
+                dict(
+                    image=hydra.utils.instantiate(image_embedding_config),
+                    audio=hydra.utils.instantiate(audio_embedding_config),
+                    text=hydra.utils.instantiate(text_embedding_config),
+                    video=hydra.utils.instantiate(video_embedding_config),
+                )
+            ),
+            logit_scale=logit_scale,
+            sub_batch_size_dict=sub_batch_size_dict,
+        )
+        self.sub_batch_size_dict = sub_batch_size_dict
+        self.batch_size = batch_size
+        self.is_built = False
+
+        self.criterion = nn.CrossEntropyLoss()
+        self.optimizer_config = optimizer_config
+        self.lr_scheduler_config = lr_scheduler_config
+        self.save_hyperparameters(logger=False)
+
+    def build(self, batch):
+        _, _ = self.system.forward(batch=batch)
+
+        self.is_built = True
+        self.save_hyperparameters(logger=False)
+
+    def forward(self, batch):
+
+        if not self.system.is_built:
+            self.system.build(
+                batch_shape={
+                    key: value.shape if isinstance(value, torch.Tensor) else None
+                    for key, value in batch.items()
+                }
+            )
+
+        (
+            embedding_feature_dict,
+            cross_modal_cosine_similarities,
+        ) = self.system.forward(
+            batch,
+        )
+
+        targets = torch.stack(
+            [
+                contrastive_logits_labels(modality_similarities)[1]
+                for modality_similarities in cross_modal_cosine_similarities.values()
+            ],
+            dim=0,
+        )
+
+        return embedding_feature_dict, cross_modal_cosine_similarities, targets
+
+    def step(self, batch, batch_idx):
+
+        (
+            embedding_feature_dict,
+            cross_modal_cosine_similarities,
+        ) = self.system.forward(
+            batch,
+        )
+
+        embedding_feature_dict = self.all_gather(embedding_feature_dict)
+        cross_modal_cosine_similarities = self.all_gather(
+            cross_modal_cosine_similarities
+        )
+
+        targets = torch.stack(
+            [
+                contrastive_logits_labels(modality_similarities)[1]
+                for modality_similarities in cross_modal_cosine_similarities.values()
+            ],
+            dim=0,
+        )
+
+        return embedding_feature_dict, cross_modal_cosine_similarities, targets
+
+    def training_step(self, batch, batch_idx):
+        # logging.debug(f'{[(key, value.shape) for key, value in batch.items()]}')
+
+        (
+            embedding_feature_dict,
+            cross_modal_cosine_similarities,
+            targets,
+        ) = self.step(batch=batch, batch_idx=batch_idx)
+
+        logits = torch.stack(list(cross_modal_cosine_similarities.values()), dim=0)
+
+        loss = self.criterion(input=logits, target=targets)
+        if self.lr_scheduler_step_must_be_called_manually:
+            self.lr_scheduler.step(loss.detach().item(), self.global_step)
+
+        return loss
+
+    def configure_optimizers(self):
+        optimizer = hydra.utils.instantiate(
+            config=self.optimizer_config, params=self.parameters()
+        )
+
+        optimizer_dict = {"optimizer": optimizer}
+        lr_scheduler = hydra.utils.instantiate(
+            config=self.lr_scheduler_config, optimizer=optimizer
+        )
+
+        if isinstance(lr_scheduler, torch.optim.lr_scheduler.ReduceLROnPlateau):
+            self.lr_scheduler = lr_scheduler
+            self.lr_scheduler_step_must_be_called_manually = True
+        else:
+            self.lr_scheduler_step_must_be_called_manually = False
+            optimizer_dict["lr_scheduler"] = {
+                "scheduler": lr_scheduler,
+                "interval": "step",
+            }
+
+        return optimizer_dict
