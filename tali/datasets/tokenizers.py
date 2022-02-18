@@ -19,7 +19,9 @@ class HuggingFaceBPETokenizer(nn.Module):
         self.context_length = context_length
 
     def forward(self, x):
-        tokenized_words = self.tokenizer(x)["input_ids"]
+        tokenized_words = self.tokenizer.encode(x, max_length=self.context_length)[
+            "input_ids"
+        ]
 
         tokenized_tensor = torch.Tensor(tokenized_words)
         preshape = tokenized_tensor.shape
