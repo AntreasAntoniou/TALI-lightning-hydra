@@ -1,6 +1,7 @@
 _target_: tali.datasets.hub.TALIDataModule
 config:
   dataset_root: ${data_dir}
+  using_pre_sampled_split: True
   dataset_size_identifier: base
   dataset_name: ${datamodule.config.dataset_size_identifier}-tali
   modality_config:

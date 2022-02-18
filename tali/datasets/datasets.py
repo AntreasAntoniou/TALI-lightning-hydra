@@ -49,16 +49,19 @@ class TALIMultiModalDataset(Dataset):
         self.set_name = set_name
         self.num_youtube_video_dict = {"train": 141468, "val": 6369, "test": 6500}
         self.transforms = transforms
-        self.percentage_to_keep = (
-            {
-                "milli": 0.001,
-                "centi": 0.01,
-                "deci": 0.1,
-                "base": 1.0,
-            }[self.config.dataset_size_identifier]
-            if set_name == "train"
-            else 1.0
-        )
+        if config.using_pre_sampled_split:
+            self.percentage_to_keep = 1.0
+        else:
+            self.percentage_to_keep = (
+                {
+                    "milli": 0.001,
+                    "centi": 0.01,
+                    "deci": 0.1,
+                    "base": 1.0,
+                }[self.config.dataset_size_identifier]
+                if set_name == "train"
+                else 1.0
+            )
 
         self.dataset_dir = os.path.join(self.dataset_root, self.set_name)
         self.start_index = start_index
