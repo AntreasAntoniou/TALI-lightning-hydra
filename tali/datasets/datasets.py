@@ -154,7 +154,7 @@ class TALIMultiModalDataset(Dataset):
                         f"{video_filepath} {frame_list[0]}"
                         f" {audio_filepath} {meta_data_filepath}"
                     )
-                    log.debug(f"{output_string}")
+                    # log.debug(f"{output_string}")
 
                     self.efficient_path_dict[folder_key] = (
                         frame_list,
@@ -199,9 +199,9 @@ class TALIMultiModalDataset(Dataset):
             "//", "/"
         )
 
-        log.debug(
-            f"{video_filepath} {frame_list[0]} {audio_filepath} {meta_data_filepath}"
-        )
+        # log.debug(
+        #     f"{video_filepath} {frame_list[0]} {audio_filepath} {meta_data_filepath}"
+        # )
 
         audio_filepath = pathlib.Path(audio_filepath)
         video_segment_idx = int(

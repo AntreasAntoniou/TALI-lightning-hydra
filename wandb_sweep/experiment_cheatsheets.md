@@ -81,7 +81,7 @@ Currently running on gpu-instance-mega-1
 ```bash
 python run.py hydra.verbose=False \
 resume=True \
-batch_size=6400 \
+batch_size=3200 \
 datamodule.num_workers=96 \
 trainer.gpus=16 \
 model=milli_modus_prime_resnet50 \
