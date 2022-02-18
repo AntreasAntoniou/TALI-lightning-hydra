@@ -164,7 +164,6 @@ class CrossModalMatchingNetwork(LightningModule):
 
 
 class CrossEntropyLossMetric(Metric):
-    is_differentiable = True
     higher_is_better = False
 
     def __init__(
@@ -172,37 +171,21 @@ class CrossEntropyLossMetric(Metric):
         dist_sync_on_step: bool = False,
     ) -> None:
         super().__init__(dist_sync_on_step=dist_sync_on_step)
-        self.add_state("mean", default=torch.tensor(np.inf), dist_reduce_fx="mean")
-        self.add_state(
-            "current_loss", default=torch.tensor(np.inf), dist_reduce_fx="mean"
-        )
-        self.add_state("std", default=torch.tensor(0), dist_reduce_fx="mean")
-        self.add_state("cross_entropy_cache", default=[], dist_reduce_fx="cat")
+        self.add_state("preds", default=[], dist_reduce_fx="cat")
+        self.add_state("targets", default=[], dist_reduce_fx="cat")
+
         self.criterion = nn.CrossEntropyLoss()
 
     def update(self, preds: torch.Tensor, target: torch.Tensor):
         # update metric states
-        current_loss = self.criterion(input=preds, target=target)
-        self.current_loss = current_loss
-        self.cross_entropy_cache.append(current_loss)
+        self.preds.append(preds)
+        self.targets.append(target)
 
     def compute(self):
-        if len(self.cross_entropy_cache) <= 0:
-            return self.current_loss
-
-        log.debug(
-            f"CrossEntropyLossMetric: "
-            f"{self.cross_entropy_cache} "
-            f"mean: {torch.mean(torch.Tensor(self.cross_entropy_cache))}  "
-            f"std: {torch.std(torch.Tensor(self.cross_entropy_cache))}"
-        )
-        try:
-            self.mean = torch.mean(torch.Tensor(self.cross_entropy_cache))
-            self.std = torch.std(torch.Tensor(self.cross_entropy_cache))
-        except:
-            pass
-
-        return self.current_loss
+        # compute metric
+        loss = self.criterion(self.preds, self.targets)
+        log.debug(f"CrossEntropyLossMetric: {self.preds} {self.targets} {loss}")
+        return loss
 
 
 class ModusPrime(LightningModule):
@@ -262,7 +245,10 @@ class ModusPrime(LightningModule):
         self.save_hyperparameters(logger=False)
 
     def reset_metric_caches(self, phase_name):
-        self.per_modality_metrics_computed_dict[phase_name] = nn.ModuleDict()
+        for key in self.per_modality_metrics_computed_dict[phase_name].keys():
+            self.per_modality_metrics_computed_dict[phase_name][
+                key
+            ] = self.per_modality_metrics_computed_dict[phase_name][key].reset()
 
     def forward(self, batch):
 
@@ -359,18 +345,8 @@ class ModusPrime(LightningModule):
                 value.compute()
 
                 self.log(
-                    name=f"{phase_name}/{key}/epoch_mean",
-                    value=value.mean,
-                    prog_bar=False,
-                    logger=True,
-                    on_step=False,
-                    on_epoch=True,
-                    sync_dist=True,
-                )
-
-                self.log(
-                    name=f"{phase_name}/{key}/epoch_std",
-                    value=value.std,
+                    name=f"{phase_name}/{key}/epoch",
+                    value=value.compute(),
                     prog_bar=False,
                     logger=True,
                     on_step=False,
