@@ -345,7 +345,7 @@ class TALIMultiModalDataset(Dataset):
                     )
                 )
             )
-        # log.info(f"selected_frame_list_idx {selected_frame_list_idx}")
+
         frames_dict = DictWithDotNotation()
 
         frames_dict.video = None
@@ -365,6 +365,9 @@ class TALIMultiModalDataset(Dataset):
                 ],
             )
 
+            if frames_dict.video is None:
+                shutil.rmtree(video_filepath)
+
         if self.config.modality_config.audio:
             if not pathlib.Path(audio_filepath).exists():
                 return None
@@ -379,6 +382,9 @@ class TALIMultiModalDataset(Dataset):
             frames_dict.audio = torch.Tensor(frames_dict.audio)
             frames_dict.audio = frames_dict.audio.permute([1, 0])
 
+            if frames_dict.audio is None:
+                shutil.rmtree(video_filepath)
+
         if self.config.modality_config.image:
             frames_dict.image = load_frames(
                 image_height=self.config.image_shape.height,
@@ -389,8 +395,11 @@ class TALIMultiModalDataset(Dataset):
                     for frame in rng.choice(frame_list, (1,))
                 ],
             )
+            if frames_dict.image:
+                frames_dict.image = frames_dict.image[0]
 
-            frames_dict.image = frames_dict.image[0]
+            if frames_dict.image is None:
+                shutil.rmtree(video_filepath)
 
         return frames_dict
 
