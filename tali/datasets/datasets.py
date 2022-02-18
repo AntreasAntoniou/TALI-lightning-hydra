@@ -7,6 +7,8 @@ import pathlib
 import random
 import re
 import shelve
+import shutil
+from collections import defaultdict
 from concurrent.futures import as_completed
 from contextlib import closing
 from typing import Callable, Dict, List, Union
@@ -120,7 +122,7 @@ class TALIMultiModalDataset(Dataset):
         else:
             path_dict = load_json(self.pre_scanned_dataset_json_filepath)
 
-        self.index_to_video_path = []
+        self.efficient_path_dict = defaultdict(tuple)
         folder_keys = list(path_dict.keys())
         with tqdm.tqdm(total=len(path_dict)) as pbar:
             for folder_key in folder_keys:
@@ -134,170 +136,65 @@ class TALIMultiModalDataset(Dataset):
                         audio_filepath,
                         meta_data_filepath,
                     ) = media_tuple
-                    # log.info(
-                    #     f"{prefix} {video_filepath} "
-                    #     f"{frame_list[0]} {audio_filepath} "
-                    #     f"{meta_data_filepath}"
-                    # )
-                    frame_list = [frame.replace(prefix, "") for frame in frame_list]
+
                     video_filepath = video_filepath.replace(prefix, "")
                     audio_filepath = audio_filepath.replace(prefix, "")
                     meta_data_filepath = meta_data_filepath.replace(prefix, "")
+                    frame_list = [
+                        frame.replace(prefix, "").replace(video_filepath, "")
+                        for frame in frame_list
+                    ]
                     output_string = (
                         f"{video_filepath} {frame_list[0]}"
                         f" {audio_filepath} {meta_data_filepath}"
                     )
-                    # log.info(f"{output_string}")
+                    log.debug(f"{output_string}")
 
-                    self.index_to_video_path.append(
-                        (
-                            folder_key,
-                            frame_list,
-                            video_filepath,
-                            audio_filepath,
-                            meta_data_filepath,
-                        )
+                    self.efficient_path_dict[folder_key] = (
+                        frame_list,
+                        video_filepath,
+                        audio_filepath,
+                        meta_data_filepath,
                     )
+
                 path_dict.pop(folder_key)
                 pbar.update(1)
 
-        self.num_samples = num_samples or len(self.index_to_video_path)
+        self.video_keys = list(self.efficient_path_dict.keys())
+
+        self.num_samples = num_samples or np.sum(
+            [len(value[0]) for value in self.efficient_path_dict.values()]
+        )
         logging.info(
             f"👍 Loaded {self.set_name} set with: \n"
             f"📊 num video subclips (10 seconds each at 8 FPS): "
-            f"{len(self.index_to_video_path)} "
+            f"{len(self.video_keys)} "
             f"with sampler length of {self.num_samples} \n"
             f"sampled from num video clips: {len(folder_keys)}"
         )
-
-    def get_frames(
-        self,
-        path_prefix,
-        frame_list,
-        audio_filepath,
-        rng,
-    ):
-
-        num_frames_to_sample_for_video = self.config.num_video_frames_per_datapoint
-        # log.info(f"{len(frame_list)}, {num_frames_to_sample_for_video}")
-        if len(frame_list) < num_frames_to_sample_for_video:
-            selected_frame_list_idx = sorted(
-                list(
-                    rng.choice(
-                        len(frame_list),
-                        size=(num_frames_to_sample_for_video,),
-                        replace=True,
-                    )
-                )
-            )
-        else:
-            selected_frame_list_idx = sorted(
-                list(
-                    rng.choice(
-                        len(frame_list),
-                        size=(num_frames_to_sample_for_video,),
-                        replace=False,
-                    )
-                )
-            )
-        # log.info(f"selected_frame_list_idx {selected_frame_list_idx}")
-        frames_dict = DictWithDotNotation()
-
-        frames_dict.video = None
-        frames_dict.audio = None
-        frames_dict.image = None
-
-        if self.config.modality_config.video:
-            frames_dict.video = load_frames(
-                image_height=self.config.image_shape.height,
-                image_width=self.config.image_shape.width,
-                image_channels=self.config.image_shape.channels,
-                selected_frame_list=[
-                    f"{path_prefix}/{frame_list[idx]}".replace("//", "/")
-                    for idx in selected_frame_list_idx
-                ],
-            )
-
-        if self.config.modality_config.audio:
-            if not pathlib.Path(audio_filepath).exists():
-                return None
-
-            frames_dict.audio = list(
-                np.load(
-                    audio_filepath,
-                    allow_pickle=True,
-                ).values()
-            )[0]
-
-            frames_dict.audio = torch.Tensor(frames_dict.audio)
-            frames_dict.audio = frames_dict.audio.permute([1, 0])
-
-        if self.config.modality_config.image:
-            frames_dict.image = load_frames(
-                image_height=self.config.image_shape.height,
-                image_width=self.config.image_shape.width,
-                image_channels=self.config.image_shape.channels,
-                selected_frame_list=[
-                    f"{path_prefix}/{frame}".replace("//", "/")
-                    for frame in rng.choice(frame_list, (1,))
-                ],
-            )
-
-            frames_dict.image = frames_dict.image[0]
-
-        return frames_dict
-
-    def get_text_data_tensors(
-        self,
-        rng,
-        meta_data_filepath,
-        start_time_relative_to_full_video,
-        duration_in_seconds,
-    ):
-        text = get_text_tokens(
-            meta_data_filepath=meta_data_filepath,
-            start_timestamp=start_time_relative_to_full_video,
-            end_timestamp=start_time_relative_to_full_video + duration_in_seconds,
-        )
-
-        if not text:
-            text = "No detected speech"
-        else:
-            text = [
-                value.split(" ") if isinstance(value, str) else value
-                for key, value in text.items()
-            ]
-            text = list(itertools.chain.from_iterable(text))
-            text = [token.replace(" ", "") for token in text]
-            text = " ".join(text) if len(text) > 1 else text
-
-        return text
 
     @prevent_error_kill
     @timeout(60)
     def __getitem__(self, index):
         index = self.start_index + index
-        actual_index = index % len(self.index_to_video_path)
+        actual_index = index % len(self.video_keys)
         rng = np.random.RandomState(index)
         torch_rng = torch.Generator()
         torch_rng.manual_seed(index)
 
+        folder_key = self.video_keys[actual_index]
+
         (
-            folder_key,
             frame_list,
             video_filepath,
             audio_filepath,
             meta_data_filepath,
-        ) = self.index_to_video_path[actual_index]
+        ) = self.efficient_path_dict[folder_key]
 
         path_prefix = f"{self.dataset_dir}/{folder_key}".replace("//", "/")
         video_filepath = f"{path_prefix}/{video_filepath}".replace("//", "/")
         audio_filepath = f"{path_prefix}/{audio_filepath}".replace("//", "/")
         meta_data_filepath = f"{path_prefix}/{meta_data_filepath}".replace("//", "/")
-
-        # log.info(
-        #     f"{self.dataset_dir} {video_filepath} {audio_filepath} {meta_data_filepath} {frame_list}"
-        # )
 
         audio_filepath = pathlib.Path(audio_filepath)
         video_segment_idx = int(
@@ -337,9 +234,10 @@ class TALIMultiModalDataset(Dataset):
                 data_dict.text = data_dict.text.type(torch.int32)
 
         frames_dict = self.get_frames(
-            path_prefix=path_prefix,
+            video_filepath=video_filepath,
             frame_list=frame_list,
             audio_filepath=audio_filepath,
+            meta_data_filepath=meta_data_filepath,
             rng=rng,
         )
 
@@ -374,29 +272,29 @@ class TALIMultiModalDataset(Dataset):
 
         if self.config.modality_config.image and "image" not in data_dict:
             video_path = pathlib.Path(video_filepath)
-            audio_path = video_path.with_suffix(".aac")
-            video_path.unlink()
+            audio_path = video_path.with_suffix(".npz")
+            shutil.rmtree(video_path)
             audio_path.unlink()
             return None
 
         if self.config.modality_config.video and "video" not in data_dict:
             video_path = pathlib.Path(video_filepath)
-            audio_path = video_path.with_suffix(".aac")
-            video_path.unlink()
+            audio_path = video_path.with_suffix(".npz")
+            shutil.rmtree(video_path)
             audio_path.unlink()
             return None
 
         if self.config.modality_config.audio and "audio" not in data_dict:
             video_path = pathlib.Path(video_filepath)
-            audio_path = video_path.with_suffix(".aac")
-            video_path.unlink()
+            audio_path = video_path.with_suffix(".npz")
+            shutil.rmtree(video_path)
             audio_path.unlink()
             return None
 
         if self.config.modality_config.text and "text" not in data_dict:
             video_path = pathlib.Path(video_filepath)
-            audio_path = video_path.with_suffix(".aac")
-            video_path.unlink()
+            audio_path = video_path.with_suffix(".npz")
+            shutil.rmtree(video_path)
             audio_path.unlink()
             return None
 
@@ -408,6 +306,110 @@ class TALIMultiModalDataset(Dataset):
         # use 25000 to keep training very long to ensure even val
         # intervals no matter what the size of the dataset
         return self.num_samples
+
+    def get_frames(
+        self,
+        frame_list,
+        video_filepath,
+        audio_filepath,
+        meta_data_filepath,
+        rng,
+    ):
+
+        num_frames_to_sample_for_video = self.config.num_video_frames_per_datapoint
+        # log.info(f"{len(frame_list)}, {num_frames_to_sample_for_video}")
+        if len(frame_list) < num_frames_to_sample_for_video:
+            selected_frame_list_idx = sorted(
+                list(
+                    rng.choice(
+                        len(frame_list),
+                        size=(num_frames_to_sample_for_video,),
+                        replace=True,
+                    )
+                )
+            )
+        else:
+            selected_frame_list_idx = sorted(
+                list(
+                    rng.choice(
+                        len(frame_list),
+                        size=(num_frames_to_sample_for_video,),
+                        replace=False,
+                    )
+                )
+            )
+        # log.info(f"selected_frame_list_idx {selected_frame_list_idx}")
+        frames_dict = DictWithDotNotation()
+
+        frames_dict.video = None
+        frames_dict.audio = None
+        frames_dict.image = None
+
+        if self.config.modality_config.video:
+            frames_dict.video = load_frames(
+                image_height=self.config.image_shape.height,
+                image_width=self.config.image_shape.width,
+                image_channels=self.config.image_shape.channels,
+                selected_frame_list=[
+                    f"{video_filepath}/{frame_list[idx]}".replace("//", "/")
+                    for idx in selected_frame_list_idx
+                ],
+            )
+
+        if self.config.modality_config.audio:
+            if not pathlib.Path(audio_filepath).exists():
+                return None
+
+            frames_dict.audio = list(
+                np.load(
+                    audio_filepath,
+                    allow_pickle=True,
+                ).values()
+            )[0]
+
+            frames_dict.audio = torch.Tensor(frames_dict.audio)
+            frames_dict.audio = frames_dict.audio.permute([1, 0])
+
+        if self.config.modality_config.image:
+            frames_dict.image = load_frames(
+                image_height=self.config.image_shape.height,
+                image_width=self.config.image_shape.width,
+                image_channels=self.config.image_shape.channels,
+                selected_frame_list=[
+                    f"{video_filepath}/{frame}".replace("//", "/")
+                    for frame in rng.choice(frame_list, (1,))
+                ],
+            )
+
+            frames_dict.image = frames_dict.image[0]
+
+        return frames_dict
+
+    def get_text_data_tensors(
+        self,
+        rng,
+        meta_data_filepath,
+        start_time_relative_to_full_video,
+        duration_in_seconds,
+    ):
+        text = get_text_tokens(
+            meta_data_filepath=meta_data_filepath,
+            start_timestamp=start_time_relative_to_full_video,
+            end_timestamp=start_time_relative_to_full_video + duration_in_seconds,
+        )
+
+        if not text:
+            text = "No detected speech"
+        else:
+            text = [
+                value.split(" ") if isinstance(value, str) else value
+                for key, value in text.items()
+            ]
+            text = list(itertools.chain.from_iterable(text))
+            text = [token.replace(" ", "") for token in text]
+            text = " ".join(text) if len(text) > 1 else text
+
+        return text
 
     # 25 * 10 ** 6 if self.set_name == "train" else
     def apply_transforms_if_available(self, modality_name, data):
