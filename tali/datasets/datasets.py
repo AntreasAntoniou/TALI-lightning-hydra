@@ -395,7 +395,7 @@ class TALIMultiModalDataset(Dataset):
                     for frame in rng.choice(frame_list, (1,))
                 ],
             )
-            if frames_dict.image:
+            if frames_dict.image is not None:
                 frames_dict.image = frames_dict.image[0]
 
             if frames_dict.image is None:
