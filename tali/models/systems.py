@@ -183,7 +183,11 @@ class CrossEntropyLossMetric(Metric):
 
     def compute(self):
         # compute metric
-        loss = self.criterion(self.preds, self.targets)
+        log.debug(f"preds: {self.preds}")
+        temp_preds = torch.cat(self.preds, dim=0)
+        temp_targets = torch.cat(self.targets, dim=0)
+        log.debug(f"temp_preds: {temp_preds.shape} temp_targets: {temp_targets.shape}")
+        loss = self.criterion(temp_preds, temp_targets)
         log.debug(f"CrossEntropyLossMetric: {self.preds} {self.targets} {loss}")
         return loss
 
