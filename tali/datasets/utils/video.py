@@ -30,7 +30,7 @@ def load_frames(
             image = torch.Tensor(image).permute([2, 0, 1])
             image_tensor[idx] = image
         except Exception as e:
-            log.warning(
+            log.debug(
                 f"Could not load image {frame_filepath} with error {e}. Skipping."
             )
             return None

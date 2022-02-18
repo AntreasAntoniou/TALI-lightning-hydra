@@ -51,6 +51,9 @@ class TALIMultiModalDataset(Dataset):
         self.set_name = set_name
         self.num_youtube_video_dict = {"train": 141468, "val": 6369, "test": 6500}
         self.transforms = transforms
+        self.postfix = "full_video_360p"
+        self.meta_data_filename = "meta_data.json"
+        self.caption_data_filename = "start_timestamp_to_caption_dict_fast.json"
         if config.using_pre_sampled_split:
             self.percentage_to_keep = 1.0
         else:
@@ -141,7 +144,10 @@ class TALIMultiModalDataset(Dataset):
                     audio_filepath = audio_filepath.replace(prefix, "")
                     meta_data_filepath = meta_data_filepath.replace(prefix, "")
                     frame_list = [
-                        frame.replace(prefix, "").replace(video_filepath, "")
+                        frame.replace(prefix, "")
+                        .replace(video_filepath, "")
+                        .replace(self.postfix, "")
+                        .replace("/", "")
                         for frame in frame_list
                     ]
                     output_string = (
@@ -152,9 +158,7 @@ class TALIMultiModalDataset(Dataset):
 
                     self.efficient_path_dict[folder_key] = (
                         frame_list,
-                        video_filepath,
-                        audio_filepath,
-                        meta_data_filepath,
+                        video_filepath.replace(self.postfix, "").replace("/", ""),
                     )
 
                 path_dict.pop(folder_key)
@@ -184,17 +188,20 @@ class TALIMultiModalDataset(Dataset):
 
         folder_key = self.video_keys[actual_index]
 
-        (
-            frame_list,
-            video_filepath,
-            audio_filepath,
-            meta_data_filepath,
-        ) = self.efficient_path_dict[folder_key]
+        (frame_list, video_filepath) = self.efficient_path_dict[folder_key]
 
         path_prefix = f"{self.dataset_dir}/{folder_key}".replace("//", "/")
-        video_filepath = f"{path_prefix}/{video_filepath}".replace("//", "/")
-        audio_filepath = f"{path_prefix}/{audio_filepath}".replace("//", "/")
-        meta_data_filepath = f"{path_prefix}/{meta_data_filepath}".replace("//", "/")
+        video_filepath = f"{path_prefix}/{self.postfix}{video_filepath}".replace(
+            "//", "/"
+        )
+        audio_filepath = f"{video_filepath}".replace(".frames", ".npz")
+        meta_data_filepath = f"{path_prefix}/{self.meta_data_filename}".replace(
+            "//", "/"
+        )
+
+        log.debug(
+            f"{video_filepath} {frame_list[0]} {audio_filepath} {meta_data_filepath}"
+        )
 
         audio_filepath = pathlib.Path(audio_filepath)
         video_segment_idx = int(
@@ -351,7 +358,9 @@ class TALIMultiModalDataset(Dataset):
                 image_width=self.config.image_shape.width,
                 image_channels=self.config.image_shape.channels,
                 selected_frame_list=[
-                    f"{video_filepath}/{frame_list[idx]}".replace("//", "/")
+                    f"{video_filepath}/{self.postfix}{frame_list[idx]}".replace(
+                        "//", "/"
+                    )
                     for idx in selected_frame_list_idx
                 ],
             )
@@ -376,7 +385,7 @@ class TALIMultiModalDataset(Dataset):
                 image_width=self.config.image_shape.width,
                 image_channels=self.config.image_shape.channels,
                 selected_frame_list=[
-                    f"{video_filepath}/{frame}".replace("//", "/")
+                    f"{video_filepath}/{self.postfix}{frame}".replace("//", "/")
                     for frame in rng.choice(frame_list, (1,))
                 ],
             )
