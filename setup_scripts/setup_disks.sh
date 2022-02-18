@@ -1,3 +1,4 @@
+export HOME="/root/"
 export MOUNT_DIR="/mnt/disk/tali"
 #export MOUNT_DIR="/mnt/disk/scratch_ssd/antreas/"
 
@@ -20,7 +21,7 @@ fi
 mount -o ro,noload /dev/sdb $MOUNT_DIR
 
 
-rm -rf $EXPERIMENTS_DIR
+#rm -rf $EXPERIMENTS_DIR
 
 if [ ! -d "$EXPERIMENTS_DIR" ]; then
   mkdir -p $EXPERIMENTS_DIR
