@@ -20,9 +20,9 @@ class HuggingFaceBPETokenizer(nn.Module):
         self.context_length = context_length
 
     def forward(self, x):
-        with warnings.catch_warnings():
-            warnings.simplefilter("ignore")
-            tokenized_words = self.tokenizer(x)
+        tokenized_words = self.tokenizer(
+            x, max_length=self.context_length, truncation=True
+        )["input_ids"]
 
         tokenized_tensor = torch.Tensor(tokenized_words)
         preshape = tokenized_tensor.shape
