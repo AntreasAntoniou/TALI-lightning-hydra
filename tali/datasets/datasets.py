@@ -125,7 +125,7 @@ class TALIMultiModalDataset(Dataset):
         else:
             path_dict = load_json(self.pre_scanned_dataset_json_filepath)
 
-        self.efficient_path_dict = defaultdict(tuple)
+        self.efficient_path_dict = defaultdict(list)
         folder_keys = list(path_dict.keys())
         with tqdm.tqdm(total=len(path_dict)) as pbar:
             for folder_key in folder_keys:
@@ -156,9 +156,11 @@ class TALIMultiModalDataset(Dataset):
                     )
                     # log.debug(f"{output_string}")
 
-                    self.efficient_path_dict[folder_key] = (
-                        frame_list,
-                        video_filepath.replace(self.postfix, "").replace("/", ""),
+                    self.efficient_path_dict[folder_key].append(
+                        (
+                            frame_list,
+                            video_filepath.replace(self.postfix, "").replace("/", ""),
+                        )
                     )
 
                 path_dict.pop(folder_key)
@@ -167,7 +169,7 @@ class TALIMultiModalDataset(Dataset):
         self.video_keys = list(self.efficient_path_dict.keys())
 
         self.num_samples = num_samples or np.sum(
-            [len(value[0]) for value in self.efficient_path_dict.values()]
+            [len(value) for value in self.efficient_path_dict.values()]
         )
         logging.info(
             f"👍 Loaded {self.set_name} set with: \n"
@@ -188,7 +190,13 @@ class TALIMultiModalDataset(Dataset):
 
         folder_key = self.video_keys[actual_index]
 
-        (frame_list, video_filepath) = self.efficient_path_dict[folder_key]
+        video_folder_tuples = self.efficient_path_dict[folder_key]
+
+        video_filepath_idx = rng.choice(len(video_folder_tuples))
+
+        video_filepath = video_folder_tuples[video_filepath_idx]
+
+        (frame_list, video_filepath) = video_filepath
 
         path_prefix = f"{self.dataset_dir}/{folder_key}".replace("//", "/")
         video_filepath = f"{path_prefix}/{self.postfix}{video_filepath}".replace(
