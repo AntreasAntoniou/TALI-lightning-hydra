@@ -4,6 +4,7 @@ from typing import Any, Dict, List, Optional, Union
 import hydra.utils
 import numpy as np
 import torch
+import yaml
 from pytorch_lightning import LightningModule
 from torch import nn
 from torchmetrics import Metric
@@ -163,7 +164,7 @@ class CrossModalMatchingNetwork(LightningModule):
         )
 
 
-class CrossEntropyLossMetric(Metric):
+class CrossEntropyLoss(Metric):
     higher_is_better = False
 
     def __init__(
@@ -202,6 +203,7 @@ class ModusPrime(LightningModule):
         lr_scheduler_config: None,
         sub_batch_size_dict: Optional[Dict[str, int]] = None,
         batch_size: int = 2,
+        num_train_samples: int = None,
         embedding_output_features: int = 512,
         logit_scale: float = 1.0,
     ):
@@ -221,10 +223,11 @@ class ModusPrime(LightningModule):
         )
         self.sub_batch_size_dict = sub_batch_size_dict
         self.batch_size = batch_size
+        self.num_train_samples = num_train_samples
         self.is_built = False
 
         self.metrics_to_track = {
-            "cross_entropy": CrossEntropyLossMetric,
+            "cross_entropy": CrossEntropyLoss,
             "accuracy": Accuracy,
         }
 
@@ -246,9 +249,7 @@ class ModusPrime(LightningModule):
 
     def reset_metric_caches(self, phase_name):
         for key in self.per_modality_metrics_computed_dict[phase_name].keys():
-            self.per_modality_metrics_computed_dict[phase_name][
-                key
-            ] = self.per_modality_metrics_computed_dict[phase_name][key].reset()
+            self.per_modality_metrics_computed_dict[phase_name][key].reset()
 
     def forward(self, batch):
 
@@ -290,6 +291,19 @@ class ModusPrime(LightningModule):
                         cur_key
                     ] = metric_function(dist_sync_on_step=True)
 
+                # # print all values in a dictionary
+                # dict_string = [
+                #     (key, value)
+                #     for key, value in self.per_modality_metrics_computed_dict[
+                #         phase_name
+                #     ].items()
+                # ]
+                #
+                # log.info(
+                #     f"{[(key, value) for key, value in self.metrics_to_track.items()]} "
+                #     f"{list(self.per_modality_metrics_computed_dict.keys())}"
+                #     f" {dict_string}"
+                # )
                 value = self.per_modality_metrics_computed_dict[phase_name][cur_key](
                     measurement_value.detach().cpu(),
                     target_value.detach().cpu(),
@@ -341,9 +355,7 @@ class ModusPrime(LightningModule):
                     sync_dist=True,
                 )
 
-            if isinstance(value, CrossEntropyLossMetric) and value is not None:
-                value.compute()
-
+            if isinstance(value, CrossEntropyLoss) and value is not None:
                 self.log(
                     name=f"{phase_name}/{key}/epoch",
                     value=value.compute(),
@@ -390,21 +402,23 @@ class ModusPrime(LightningModule):
             targets,
         ) = self.step(batch=batch, batch_idx=batch_idx)
 
-        logits = torch.stack(list(cross_modal_cosine_similarities.values()), dim=0)
-
         self.collect_metrics_step(
             logits=cross_modal_cosine_similarities,
             targets=targets,
             phase_name="training",
         )
 
+        logits = torch.stack(list(cross_modal_cosine_similarities.values()), dim=0)
+
         loss = self.criterion(input=logits, target=targets)
+
         if self.lr_scheduler_step_must_be_called_manually:
             self.lr_scheduler.step(loss.detach().item(), self.global_step)
 
         return loss
 
     def training_epoch_end(self, outputs: List[Any]):
+        log.info(f"\nTraining epoch {self.current_epoch} ended.\n")
         self.collect_metrics_epoch(phase_name="training")
         self.reset_metric_caches(phase_name="training")
 
@@ -424,6 +438,7 @@ class ModusPrime(LightningModule):
         )
 
     def validation_epoch_end(self, outputs: List[Any]):
+        log.info(f"\nValidation epoch {self.current_epoch} ended.\n")
         self.collect_metrics_epoch(phase_name="validation")
         self.reset_metric_caches(phase_name="validation")
 
@@ -442,6 +457,7 @@ class ModusPrime(LightningModule):
         )
 
     def testing_epoch_end(self, outputs: List[Any]):
+        log.info(f"\nTest epoch {self.current_epoch} ended.\n")
         self.collect_metrics_epoch(phase_name="test")
         self.reset_metric_caches(phase_name="test")
 
@@ -451,6 +467,17 @@ class ModusPrime(LightningModule):
         )
 
         optimizer_dict = {"optimizer": optimizer}
+
+        if self.lr_scheduler_config._target_.split(".")[-1] == "CosineAnnealingLR":
+            self.lr_scheduler_config["T_max"] = self.num_train_samples / self.batch_size
+        elif (
+            self.lr_scheduler_config._target_.split(".")[-1]
+            == "CosineAnnealingWarmRestarts"
+        ):
+            self.lr_scheduler_config["T_0"] = (
+                self.num_train_samples / self.batch_size // 2
+            )
+
         lr_scheduler = hydra.utils.instantiate(
             config=self.lr_scheduler_config, optimizer=optimizer
         )

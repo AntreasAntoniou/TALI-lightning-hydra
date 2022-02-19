@@ -70,7 +70,7 @@ class WatchModel(Callback):
 class UploadCodeAsArtifact(Callback):
     """Upload all code files to wandb as an artifact, at the beginning of the run."""
 
-    def __init__(self, code_dir: str, use_git: bool = True):
+    def __init__(self, code_dir: str):
         """
 
         Args:
@@ -79,7 +79,6 @@ class UploadCodeAsArtifact(Callback):
             if not using git, then upload all '*.py' file
         """
         self.code_dir = code_dir
-        self.use_git = use_git
 
     @rank_zero_only
     def on_train_start(self, trainer, pl_module):
@@ -88,30 +87,8 @@ class UploadCodeAsArtifact(Callback):
 
         code = wandb.Artifact("project-source", type="code")
 
-        if self.use_git:
-            # get .git folder path
-            git_dir_path = Path(
-                subprocess.check_output(["git", "rev-parse", "--git-dir"])
-                .strip()
-                .decode("utf8")
-            ).resolve()
-
-            for path in Path(self.code_dir).resolve().rglob("*"):
-
-                # don't upload files ignored by git
-                # https://alexwlchan.net/2020/11/a-python-function-to-ignore-a-path-with-git-info-exclude/
-                command = ["git", "check-ignore", "-q", str(path)]
-                not_ignored = subprocess.run(command).returncode == 1
-
-                # don't upload files from .git folder
-                not_git = not str(path).startswith(str(git_dir_path))
-
-                if path.is_file() and not_git and not_ignored:
-                    code.add_file(str(path), name=str(path.relative_to(self.code_dir)))
-
-        else:
-            for path in Path(self.code_dir).resolve().rglob("*.py"):
-                code.add_file(str(path), name=str(path.relative_to(self.code_dir)))
+        for path in Path(self.code_dir).resolve().rglob("*.py"):
+            code.add_file(str(path), name=str(path.relative_to(self.code_dir)))
 
         experiment.log_artifact(code)
 

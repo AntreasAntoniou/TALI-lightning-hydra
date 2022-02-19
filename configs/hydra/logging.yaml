@@ -2,7 +2,7 @@ job_logging:
   version: 1
   formatters:
     simple:
-      level: 'INFO'
+      level: ${logging_level}
       format: "%(message)s"
       datefmt: "[%X]"
   handlers:
@@ -12,7 +12,7 @@ job_logging:
 
   root:
     handlers: [rich]
-    level: 'INFO'
+    level: ${logging_level}
 
   disable_existing_loggers: false
 
@@ -20,7 +20,7 @@ hydra_logging:
   version: 1
   formatters:
     simple:
-      level: 'INFO'
+      level: ${logging_level}
       format: '[HYDRA] %(message)s'
       datefmt: "[%X]"
   handlers:
@@ -28,12 +28,12 @@ hydra_logging:
       class: rich.logging.RichHandler
       formatter: simple
   root:
-    level: INFO
+    level: ${logging_level}
     handlers:
       - rich
   loggers:
     logging_example:
-      level: INFO
+      level: ${logging_level}
   disable_existing_loggers: false
 
 

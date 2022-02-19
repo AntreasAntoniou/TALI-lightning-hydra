@@ -1,3 +1,5 @@
+import os
+
 import dotenv
 import hydra
 from omegaconf import DictConfig
@@ -26,7 +28,7 @@ def main(config: DictConfig):
     # - verifying experiment name is set when running in experiment mode
     # You can safely get rid of this line if you don't want those
     utils.extras(config)
-
+    os.environ["WANDB_PROGRAM"] = config.code_dir
     # Pretty print config using Rich library
     if config.get("print_config"):
         utils.print_config(config, resolve=True)
