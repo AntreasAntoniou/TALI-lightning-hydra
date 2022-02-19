@@ -178,7 +178,7 @@ class TALIMultiModalDataset(Dataset):
             f"👍 Loaded {self.set_name} set with: \n"
             f"📊 num video videos: "
             f"{len(self.video_keys)} and "
-            f"num subclips (10 seconds each at 8 FPS): {count_sub_clips}"
+            f"num subclips (10 seconds each at 8 FPS): {count_sub_clips} "
             f"with sampler length of {self.num_samples} \n"
             f"sampled from num video clips: {len(folder_keys)}"
         )
