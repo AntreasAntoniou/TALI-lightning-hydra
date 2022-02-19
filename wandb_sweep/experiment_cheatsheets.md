@@ -80,9 +80,9 @@ datamodule.config.dataset_size_identifier=centi
 Currently running on gpu-instance-mega-1
 ```bash
 python run.py hydra.verbose=False \
-resume=False \
-batch_size=1600 \
-datamodule.num_workers=48 \
+resume=True \
+batch_size=2000 \
+datamodule.num_workers=16 \
 trainer.gpus=-1 \
 model=milli_modus_prime_resnet50 \
 datamodule=tali \
