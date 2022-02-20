@@ -122,23 +122,25 @@ class DenseNetEmbedding(nn.Module):
 
         dilation_factor = 1
 
-        self.layer_dict["stem_conv"] = DenseBlock(
-            num_filters=self.num_filters * 4,
-            dilation_factor=1,
-            stride=1,
+        self.layer_dict["stem_conv"] = nn.Conv1d(
+            in_channels=out.shape[1],
+            out_channels=self.num_filters,
             kernel_size=3,
-            downsample_output_size=int(np.floor(out.shape[-1] / 2)),
-            processing_block_type=self.processing_block_type,
+            stride=1,
+            padding=1,
+            bias=False,
         )
 
         out = self.layer_dict["stem_conv"].forward(out)
+        self.layer_dict["stem_pool"] = nn.AvgPool1d(kernel_size=2, stride=2)
+        out = self.layer_dict["stem_pool"].forward(out)
 
         for stage_idx in range(self.num_stages):
 
             for block_idx in range(self.num_blocks):
 
                 if self.dilated:
-                    dilation_factor = 2 ** block_idx
+                    dilation_factor = 2**block_idx
 
                 self.layer_dict[
                     "stage_{}_block_{}".format(stage_idx, block_idx)
@@ -182,6 +184,7 @@ class DenseNetEmbedding(nn.Module):
         out = x
 
         out = self.layer_dict["stem_conv"].forward(out)
+        out = self.layer_dict["stem_pool"].forward(out)
 
         for stage_idx in range(self.num_stages):
 

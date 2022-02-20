@@ -1,3 +1,75 @@
+Currently running on gpu-instance-0
+```bash
+python run.py hydra.verbose=False \
+resume=True \
+batch_size=1000 \
+datamodule.num_workers=-1 \
+trainer.gpus=-1 \
+model=centi_modus_prime_resnet50 \
+datamodule=tali \
+datamodule.config.modality_config.image=True \
+datamodule.config.modality_config.text=True \
+datamodule.config.modality_config.audio=False \
+datamodule.config.modality_config.video=False \
+datamodule.config.rescan_paths=False \
+datamodule.prefetch_factor=1 \
+datamodule.config.dataset_size_identifier=deci
+```
+
+Currently running on gpu-instance-1
+```bash
+python run.py hydra.verbose=False \
+resume=True \
+batch_size=1000 \
+datamodule.num_workers=-1 \
+trainer.gpus=-1 \
+model=deci_modus_prime_vi-transformer16 \
+datamodule=tali \
+datamodule.config.modality_config.image=True \
+datamodule.config.modality_config.text=True \
+datamodule.config.modality_config.audio=False \
+datamodule.config.modality_config.video=False \
+datamodule.config.rescan_paths=False \
+datamodule.prefetch_factor=1 \
+datamodule.config.dataset_size_identifier=deci
+```
+
+Currently running on gpu-instance-2
+```bash
+python run.py hydra.verbose=False \
+resume=True \
+batch_size=1000 \
+datamodule.num_workers=-1 \
+trainer.gpus=-1 \
+model=centi_modus_prime_resnet50 \
+datamodule=tali \
+datamodule.config.modality_config.image=True \
+datamodule.config.modality_config.text=True \
+datamodule.config.modality_config.audio=True \
+datamodule.config.modality_config.video=False \
+datamodule.config.rescan_paths=False \
+datamodule.prefetch_factor=1 \
+datamodule.config.dataset_size_identifier=deci
+```
+
+Currently running on gpu-instance-3
+```bash
+python run.py hydra.verbose=False \
+resume=True \
+batch_size=1000 \
+datamodule.num_workers=-1 \
+trainer.gpus=-1 \
+model=centi_modus_prime_resnet50 \
+datamodule=tali \
+datamodule.config.modality_config.image=True \
+datamodule.config.modality_config.text=False \
+datamodule.config.modality_config.audio=True \
+datamodule.config.modality_config.video=False \
+datamodule.config.rescan_paths=False \
+datamodule.prefetch_factor=1 \
+datamodule.config.dataset_size_identifier=deci
+```
+
 ```bash
 gcloud beta compute instances create gpu-instance-small-0 \
 --project=tali-multi-modal \
@@ -41,66 +113,3 @@ gcloud beta compute instances create gpu-instance-large-0 \
 ```
 
 
-Currently running on gpu-instance-3
-```bash
-python run.py hydra.verbose=False \
-resume=True \
-batch_size=50 \
-datamodule.num_workers=24 \
-trainer.gpus=2 \
-model=milli_modus_prime_resnet50 \
-datamodule=tali \
-datamodule.config.modality_config.image=True \
-datamodule.config.modality_config.text=True \
-datamodule.config.modality_config.audio=False \
-datamodule.config.modality_config.video=False \
-datamodule.config.rescan_paths=False \
-datamodule.prefetch_factor=2 \
-datamodule.config.dataset_size_identifier=centi
-```
-
-Currently running on gpu-instance-2
-```bash
-python run.py hydra.verbose=False \
-resume=True \
-batch_size=180 \
-datamodule.num_workers=24 \
-trainer.gpus=2 \
-model=milli_modus_prime_resnet50 \
-datamodule=tali \
-datamodule.config.modality_config.image=True \
-datamodule.config.modality_config.text=True \
-datamodule.config.modality_config.audio=True \
-datamodule.config.modality_config.video=False \
-datamodule.config.rescan_paths=False \
-datamodule.prefetch_factor=2 \
-datamodule.config.dataset_size_identifier=centi
-```
-
-Currently running on gpu-instance-mega-1
-```bash
-python run.py hydra.verbose=False \
-resume=True \
-batch_size=2000 \
-datamodule.num_workers=16 \
-trainer.gpus=-1 \
-model=milli_modus_prime_resnet50 \
-datamodule=tali \
-datamodule.config.modality_config.image=True \
-datamodule.config.modality_config.text=True \
-datamodule.config.modality_config.audio=False \
-datamodule.config.modality_config.video=False \
-datamodule.config.rescan_paths=False \
-datamodule.prefetch_factor=1 \
-datamodule.config.dataset_size_identifier=deci
-```
-
-python run.py hydra.verbose=False resume=True batch_size=100 datamodule.num_workers=8 trainer.gpus=2 model=milli_modus_prime_resnet50 datamodule=tali datamodule.config.modality_config.image=True datamodule.config.modality_config.text=True datamodule.config.modality_config.audio=False datamodule.config.modality_config.video=False datamodule.config.rescan_paths=False datamodule.prefetch_factor=2 datamodule.config.dataset_size_identifier=milli
-
-```bash
-python run.py hydra.verbose=False resume=True batch_size=800 datamodule.num_workers=24 trainer.gpus=2 model=milli_modus_prime_resnet50 datamodule=tali datamodule.config.modality_config.image=True datamodule.config.modality_config.text=True datamodule.config.modality_config.audio=False datamodule.config.modality_config.video=False datamodule.config.rescan_paths=False datamodule.prefetch_factor=2 datamodule.config.dataset_size_identifier=milli 
-```
-
-```bash
-python run.py hydra.verbose=False resume=True batch_size=800 datamodule.num_workers=24 trainer.gpus=2 model=milli_modus_prime_resnet50 datamodule=tali datamodule.config.modality_config.image=True datamodule.config.modality_config.text=True datamodule.config.modality_config.audio=False datamodule.config.modality_config.video=False datamodule.config.rescan_paths=False datamodule.prefetch_factor=2 datamodule.config.dataset_size_identifier=milli use_dummy_dataloader=True datamodule=debug-tali
-```

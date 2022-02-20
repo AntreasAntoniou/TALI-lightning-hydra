@@ -1,13 +1,7 @@
+defaults:
+  - audio_convformer.yaml
 
-_target_: tali.models.auto_builder.transformers.AutoConv1DTransformers
 config:
-  embedding_output_features: 512
-  densenet_num_filters: 16
-  densenet_num_stages: 5
-  densenet_num_blocks: 1
-  densenet_adaptive_pool_output_features: 512
-  densenet_dilated: false
-  grid_patch_size: 32
   transformer_num_filters: 256
   transformer_num_layers: 12
   transformer_num_heads: 8

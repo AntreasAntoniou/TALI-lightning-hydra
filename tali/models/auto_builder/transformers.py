@@ -111,7 +111,6 @@ class Conv1DTransformer(nn.Module):
         densenet_num_stages: int,
         densenet_num_blocks: int,
         densenet_dilated: bool,
-        densenet_adaptive_pool_output_features: int,
         transformer_num_filters: int,
         transformer_num_layers: int,
         transformer_num_heads: int,
@@ -124,18 +123,12 @@ class Conv1DTransformer(nn.Module):
         self.densenet_num_stages = densenet_num_stages
         self.densenet_num_blocks = densenet_num_blocks
         self.densenet_dilated = densenet_dilated
-        self.densenet_adaptive_pool_output_features = (
-            densenet_adaptive_pool_output_features
-        )
         self.transformer_num_filters = transformer_num_filters
         self.transformer_num_layers = transformer_num_layers
         self.transformer_num_heads = transformer_num_heads
         self.transformer_dim_feedforward = transformer_dim_feedforward
         self.stem_conv_bias = stem_conv_bias
-        self.positional_embeddings = nn.Parameter(
-            data=torch.randn((int(self.grid_patch_size), self.transformer_num_filters)),
-            requires_grad=True,
-        )
+
         self.is_built = False
 
     def build(self, input_shape):
@@ -157,21 +150,15 @@ class Conv1DTransformer(nn.Module):
 
         log.debug(f"conv1d_densenet output shape {out.shape}")
 
-        self.layer_dict["conv_feature_pooling"] = nn.Conv1d(
+        self.layer_dict["conv_patch_cutter"] = nn.Conv1d(
             in_channels=out.shape[1],
             out_channels=self.transformer_num_filters,
-            kernel_size=1,
+            kernel_size=self.grid_patch_size,
+            stride=self.grid_patch_size,
         )
 
-        out = self.layer_dict["conv_feature_pooling"].forward(out)
+        out = self.layer_dict["conv_patch_cutter"].forward(out)
         log.debug(f"conv_feature_pooling output shape {out.shape}")
-
-        self.layer_dict["conv_spatial_pool"] = nn.AdaptiveAvgPool1d(
-            output_size=self.grid_patch_size
-        )
-
-        out = self.layer_dict["conv_spatial_pool"].forward(out)
-        log.debug(f"conv_spatial_pool output shape {out.shape}")
 
         out = rearrange(out, "b f h -> (b h) f")
 
@@ -182,6 +169,11 @@ class Conv1DTransformer(nn.Module):
 
         out = rearrange(out, "(b s) (f) -> b s f", b=dummy_x.shape[0])
         log.debug(f"rearrange output shape {out.shape}")
+
+        self.positional_embeddings = nn.Parameter(
+            data=torch.randn((out.shape[1], self.transformer_num_filters)),
+            requires_grad=True,
+        )
 
         self.positional_embeddings = self.positional_embeddings.type_as(out)
 
@@ -225,9 +217,7 @@ class Conv1DTransformer(nn.Module):
 
         out = self.layer_dict["conv1d_densenet"].forward(out)
 
-        out = self.layer_dict["conv_feature_pooling"].forward(out)
-
-        out = self.layer_dict["conv_spatial_pool"].forward(out)
+        out = self.layer_dict["conv_patch_cutter"].forward(out)
 
         out = rearrange(out, "b f h -> (b h) f")
 
@@ -385,18 +375,15 @@ class Averager(nn.Module):
 class AutoConv1DTransformers(BaseLinearOutputModel):
     def __init__(self, config: AutoConv1DTransformersConfig):
         feature_embedding_modules = [
-            nn.InstanceNorm1d,
             Conv1DTransformer,
             AvgPoolFlexibleDimension,
         ]
         feature_embeddings_args = [
-            dict(num_features=2, affine=True, track_running_stats=True),
             dict(
                 grid_patch_size=config.grid_patch_size,
                 densenet_num_filters=config.densenet_num_filters,
                 densenet_num_stages=config.densenet_num_stages,
                 densenet_num_blocks=config.densenet_num_blocks,
-                densenet_adaptive_pool_output_features=config.densenet_adaptive_pool_output_features,
                 densenet_dilated=config.densenet_dilated,
                 transformer_num_filters=config.transformer_num_filters,
                 transformer_num_layers=config.transformer_num_layers,

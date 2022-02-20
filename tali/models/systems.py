@@ -284,7 +284,7 @@ class ModusPrime(LightningModule):
                 logits.keys(), logits.values(), targets
             ):
                 # logging.debug(f"{measurement_value'].shape} {target_value.shape}")
-                cur_key = f"{metric_key}_{measurement_key}"
+                cur_key = f"{metric_key}_{measurement_key}/step"
 
                 if cur_key not in self.per_modality_metrics_computed_dict[phase_name]:
                     self.per_modality_metrics_computed_dict[phase_name][
@@ -319,7 +319,7 @@ class ModusPrime(LightningModule):
                         sync_dist=True,
                     )
 
-            cur_key = f"overall_{metric_key}"
+            cur_key = f"overall_{metric_key}/step"
 
             if cur_key not in self.per_modality_metrics_computed_dict[phase_name]:
                 self.per_modality_metrics_computed_dict[phase_name][
