@@ -476,7 +476,7 @@ class AutoCLIPVisionTransformer(BaseLinearOutputModel):
         feature_embedding_modules = [
             CLIPVisionModel,
         ]
-
+        log.info(f"Building {self.__class__.__name__} with config: {config}")
         feature_embeddings_args = [
             dict(
                 config=CLIPVisionConfig(
@@ -579,6 +579,8 @@ class ModifiedResNetNonSquareImages(ModifiedResNet):
 
 class AutoCLIPResNet(BaseLinearOutputModel):
     def __init__(self, config: AutoCLIPResNetConfig):
+        log.info(f"Building {self.__class__.__name__} with config: {config}")
+
         vision_heads = config.vision_width * 32 // 64
 
         feature_embedding_modules = [
