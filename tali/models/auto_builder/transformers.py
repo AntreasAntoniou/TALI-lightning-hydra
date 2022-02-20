@@ -223,8 +223,6 @@ class Conv1DTransformer(nn.Module):
 
         out = rearrange(out, "(b s) (f) -> b s f", b=x.shape[0])
 
-        self.positional_embeddings = self.positional_embeddings.type_as(out)
-
         positional_embeddings = repeat(
             self.positional_embeddings, "p f -> b p f", b=x.shape[0]
         )
