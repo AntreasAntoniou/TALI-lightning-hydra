@@ -179,7 +179,7 @@ class CrossEntropyLoss(Metric):
 
     def update(self, preds: torch.Tensor, target: torch.Tensor):
         # update metric states
-        self.loss_sum += self.criterion(preds, target).item()
+        self.loss_sum += self.criterion(preds.float(), target.long()).item()
         self.num_updates += 1
 
     def compute(self):
