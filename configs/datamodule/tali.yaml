@@ -29,5 +29,5 @@ shuffle_eval: False
 train_start_index: 0
 val_start_index: 0
 test_start_index: 0
-train_num_samples: 90000000
+train_num_samples: 200000000
 use_dummy_dataloader: False

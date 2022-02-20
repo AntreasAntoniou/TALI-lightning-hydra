@@ -19,6 +19,7 @@ from wandb.plots.heatmap import heatmap
 from tali.datasets.tokenizers import HuggingFaceBPETokenizer
 from tali.datasets.utils.audio import tensor_to_audio
 
+
 log = logging.getLogger(__name__)
 tokenizer = HuggingFaceBPETokenizer(context_length=77)
 
@@ -155,7 +156,7 @@ def sample_and_upload_pred_heatmap(config: DictConfig):
         for key, value in dataset_dict_caller_fn.items()
         if key in config.wandb_visualization_config.sets_to_upload
     }
-    round_float = lambda x: (x * 10 ** 3).round() / (10 ** 3)
+    round_float = lambda x: (x * 10**3).round() / (10**3)
     for key, (dataloader, start_idx) in dataset_dict_loaders.items():
         multimedia_log_file = wandb.Table(columns=columns)
         current_log_idx = 0
