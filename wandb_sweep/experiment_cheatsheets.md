@@ -37,16 +37,16 @@ datamodule.config.dataset_size_identifier=deci
 Currently running on gpu-instance-2
 ```bash
 python run.py hydra.verbose=False \
-resume=True \
+resume=False \
 batch_size=1000 \
-datamodule.num_workers=-1 \
+datamodule.num_workers=32 \
 trainer.gpus=-1 \
-model=centi_modus_prime_resnet50 \
+model=deci_modus_prime_vi-transformer16 \
 datamodule=tali \
 datamodule.config.modality_config.image=True \
 datamodule.config.modality_config.text=True \
 datamodule.config.modality_config.audio=True \
-datamodule.config.modality_config.video=False \
+datamodule.config.modality_config.video=True \
 datamodule.config.rescan_paths=False \
 datamodule.prefetch_factor=1 \
 datamodule.config.dataset_size_identifier=deci
