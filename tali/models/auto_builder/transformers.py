@@ -273,7 +273,7 @@ class VideoTransformer(nn.Module):
 
         self.positional_embeddings = nn.Parameter(
             torch.empty(size=(out.shape[1], out.shape[2]))
-        ).type_as(out)
+        )
 
         nn.init.normal(self.positional_embeddings)
 
@@ -313,8 +313,6 @@ class VideoTransformer(nn.Module):
         out = self.linear_projection.forward(out)
 
         out = out.view(x.shape[0], x.shape[1], -1)
-
-        self.positional_embeddings = self.positional_embeddings.type_as(out)
 
         out = out + repeat(self.positional_embeddings, "p f -> b p f", b=out.shape[0])
 
