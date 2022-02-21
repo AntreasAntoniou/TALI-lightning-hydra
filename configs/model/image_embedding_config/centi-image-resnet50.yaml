@@ -1,12 +1,5 @@
-_target_: tali.models.auto_builder.transformers.AutoCLIPResNet
+defaults:
+  - resnet50.yaml
+
 config:
-  vision_layers:
-  - 3
-  - 4
-  - 6
-  - 3
-  embedding_output_features: 512
-  image_resolution:
-    - ${datamodule.config.image_shape.width}
-    - ${datamodule.config.image_shape.height}
   vision_width: 64

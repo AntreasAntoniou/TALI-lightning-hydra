@@ -8,6 +8,8 @@ import torch.nn as nn
 import torch.nn.functional as F
 from clip.model import ModifiedResNet, AttentionPool2d
 from einops import rearrange, repeat
+from torch.nn import init
+
 from gate.model_blocks.auto_builder_modules.auto_builder_conv_blocks import (
     SqueezeExciteConv1dBNLeakyReLU,
 )
@@ -31,7 +33,12 @@ from tali.models.auto_builder.base import (
     AvgPoolFlexibleDimension,
     BaseLinearOutputModel,
 )
-from tali.models.auto_builder.densenet import DenseNetEmbedding
+from tali.models.auto_builder.conv_modules import (
+    ConvNetEmbedding,
+    ConvPool1DStemBlock,
+    ResNetBlock1D,
+    ResNetReductionBlock1D,
+)
 
 
 class FCCNetwork(nn.Module):
@@ -107,10 +114,10 @@ class Conv1DTransformer(nn.Module):
     def __init__(
         self,
         grid_patch_size: int,
-        densenet_num_filters: int,
-        densenet_num_stages: int,
-        densenet_num_blocks: int,
-        densenet_dilated: bool,
+        resnet_num_filters: int,
+        resnet_num_stages: int,
+        resnet_num_blocks: int,
+        resnet_dilated: bool,
         transformer_num_filters: int,
         transformer_num_layers: int,
         transformer_num_heads: int,
@@ -119,10 +126,10 @@ class Conv1DTransformer(nn.Module):
     ):
         super(Conv1DTransformer, self).__init__()
         self.grid_patch_size = grid_patch_size
-        self.densenet_num_filters = densenet_num_filters
-        self.densenet_num_stages = densenet_num_stages
-        self.densenet_num_blocks = densenet_num_blocks
-        self.densenet_dilated = densenet_dilated
+        self.resnet_num_filters = resnet_num_filters
+        self.resnet_num_stages = resnet_num_stages
+        self.resnet_num_blocks = resnet_num_blocks
+        self.resnet_dilated = resnet_dilated
         self.transformer_num_filters = transformer_num_filters
         self.transformer_num_layers = transformer_num_layers
         self.transformer_num_heads = transformer_num_heads
@@ -138,17 +145,20 @@ class Conv1DTransformer(nn.Module):
 
         self.layer_dict = nn.ModuleDict()
 
-        self.layer_dict["conv1d_densenet"] = DenseNetEmbedding(
-            num_filters=self.densenet_num_filters,
-            num_stages=self.densenet_num_stages,
-            num_blocks=self.densenet_num_blocks,
-            dilated=self.densenet_dilated,
-            processing_block_type=SqueezeExciteConv1dBNLeakyReLU,
+        self.layer_dict["conv1d_resnet"] = ConvNetEmbedding(
+            num_filters=self.resnet_num_filters,
+            num_stages=self.resnet_num_stages,
+            num_blocks=self.resnet_num_blocks,
+            dilated=self.resnet_dilated,
+            kernel_size=3,
+            stem_block_type=ConvPool1DStemBlock,
+            processing_block_type=ResNetBlock1D,
+            reduction_block_type=ResNetReductionBlock1D,
         )
 
-        out = self.layer_dict["conv1d_densenet"].forward(out)
+        out = self.layer_dict["conv1d_resnet"].forward(out)
 
-        log.debug(f"conv1d_densenet output shape {out.shape}")
+        log.debug(f"conv1d_resnet output shape {out.shape}")
 
         self.layer_dict["conv_patch_cutter"] = nn.Conv1d(
             in_channels=out.shape[1],
@@ -171,9 +181,11 @@ class Conv1DTransformer(nn.Module):
         log.debug(f"rearrange output shape {out.shape}")
 
         self.positional_embeddings = nn.Parameter(
-            data=torch.randn((out.shape[1], self.transformer_num_filters)),
+            data=torch.empty((out.shape[1], self.transformer_num_filters)),
             requires_grad=True,
         )
+
+        init.normal_(self.positional_embeddings)
 
         positional_embeddings = repeat(
             self.positional_embeddings, "p f -> b p f", b=dummy_x.shape[0]
@@ -213,7 +225,7 @@ class Conv1DTransformer(nn.Module):
 
         out = x
 
-        out = self.layer_dict["conv1d_densenet"].forward(out)
+        out = self.layer_dict["conv1d_resnet"].forward(out)
 
         out = self.layer_dict["conv_patch_cutter"].forward(out)
 
@@ -375,10 +387,10 @@ class AutoConv1DTransformers(BaseLinearOutputModel):
         feature_embeddings_args = [
             dict(
                 grid_patch_size=config.grid_patch_size,
-                densenet_num_filters=config.densenet_num_filters,
-                densenet_num_stages=config.densenet_num_stages,
-                densenet_num_blocks=config.densenet_num_blocks,
-                densenet_dilated=config.densenet_dilated,
+                resnet_num_filters=config.resnet_num_filters,
+                resnet_num_stages=config.resnet_num_stages,
+                resnet_num_blocks=config.resnet_num_blocks,
+                resnet_dilated=config.resnet_dilated,
                 transformer_num_filters=config.transformer_num_filters,
                 transformer_num_layers=config.transformer_num_layers,
                 transformer_num_heads=config.transformer_num_heads,

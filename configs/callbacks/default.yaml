@@ -29,7 +29,9 @@ model_summary:
   max_depth: 7
 
 rich_progress_bar:
-  _target_: pytorch_lightning.callbacks.RichProgressBar
+  _target_: pytorch_lightning.callbacks.TQDMProgressBar
+  refresh_rate: 1
+  process_position: 0
 
 learning_rate_monitor:
   _target_: pytorch_lightning.callbacks.LearningRateMonitor
@@ -43,3 +45,10 @@ gs_file_monitor:
   exclude_list: [.git/*]
   options_list: ['r', 'd', 'u', 'e']
   resume: ${resume}
+
+log_grads:
+  _target_: tali.base.callbacks.wandb_callbacks.LogGrads
+
+#log_params:
+#  _target_: tali.base.callbacks.wandb_callbacks.LogParams
+#  refresh_rate: 100

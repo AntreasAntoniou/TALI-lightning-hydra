@@ -6,4 +6,3 @@ defaults:
   - video_embedding_config: base-video-transformer.yaml
 
 name: base_resnet50
-#sub_batch_size_dict: {'video': 8}

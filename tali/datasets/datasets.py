@@ -20,8 +20,7 @@ from torch.utils.data import Dataset
 
 from preprocessing_scripts.convert_audiofiles_to_npz import path_to_string
 from tali.config_repository import TALIDatasetConfig
-from tali.datasets.utils import audio
-from tali.datasets.utils.audio import prevent_error_kill, convert_audiofile_to_tensor
+from tali.datasets.utils.audio import prevent_error_kill
 from tali.datasets.utils.helpers import (
     collect_files,
     timeout,
@@ -81,16 +80,9 @@ class TALIMultiModalDataset(Dataset):
             f"tali_path_caches/{set_name}-{self.config.dataset_size_identifier}.json",
         )
 
-        if pathlib.Path(
-            self.pre_scanned_dataset_json_filepath_on_dataset_disk
-        ).exists():
-            self.pre_scanned_dataset_json_filepath = (
-                self.pre_scanned_dataset_json_filepath_on_dataset_disk
-            )
-        else:
-            self.pre_scanned_dataset_json_filepath = (
-                self.pre_scanned_dataset_json_filepath_on_boot_disk
-            )
+        self.pre_scanned_dataset_json_filepath = (
+            self.pre_scanned_dataset_json_filepath_on_boot_disk
+        )
 
         logging.info(
             f"{self.pre_scanned_dataset_json_filepath}, "
@@ -111,7 +103,7 @@ class TALIMultiModalDataset(Dataset):
             self.pre_scanned_dataset_json_filepath = (
                 self.pre_scanned_dataset_json_filepath_on_boot_disk
             )
-            pathlib.Path(self.pre_scanned_dataset_json_filepath).unlink()
+            pathlib.Path(self.pre_scanned_dataset_json_filepath).unlink(missing_ok=True)
 
         if not pathlib.Path(self.pre_scanned_dataset_json_filepath).exists():
             path_dict = self._scan_paths_return_dict(
@@ -154,7 +146,7 @@ class TALIMultiModalDataset(Dataset):
                         f"{video_filepath} {frame_list[0]}"
                         f" {audio_filepath} {meta_data_filepath}"
                     )
-                    # log.debug(f"{output_string}")
+                    log.debug(f"{output_string}")
 
                     self.efficient_path_dict[folder_key].append(
                         (
@@ -290,31 +282,15 @@ class TALIMultiModalDataset(Dataset):
         }
 
         if self.config.modality_config.image and "image" not in data_dict:
-            video_path = pathlib.Path(video_filepath)
-            audio_path = video_path.with_suffix(".npz")
-            shutil.rmtree(video_path)
-            audio_path.unlink()
             return None
 
         if self.config.modality_config.video and "video" not in data_dict:
-            video_path = pathlib.Path(video_filepath)
-            audio_path = video_path.with_suffix(".npz")
-            shutil.rmtree(video_path)
-            audio_path.unlink()
             return None
 
         if self.config.modality_config.audio and "audio" not in data_dict:
-            video_path = pathlib.Path(video_filepath)
-            audio_path = video_path.with_suffix(".npz")
-            shutil.rmtree(video_path)
-            audio_path.unlink()
             return None
 
         if self.config.modality_config.text and "text" not in data_dict:
-            video_path = pathlib.Path(video_filepath)
-            audio_path = video_path.with_suffix(".npz")
-            shutil.rmtree(video_path)
-            audio_path.unlink()
             return None
 
         data_dict["filepath"] = video_filepath

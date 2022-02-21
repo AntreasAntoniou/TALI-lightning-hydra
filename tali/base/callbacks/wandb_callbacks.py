@@ -10,11 +10,14 @@ import numpy as np
 import seaborn as sn
 import torch
 import wandb
+import yaml
 from pytorch_lightning import Callback, Trainer
 from pytorch_lightning.loggers import LoggerCollection, WandbLogger
 from pytorch_lightning.utilities import rank_zero_only
+from rich.pretty import pprint
 from sklearn import metrics
 from sklearn.metrics import f1_score, precision_score, recall_score
+from torch.optim import Optimizer
 from wandb.plots.heatmap import heatmap
 
 from tali.sample_actuate_pred_and_data import (
@@ -63,7 +66,7 @@ class WatchModel(Callback):
             model=trainer.model,
             log=self.log,
             log_freq=self.log_freq,
-            log_graph=True,
+            log_graph=False,
         )
 
 
@@ -433,3 +436,57 @@ class LogMultiModalPredictionHeatmaps(Callback):
         checkpoint: Dict[str, Any],
     ) -> dict:
         self.log_similarity_heatmaps_multi_modal(trainer, pl_module, "train")
+
+
+class LogGrads(Callback):
+    """Logs a validation batch and their predictions to wandb.
+    Example adapted from:
+        https://wandb.ai/wandb/wandb-lightning/reports/Image-Classification-using-PyTorch-Lightning--VmlldzoyODk1NzY
+    """
+
+    def __init__(self):
+        super().__init__()
+
+    def on_before_optimizer_step(
+        self,
+        trainer: "pl.Trainer",
+        pl_module: "pl.LightningModule",
+        optimizer: Optimizer,
+        opt_idx: int,
+    ) -> None:
+        grad_dict = {
+            name: param.grad.cpu().detach().abs().mean()
+            for name, param in pl_module.named_parameters()
+            if param.requires_grad and param.grad is not None
+        }
+
+        modality_keys = ["image", "video", "audio", "text"]
+
+        modality_specific_grad_summary = {
+            modality_key: [
+                value for key, value in grad_dict.items() if modality_key in key
+            ]
+            for modality_key in modality_keys
+        }
+
+        modality_specific_grad_summary = {
+            key: {"x": np.arange(len(value)), "y": value}
+            for key, value in modality_specific_grad_summary.items()
+        }
+
+        logger = get_wandb_logger(trainer=trainer)
+        experiment = logger.experiment
+
+        for key, value in modality_specific_grad_summary.items():
+            data = [[x, y] for (x, y) in zip(value["x"], value["y"])]
+            table = wandb.Table(data=data, columns=["x", "y"])
+            experiment.log(
+                {
+                    f"{key}_grad_summary": wandb.plot.line(
+                        table,
+                        "Layer depth",
+                        "mean abs grad",
+                        title="Summary of gradients",
+                    )
+                }
+            )

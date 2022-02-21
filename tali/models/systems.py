@@ -1,4 +1,5 @@
 import logging
+from itertools import combinations
 from typing import Any, Dict, List, Optional, Union
 
 import hydra.utils
@@ -33,7 +34,7 @@ class CrossModalMatchingNetwork(LightningModule):
         self,
         embedding_output_features: int,
         modality_embeddings: nn.ModuleDict,
-        logit_scale: float = 1.0,
+        logit_scale: float = 1.0,  # / 0.07,
         sub_batch_size_dict: Optional[Dict[str, int]] = None,
     ):
         super(CrossModalMatchingNetwork, self).__init__()
@@ -42,8 +43,18 @@ class CrossModalMatchingNetwork(LightningModule):
         self.modality_embeddings = modality_embeddings
         self.sub_batch_size_dict = sub_batch_size_dict
 
-        self.logit_scale = nn.Parameter(
-            torch.ones([]) * np.log(logit_scale), requires_grad=True
+        modality_keys = [
+            key for key, value in modality_embeddings.items() if value is not None
+        ]
+        modality_combinations = combinations(modality_keys, 2)
+
+        self.logit_scale_dict = nn.ParameterDict(
+            {
+                f"{key[0]}_to_{key[1]}": nn.Parameter(
+                    torch.ones([]) * logit_scale, requires_grad=True
+                )
+                for key in modality_combinations
+            }
         )
         self.is_built = False
 
@@ -93,7 +104,6 @@ class CrossModalMatchingNetwork(LightningModule):
             return None
 
     def _compute_cross_modal_cosine_similarities(self, embedding_dict):
-        logit_scale = self.logit_scale.exp()
         logit_dict = {}
 
         for source_key, source_value in embedding_dict.items():
@@ -103,6 +113,15 @@ class CrossModalMatchingNetwork(LightningModule):
                     and source_value is not None
                     and target_value is not None
                 ):
+                    if f"{source_key}_to_{target_key}" in self.logit_scale_dict:
+                        logit_scale = self.logit_scale_dict[
+                            f"{source_key}_to_{target_key}"
+                        ].exp()
+                    else:
+                        logit_scale = self.logit_scale_dict[
+                            f"{target_key}_to_{source_key}"
+                        ].exp()
+
                     if f"{target_key}_to_{source_key}_similarity" in logit_dict:
                         logit_dict[
                             f"{source_key}_to_{target_key}_similarity"
@@ -279,6 +298,18 @@ class ModusPrime(LightningModule):
         return embedding_feature_dict, cross_modal_cosine_similarities, targets
 
     def collect_metrics_step(self, logits, targets, phase_name):
+
+        for key, value in self.system.logit_scale_dict.items():
+            self.log(
+                name=f"logit_scale/{key}",
+                value=value.exp(),
+                prog_bar=False,
+                logger=True,
+                on_step=True,
+                on_epoch=True,
+                sync_dist=True,
+            )
+
         for metric_key, metric_function in self.metrics_to_track.items():
             for measurement_key, measurement_value, target_value in zip(
                 logits.keys(), logits.values(), targets

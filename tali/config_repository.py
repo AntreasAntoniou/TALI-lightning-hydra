@@ -71,11 +71,11 @@ class AutoCLIPResNetConfig:
 @dataclass
 class AutoConv1DTransformersConfig:
     embedding_output_features: int = 512
-    densenet_num_filters: int = 64
-    densenet_num_stages: int = 3
-    densenet_num_blocks: int = 4
-    densenet_adaptive_pool_output_features: int = 4096
-    densenet_dilated: bool = True
+    resnet_num_filters: int = 64
+    resnet_num_stages: int = 3
+    resnet_num_blocks: int = 4
+    resnet_adaptive_pool_output_features: int = 4096
+    resnet_dilated: bool = True
     grid_patch_size: int = 11025
     transformer_num_filters: int = 32
     transformer_num_layers: int = 12

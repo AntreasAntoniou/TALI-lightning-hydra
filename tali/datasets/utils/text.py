@@ -46,22 +46,15 @@ def load_text_into_language_time_stamps(filepath):
         filepath.parent / "start_timestamp_to_caption_dict.json"
     )
 
-    if old_caption_data_filepath.exists():
-        old_caption_data_filepath.unlink(missing_ok=True)
-
-    if old_caption_data_filepath.with_suffix(".yaml").exists():
-        old_caption_data_filepath.with_suffix(".yaml").unlink(missing_ok=True)
-
     if caption_data_filepath.exists():
         try:
             return convert_keys_to_float(load_json(caption_data_filepath))
         except Exception:
-            caption_data_filepath.unlink(missing_ok=True)
+            log.debug(f"Could not load caption data from {caption_data_filepath}")
 
     try:
         meta_data = load_json(filepath)
     except Exception:
-        filepath.unlink(missing_ok=True)
         logging.exception(f"Could not load {filepath}")
         return None
 
@@ -124,7 +117,6 @@ def get_text_tokens(meta_data_filepath, start_timestamp, end_timestamp):
     if not timestamp_to_caption_dict:
         if not isinstance(meta_data_filepath, pathlib.Path):
             meta_data_filepath = pathlib.Path(meta_data_filepath)
-        meta_data_filepath.unlink(missing_ok=True)
         if log.getEffectiveLevel() == logging.DEBUG:
             log.exception(f"No captions found for {meta_data_filepath}")
         return None

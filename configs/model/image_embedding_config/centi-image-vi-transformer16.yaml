@@ -1,11 +1,6 @@
-_target_: tali.models.auto_builder.transformers.AutoCLIPVisionTransformer
+defaults:
+  - vi-transformer16.yaml
+
 config:
-  grid_patch_size: 16
-  embedding_output_features: 512
-  image_resolution:
-    - ${datamodule.config.image_shape.width}
-    - ${datamodule.config.image_shape.height}
   transformer_num_filters: 192
-  transformer_num_layers: 12
-  transformer_num_heads: 12
   transformer_dim_feedforward: 768
