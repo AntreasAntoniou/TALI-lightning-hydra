@@ -142,11 +142,11 @@ class TALIMultiModalDataset(Dataset):
                         .replace("/", "")
                         for frame in frame_list
                     ]
-                    output_string = (
-                        f"{video_filepath} {frame_list[0]}"
-                        f" {audio_filepath} {meta_data_filepath}"
-                    )
-                    log.debug(f"{output_string}")
+                    # output_string = (
+                    #     f"{video_filepath} {frame_list[0]}"
+                    #     f" {audio_filepath} {meta_data_filepath}"
+                    # )
+                    # log.debug(f"{output_string}")
 
                     self.efficient_path_dict[folder_key].append(
                         (
