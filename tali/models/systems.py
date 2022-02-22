@@ -129,13 +129,13 @@ class CrossModalMatchingNetwork(LightningModule):
                     if f"{source_key}_to_{target_key}" in self.logit_scale_dict:
                         logit_scale_idx = self.logit_scale_dict[
                             f"{source_key}_to_{target_key}"
-                        ].exp()
+                        ]
                     else:
                         logit_scale_idx = self.logit_scale_dict[
                             f"{target_key}_to_{source_key}"
-                        ].exp()
+                        ]
 
-                    logit_scale = self.logit_scale_params[logit_scale_idx]
+                    logit_scale = self.logit_scale_params[logit_scale_idx].exp()
 
                     if f"{target_key}_to_{source_key}_similarity" in logit_dict:
                         logit_dict[
