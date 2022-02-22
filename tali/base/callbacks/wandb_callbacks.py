@@ -487,8 +487,8 @@ class LogGrads(Callback):
                     {
                         f"{key}_grad_summary": wandb.plot.line(
                             table,
-                            "Layer depth",
-                            "mean abs grad",
+                            "x",
+                            "y",
                             title="Summary of gradients",
                         )
                     }

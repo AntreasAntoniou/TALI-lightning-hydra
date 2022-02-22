@@ -95,7 +95,7 @@ class CrossModalMatchingNetwork(LightningModule):
         logging.debug(
             f"built {self.__class__.__name__} with output shape {self.embed_dim}",
         )
-
+        log.info(f"Built system made of {self}")
         self.is_built = True
 
     def _check_modality_embedding_shape(self, input_shape, embedding_name):
