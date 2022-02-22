@@ -317,7 +317,7 @@ class ModusPrime(LightningModule):
         for key, value in self.system.logit_scale_dict.items():
             self.log(
                 name=f"logit_scale/{key}",
-                value=value.exp(),
+                value=self.system.logit_scale_params[value].exp(),
                 prog_bar=False,
                 logger=True,
                 on_step=True,
