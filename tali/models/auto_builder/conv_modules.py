@@ -124,6 +124,7 @@ class ConvPool1DStemBlock(nn.Module):
     def build(self, input_shape):
         dummy_x = torch.zeros(input_shape)
         out = dummy_x
+
         self.layer_dict["stem_conv"] = nn.Conv1d(
             in_channels=out.shape[1],
             out_channels=self.num_filters,
@@ -133,10 +134,16 @@ class ConvPool1DStemBlock(nn.Module):
             bias=False,
         )
 
-        out = self.layer_dict["stem_conv"].forward(out)
+        self.layer_dict["stem_instance_norm"] = nn.InstanceNorm1d(
+            self.num_filters, affine=True, track_running_stats=True
+        )
+
         self.layer_dict["stem_pool"] = nn.AvgPool1d(
             kernel_size=self.pool_kernel_size, stride=self.pool_stride
         )
+
+        out = self.layer_dict["stem_conv"].forward(out)
+        out = self.layer_dict["stem_instance_norm"].forward(out)
         out = self.layer_dict["stem_pool"].forward(out)
 
         self.is_built = True
@@ -152,6 +159,7 @@ class ConvPool1DStemBlock(nn.Module):
             self.build(x.shape)
 
         out = self.layer_dict["stem_conv"].forward(x)
+        out = self.layer_dict["stem_instance_norm"].forward(out)
         out = self.layer_dict["stem_pool"].forward(out)
 
         return out
@@ -200,10 +208,14 @@ class ResNetBlock1D(nn.Module):
             bias=False,
         )
         self.layer_dict["gelu_0"] = nn.GELU()
-        self.layer_dict["instance_norm_0"] = nn.InstanceNorm2d(self.num_filters)
+        self.layer_dict["instance_norm_0"] = nn.InstanceNorm1d(
+            self.num_filters, affine=True, track_running_stats=True
+        )
 
         self.layer_dict["gelu_1"] = nn.GELU()
-        self.layer_dict["instance_norm_1"] = nn.InstanceNorm2d(self.num_filters)
+        self.layer_dict["instance_norm_1"] = nn.InstanceNorm1d(
+            self.num_filters, affine=True, track_running_stats=True
+        )
 
         out = dummy_x
 
@@ -294,10 +306,14 @@ class ResNetReductionBlock1D(nn.Module):
             bias=False,
         )
         self.layer_dict["gelu_0"] = nn.GELU()
-        self.layer_dict["instance_norm_0"] = nn.InstanceNorm2d(self.num_filters)
+        self.layer_dict["instance_norm_0"] = nn.InstanceNorm1d(
+            self.num_filters, affine=True, track_running_stats=True
+        )
 
         self.layer_dict["gelu_1"] = nn.GELU()
-        self.layer_dict["instance_norm_1"] = nn.InstanceNorm2d(self.num_filters)
+        self.layer_dict["instance_norm_1"] = nn.InstanceNorm1d(
+            self.num_filters, affine=True, track_running_stats=True
+        )
 
         out = dummy_x
 

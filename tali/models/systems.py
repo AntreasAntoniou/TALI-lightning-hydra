@@ -523,11 +523,19 @@ class ModusPrime(LightningModule):
             self.lr_scheduler_config["T_0"] = (
                 self.num_train_samples / self.batch_size // 2
             )
+        elif self.lr_scheduler_config._target_.split(".")[-1] == "ReduceLROnPlateau":
+            self.lr_scheduler_config["patience"] = (
+                self.lr_scheduler_config["patience"] * torch.cuda.device_count()
+                if torch.cuda.is_available()
+                else 1
+            )
 
         lr_scheduler = hydra.utils.instantiate(
             config=self.lr_scheduler_config, optimizer=optimizer
         )
-
+        log.info(
+            f"\noptimizer: {optimizer} \n" f"lr_scheduler: {self.lr_scheduler_config}"
+        )
         if isinstance(lr_scheduler, torch.optim.lr_scheduler.ReduceLROnPlateau):
             self.lr_scheduler = lr_scheduler
             self.lr_scheduler_step_must_be_called_manually = True

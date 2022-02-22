@@ -4,7 +4,7 @@ mode: min
 factor: 0.5
 patience: 1000
 threshold: 0.0001
-threshold_mode: abs
+threshold_mode: rel
 cooldown: 0
 min_lr: 0
 eps: 1e-08
