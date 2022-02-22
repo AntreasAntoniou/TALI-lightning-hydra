@@ -42,21 +42,22 @@ class CrossModalMatchingNetwork(LightningModule):
         self.embed_dim = embedding_output_features
         self.modality_embeddings = modality_embeddings
         self.sub_batch_size_dict = sub_batch_size_dict
+        self.logit_scale = logit_scale
+        self.is_built = False
 
-        modality_keys = [
-            key for key, value in modality_embeddings.items() if value is not None
-        ]
+    def init_logit_scale_params(self):
+        modality_keys = [key for key, value in self.modality_embeddings.items()]
         modality_combinations = combinations(modality_keys, 2)
 
         self.logit_scale_dict = nn.ParameterDict(
             {
                 f"{key[0]}_to_{key[1]}": nn.Parameter(
-                    torch.ones([]) * logit_scale, requires_grad=True
+                    torch.ones([]) * self.logit_scale, requires_grad=True
                 )
                 for key in modality_combinations
             }
         )
-        self.is_built = False
+        log.info(f"initialized logit scale params: {self.logit_scale_dict}")
 
     def build(
         self,
@@ -81,6 +82,7 @@ class CrossModalMatchingNetwork(LightningModule):
                 self.modality_embeddings[modality_key].build(modality_shape)
                 self._check_modality_embedding_shape(modality_shape, modality_key)
 
+        self.init_logit_scale_params()
         logging.debug(
             f"built {self.__class__.__name__} with output shape {self.embed_dim}",
         )
