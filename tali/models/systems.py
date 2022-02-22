@@ -105,7 +105,9 @@ class CrossModalMatchingNetwork(LightningModule):
 
     def _compute_cross_modal_cosine_similarities(self, embedding_dict):
         logit_dict = {}
-
+        log.info(
+            f"Computing cross modal cosine similarities for {list(self.logit_scale_dict.keys())}"
+        )
         for source_key, source_value in embedding_dict.items():
             for target_key, target_value in embedding_dict.items():
                 if (
