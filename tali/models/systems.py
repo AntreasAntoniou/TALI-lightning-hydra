@@ -39,6 +39,7 @@ class CrossModalMatchingNetwork(LightningModule):
     ):
         super(CrossModalMatchingNetwork, self).__init__()
 
+        self.logit_scale_dict = None
         self.embed_dim = embedding_output_features
         self.modality_embeddings = modality_embeddings
         self.sub_batch_size_dict = sub_batch_size_dict
@@ -46,18 +47,26 @@ class CrossModalMatchingNetwork(LightningModule):
         self.is_built = False
 
     def init_logit_scale_params(self):
-        modality_keys = [key for key, value in self.modality_embeddings.items()]
+        modality_keys = [
+            key for key, value in self.modality_embeddings.items() if value is not None
+        ]
+
+        for key, value in self.modality_embeddings.items():
+            log.debug(f"{key} {value}")
+
         modality_combinations = combinations(modality_keys, 2)
 
-        self.logit_scale_dict = nn.ParameterDict(
-            {
-                f"{key[0]}_to_{key[1]}": nn.Parameter(
-                    torch.ones([]) * self.logit_scale, requires_grad=True
-                )
-                for key in modality_combinations
-            }
+        self.logit_scale_dict = {
+            f"{modality_name[0]}_to_{modality_name[1]}": idx
+            for idx, modality_name in enumerate(modality_combinations)
+        }
+
+        self.logit_scale_params = nn.Parameter(
+            torch.ones([len(self.logit_scale_dict)]) * self.logit_scale,
+            requires_grad=True,
         )
-        log.info(f"initialized logit scale params: {self.logit_scale_dict}")
+
+        log.debug(f"Initialized logit scale params: {self.logit_scale_dict}")
 
     def build(
         self,
@@ -107,9 +116,9 @@ class CrossModalMatchingNetwork(LightningModule):
 
     def _compute_cross_modal_cosine_similarities(self, embedding_dict):
         logit_dict = {}
-        log.info(
-            f"Computing cross modal cosine similarities for {list(self.logit_scale_dict.keys())}"
-        )
+        # log.info(
+        #     f"Computing cross modal cosine similarities for {list(self.logit_scale_dict.keys())}"
+        # )
         for source_key, source_value in embedding_dict.items():
             for target_key, target_value in embedding_dict.items():
                 if (
@@ -118,13 +127,15 @@ class CrossModalMatchingNetwork(LightningModule):
                     and target_value is not None
                 ):
                     if f"{source_key}_to_{target_key}" in self.logit_scale_dict:
-                        logit_scale = self.logit_scale_dict[
+                        logit_scale_idx = self.logit_scale_dict[
                             f"{source_key}_to_{target_key}"
                         ].exp()
                     else:
-                        logit_scale = self.logit_scale_dict[
+                        logit_scale_idx = self.logit_scale_dict[
                             f"{target_key}_to_{source_key}"
                         ].exp()
+
+                    logit_scale = self.logit_scale_params[logit_scale_idx]
 
                     if f"{target_key}_to_{source_key}_similarity" in logit_dict:
                         logit_dict[
