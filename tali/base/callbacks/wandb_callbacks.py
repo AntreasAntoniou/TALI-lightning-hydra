@@ -444,8 +444,9 @@ class LogGrads(Callback):
         https://wandb.ai/wandb/wandb-lightning/reports/Image-Classification-using-PyTorch-Lightning--VmlldzoyODk1NzY
     """
 
-    def __init__(self):
+    def __init__(self, refresh_rate: int = 100):
         super().__init__()
+        self.refresh_rate = refresh_rate
 
     def on_before_optimizer_step(
         self,
@@ -454,39 +455,41 @@ class LogGrads(Callback):
         optimizer: Optimizer,
         opt_idx: int,
     ) -> None:
-        grad_dict = {
-            name: param.grad.cpu().detach().abs().mean()
-            for name, param in pl_module.named_parameters()
-            if param.requires_grad and param.grad is not None
-        }
 
-        modality_keys = ["image", "video", "audio", "text"]
+        if trainer.global_step % self.refresh_rate == 0:
+            grad_dict = {
+                name: param.grad.cpu().detach().abs().mean()
+                for name, param in pl_module.named_parameters()
+                if param.requires_grad and param.grad is not None
+            }
 
-        modality_specific_grad_summary = {
-            modality_key: [
-                value for key, value in grad_dict.items() if modality_key in key
-            ]
-            for modality_key in modality_keys
-        }
+            modality_keys = ["image", "video", "audio", "text"]
 
-        modality_specific_grad_summary = {
-            key: {"x": np.arange(len(value)), "y": value}
-            for key, value in modality_specific_grad_summary.items()
-        }
+            modality_specific_grad_summary = {
+                modality_key: [
+                    value for key, value in grad_dict.items() if modality_key in key
+                ]
+                for modality_key in modality_keys
+            }
 
-        logger = get_wandb_logger(trainer=trainer)
-        experiment = logger.experiment
+            modality_specific_grad_summary = {
+                key: {"x": np.arange(len(value)), "y": value}
+                for key, value in modality_specific_grad_summary.items()
+            }
 
-        for key, value in modality_specific_grad_summary.items():
-            data = [[x, y] for (x, y) in zip(value["x"], value["y"])]
-            table = wandb.Table(data=data, columns=["x", "y"])
-            experiment.log(
-                {
-                    f"{key}_grad_summary": wandb.plot.line(
-                        table,
-                        "Layer depth",
-                        "mean abs grad",
-                        title="Summary of gradients",
-                    )
-                }
-            )
+            logger = get_wandb_logger(trainer=trainer)
+            experiment = logger.experiment
+
+            for key, value in modality_specific_grad_summary.items():
+                data = [[x, y] for (x, y) in zip(value["x"], value["y"])]
+                table = wandb.Table(data=data, columns=["x", "y"])
+                experiment.log(
+                    {
+                        f"{key}_grad_summary": wandb.plot.line(
+                            table,
+                            "Layer depth",
+                            "mean abs grad",
+                            title="Summary of gradients",
+                        )
+                    }
+                )
