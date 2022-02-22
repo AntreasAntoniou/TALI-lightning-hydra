@@ -489,7 +489,7 @@ class LogGrads(Callback):
                             table,
                             "x",
                             "y",
-                            title="Summary of gradients",
+                            title=f"{key} gradient summary",
                         )
                     }
                 )

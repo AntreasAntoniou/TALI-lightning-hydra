@@ -1,6 +1,6 @@
 from __future__ import print_function
 
-import logging as log
+import logging
 from typing import Optional
 
 import torch
@@ -39,6 +39,10 @@ from tali.models.auto_builder.conv_modules import (
     ResNetBlock1D,
     ResNetReductionBlock1D,
 )
+
+from tali.base import utils
+
+log = utils.get_logger(__name__)
 
 
 class FCCNetwork(nn.Module):
@@ -117,24 +121,28 @@ class Conv1DTransformer(nn.Module):
         resnet_num_filters: int,
         resnet_num_stages: int,
         resnet_num_blocks: int,
+        resnet_kernel_size: int,
         resnet_dilated: bool,
         transformer_num_filters: int,
         transformer_num_layers: int,
         transformer_num_heads: int,
         transformer_dim_feedforward: int,
-        stem_conv_bias: False,
+        return_sequence_idx: int = None,
+        stem_conv_bias: bool = False,
     ):
         super(Conv1DTransformer, self).__init__()
         self.grid_patch_size = grid_patch_size
         self.resnet_num_filters = resnet_num_filters
         self.resnet_num_stages = resnet_num_stages
         self.resnet_num_blocks = resnet_num_blocks
+        self.resnet_kernel_size = resnet_kernel_size
         self.resnet_dilated = resnet_dilated
         self.transformer_num_filters = transformer_num_filters
         self.transformer_num_layers = transformer_num_layers
         self.transformer_num_heads = transformer_num_heads
         self.transformer_dim_feedforward = transformer_dim_feedforward
         self.stem_conv_bias = stem_conv_bias
+        self.return_sequence_idx = return_sequence_idx
 
         self.is_built = False
 
@@ -150,14 +158,17 @@ class Conv1DTransformer(nn.Module):
             num_stages=self.resnet_num_stages,
             num_blocks=self.resnet_num_blocks,
             dilated=self.resnet_dilated,
-            kernel_size=3,
+            kernel_size=self.resnet_kernel_size,
             stem_block_type=ConvPool1DStemBlock,
             processing_block_type=ResNetBlock1D,
-            reduction_block_type=ResNetReductionBlock1D,
+            reduction_block_type=ResNetBlock1D,
         )
 
         out = self.layer_dict["conv1d_resnet"].forward(out)
 
+        self.layer_dict["conv1d_activation"] = nn.LeakyReLU(0.1)
+
+        out = self.layer_dict["conv1d_activation"].forward(out)
         log.debug(f"conv1d_resnet output shape {out.shape}")
 
         self.layer_dict["conv_patch_cutter"] = nn.Conv1d(
@@ -170,12 +181,16 @@ class Conv1DTransformer(nn.Module):
         out = self.layer_dict["conv_patch_cutter"].forward(out)
         log.debug(f"conv_feature_pooling output shape {out.shape}")
 
+        self.layer_dict["conv_patch_cutter_activation"] = nn.LeakyReLU(0.1)
+
+        out = self.layer_dict["conv_patch_cutter_activation"].forward(out)
+
         out = rearrange(out, "b f h -> (b h) f")
 
-        self.layer_dict["stem_layer_normalization"] = nn.LayerNorm(out.shape[1])
+        # self.layer_dict["stem_layer_normalization"] = nn.LayerNorm(out.shape[1])
 
-        out = self.layer_dict["stem_layer_normalization"].forward(out)
-        log.debug(f"stem_layer_normalization output shape {out.shape}")
+        # out = self.layer_dict["stem_layer_normalization"].forward(out)
+        # log.debug(f"stem_layer_normalization output shape {out.shape}")
 
         out = rearrange(out, "(b s) (f) -> b s f", b=dummy_x.shape[0])
         log.debug(f"rearrange output shape {out.shape}")
@@ -209,6 +224,8 @@ class Conv1DTransformer(nn.Module):
         )
 
         out = self.layer_dict["transformer_encoder"].forward(out)
+        if self.return_sequence_idx is not None:
+            out = out[:, self.return_sequence_idx, :]
         log.debug(f"transformer_encoder output shape {out.shape}")
 
         self.is_built = True
@@ -218,22 +235,22 @@ class Conv1DTransformer(nn.Module):
         )
 
     def forward(self, x):
-        x = x.type(torch.float32)
-
         if not self.is_built:
             self.build(input_shape=x.shape)
+
+        # log.info(f"{x.mean()}, {x.std()}, {x.max()}, {x.min()}")
 
         out = x
 
         out = self.layer_dict["conv1d_resnet"].forward(out)
 
+        out = self.layer_dict["conv1d_activation"].forward(out)
+
         out = self.layer_dict["conv_patch_cutter"].forward(out)
 
-        out = rearrange(out, "b f h -> (b h) f")
+        out = self.layer_dict["conv_patch_cutter_activation"].forward(out)
 
-        out = self.layer_dict["stem_layer_normalization"].forward(out)
-
-        out = rearrange(out, "(b s) (f) -> b s f", b=x.shape[0])
+        out = rearrange(out, "b f h -> b h f")
 
         positional_embeddings = repeat(
             self.positional_embeddings, "p f -> b p f", b=x.shape[0]
@@ -242,6 +259,9 @@ class Conv1DTransformer(nn.Module):
         out = out + positional_embeddings
 
         out = self.layer_dict["transformer_encoder"].forward(out)
+
+        if self.return_sequence_idx is not None:
+            out = out[:, self.return_sequence_idx, :]
 
         return out
 
@@ -381,23 +401,25 @@ class Averager(nn.Module):
 class AutoConv1DTransformers(BaseLinearOutputModel):
     def __init__(self, config: AutoConv1DTransformersConfig):
         feature_embedding_modules = [
+            nn.InstanceNorm1d,
             Conv1DTransformer,
-            AvgPoolFlexibleDimension,
         ]
         feature_embeddings_args = [
+            dict(num_features=2, affine=True, track_running_stats=True),
             dict(
                 grid_patch_size=config.grid_patch_size,
                 resnet_num_filters=config.resnet_num_filters,
                 resnet_num_stages=config.resnet_num_stages,
                 resnet_num_blocks=config.resnet_num_blocks,
+                resnet_kernel_size=config.resnet_kernel_size,
                 resnet_dilated=config.resnet_dilated,
                 transformer_num_filters=config.transformer_num_filters,
                 transformer_num_layers=config.transformer_num_layers,
                 transformer_num_heads=config.transformer_num_heads,
                 transformer_dim_feedforward=config.transformer_dim_feedforward,
                 stem_conv_bias=True,
+                return_sequence_idx=0,
             ),
-            dict(dim=1),
         ]
         super(AutoConv1DTransformers, self).__init__(
             embedding_output_features=config.embedding_output_features,

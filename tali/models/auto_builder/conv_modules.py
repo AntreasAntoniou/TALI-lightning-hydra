@@ -14,6 +14,10 @@ from gate.model_blocks.auto_builder_modules.auto_builder_conv_blocks import (
     Conv1dBNLeakyReLU,
 )
 
+from tali.base import utils
+
+log = utils.get_logger(__name__)
+
 
 class DenseBlock(nn.Module):
     def __init__(
@@ -103,7 +107,6 @@ class ConvPool1DStemBlock(nn.Module):
         self,
         num_filters,
         kernel_size,
-        stride,
         padding,
         dilation,
         pool_kernel_size,
@@ -115,7 +118,6 @@ class ConvPool1DStemBlock(nn.Module):
         self.is_built = False
         self.num_filters = num_filters
         self.kernel_size = kernel_size
-        self.stride = stride
         self.padding = padding
         self.dilation = dilation
         self.pool_kernel_size = pool_kernel_size
@@ -129,10 +131,12 @@ class ConvPool1DStemBlock(nn.Module):
             in_channels=out.shape[1],
             out_channels=self.num_filters,
             kernel_size=self.kernel_size,
-            stride=self.stride,
+            stride=2,
             padding=self.padding,
             bias=False,
         )
+
+        self.layer_dict["stem_leaky_relu"] = nn.LeakyReLU(0.1)
 
         self.layer_dict["stem_instance_norm"] = nn.InstanceNorm1d(
             self.num_filters, affine=True, track_running_stats=True
@@ -143,8 +147,8 @@ class ConvPool1DStemBlock(nn.Module):
         )
 
         out = self.layer_dict["stem_conv"].forward(out)
+        out = self.layer_dict["stem_leaky_relu"].forward(out)
         out = self.layer_dict["stem_instance_norm"].forward(out)
-        out = self.layer_dict["stem_pool"].forward(out)
 
         self.is_built = True
         build_string = (
@@ -152,27 +156,27 @@ class ConvPool1DStemBlock(nn.Module):
             f"with input -> output sizes {dummy_x.shape} {out.shape}"
         )
 
-        logging.debug(build_string)
+        logging.info(build_string)
 
     def forward(self, x):
         if not self.is_built:
             self.build(x.shape)
 
-        out = self.layer_dict["stem_conv"].forward(x)
+        out = x
+        out = self.layer_dict["stem_conv"].forward(out)
+        out = self.layer_dict["stem_leaky_relu"].forward(out)
         out = self.layer_dict["stem_instance_norm"].forward(out)
-        out = self.layer_dict["stem_pool"].forward(out)
 
         return out
 
 
 class ResNetBlock1D(nn.Module):
-    def __init__(self, num_filters, kernel_size, padding, dilation, **kwargs):
+    def __init__(self, num_filters, kernel_size, dilation, **kwargs):
         super(ResNetBlock1D, self).__init__()
         self.layer_dict = nn.ModuleDict()
         self.is_built = False
         self.num_filters = num_filters
         self.kernel_size = kernel_size
-        self.padding = padding
         self.dilation = dilation
 
     def build(self, input_shape):
@@ -190,66 +194,78 @@ class ResNetBlock1D(nn.Module):
 
         dummy_x = self.layer_dict["conv_filter_pool"].forward(dummy_x)
 
-        self.layer_dict["conv_1"] = nn.Conv1d(
-            in_channels=dummy_x.shape[1],
+        log.debug(f"dummy_x shape: {dummy_x.shape}")
+
+        out = dummy_x
+
+        self.layer_dict["conv_0"] = nn.Conv1d(
+            in_channels=out.shape[1],
             out_channels=self.num_filters,
             kernel_size=self.kernel_size,
-            stride=1,
-            padding=self.padding,
+            stride=self.kernel_size,
+            padding=0,
             bias=False,
         )
 
-        self.layer_dict["conv_2"] = nn.Conv1d(
-            in_channels=self.num_filters,
-            out_channels=self.num_filters,
-            kernel_size=self.kernel_size,
-            stride=1,
-            padding=self.padding,
-            bias=False,
-        )
-        self.layer_dict["gelu_0"] = nn.GELU()
+        out = self.layer_dict["conv_0"].forward(out)
+
+        log.debug(f"out shape: {out.shape}")
+
+        self.layer_dict["leaky_relu_0"] = nn.LeakyReLU(0.1)
+
+        out = self.layer_dict["leaky_relu_0"].forward(out)
+
+        log.debug(f"out shape: {out.shape}")
+
         self.layer_dict["instance_norm_0"] = nn.InstanceNorm1d(
             self.num_filters, affine=True, track_running_stats=True
         )
 
-        self.layer_dict["gelu_1"] = nn.GELU()
-        self.layer_dict["instance_norm_1"] = nn.InstanceNorm1d(
-            self.num_filters, affine=True, track_running_stats=True
+        out = self.layer_dict["instance_norm_0"].forward(out)
+
+        log.debug(f"out shape: {out.shape}")
+
+        self.layer_dict["conv_spatial_pool"] = nn.Conv1d(
+            in_channels=dummy_x.shape[1],
+            out_channels=self.num_filters,
+            kernel_size=self.kernel_size,
+            stride=self.kernel_size,
+            padding=0,
+            bias=False,
         )
 
-        out = dummy_x
+        dummy_x = self.layer_dict["conv_spatial_pool"].forward(dummy_x)
 
-        out = self.layer_dict["conv_1"].forward(out)
-        out = self.layer_dict["gelu_0"].forward(out)
-        out = self.layer_dict["instance_norm_0"].forward(out)
-        out = self.layer_dict["conv_2"].forward(out)
-        out = self.layer_dict["gelu_1"].forward(out)
-        out = self.layer_dict["instance_norm_1"].forward(out)
+        log.debug(f"dummy_x shape: {dummy_x.shape}")
 
         out = dummy_x + out
+
+        log.debug(f"out shape: {out.shape}")
 
         self.is_built = True
 
         build_string = (
             f"Built module {self.__class__.__name__} "
-            f"with input -> output sizes {dummy_x.shape} {out.shape}"
+            f"with input -> output sizes {input_shape} {out.shape}"
         )
 
-        logging.debug(build_string)
+        logging.info(build_string)
 
     def forward(self, x):
         if not self.is_built:
             self.build(x.shape)
 
         x = self.layer_dict["conv_filter_pool"].forward(x)
+
         out = x
 
-        out = self.layer_dict["conv_1"].forward(out)
-        out = self.layer_dict["gelu_0"].forward(out)
+        out = self.layer_dict["conv_0"].forward(out)
+
+        out = self.layer_dict["leaky_relu_0"].forward(out)
+
         out = self.layer_dict["instance_norm_0"].forward(out)
-        out = self.layer_dict["conv_2"].forward(out)
-        out = self.layer_dict["gelu_1"].forward(out)
-        out = self.layer_dict["instance_norm_1"].forward(out)
+
+        x = self.layer_dict["conv_spatial_pool"].forward(x)
 
         out = x + out
 
@@ -257,15 +273,12 @@ class ResNetBlock1D(nn.Module):
 
 
 class ResNetReductionBlock1D(nn.Module):
-    def __init__(
-        self, num_filters, kernel_size, padding, dilation, reduction_rate, **kwargs
-    ):
+    def __init__(self, num_filters, kernel_size, dilation, reduction_rate, **kwargs):
         super(ResNetReductionBlock1D, self).__init__()
         self.layer_dict = nn.ModuleDict()
         self.is_built = False
         self.num_filters = num_filters
         self.kernel_size = kernel_size
-        self.padding = padding
         self.dilation = dilation
         self.reduction_rate = reduction_rate
 
@@ -289,7 +302,7 @@ class ResNetReductionBlock1D(nn.Module):
             out_channels=self.num_filters,
             kernel_size=self.kernel_size,
             stride=1,
-            padding=self.padding,
+            padding=0,
             bias=False,
         )
 
@@ -302,15 +315,15 @@ class ResNetReductionBlock1D(nn.Module):
             out_channels=self.num_filters,
             kernel_size=self.kernel_size,
             stride=1,
-            padding=self.padding,
+            padding=0,
             bias=False,
         )
-        self.layer_dict["gelu_0"] = nn.GELU()
+        self.layer_dict["gelu_0"] = nn.LeakyReLU(0.1)
         self.layer_dict["instance_norm_0"] = nn.InstanceNorm1d(
             self.num_filters, affine=True, track_running_stats=True
         )
 
-        self.layer_dict["gelu_1"] = nn.GELU()
+        self.layer_dict["gelu_1"] = nn.LeakyReLU(0.1)
         self.layer_dict["instance_norm_1"] = nn.InstanceNorm1d(
             self.num_filters, affine=True, track_running_stats=True
         )
@@ -391,8 +404,8 @@ class ConvNetEmbedding(nn.Module):
         self.layer_dict["stem_conv"] = self.stem_block_type(
             num_filters=4 * self.num_filters,
             kernel_size=self.kernel_size,
-            stride=1,
-            padding=self.kernel_size // 2,
+            stride=self.kernel_size,
+            padding=0,
             dilation=1,
             pool_kernel_size=2,
             pool_stride=2,
@@ -412,7 +425,6 @@ class ConvNetEmbedding(nn.Module):
                 ] = self.processing_block_type(
                     num_filters=(stage_idx * self.num_filters) + self.num_filters,
                     kernel_size=self.kernel_size,
-                    padding=self.kernel_size // 2,
                     dilation=dilation_factor,
                 )
 
@@ -425,7 +437,6 @@ class ConvNetEmbedding(nn.Module):
             ] = self.reduction_block_type(
                 num_filters=(stage_idx * self.num_filters) + self.num_filters,
                 kernel_size=self.kernel_size,
-                padding=self.kernel_size // 2,
                 dilation=dilation_factor,
                 reduction_rate=2,
             )
@@ -433,7 +444,7 @@ class ConvNetEmbedding(nn.Module):
             out = self.layer_dict[f"stage_{stage_idx}_dim_reduction"].forward(out)
 
         self.is_built = True
-        logging.debug(
+        logging.info(
             f"Built module {self.__class__.__name__} with input -> output sizes "
             f"{dummy_x.shape} {out.shape}"
         )

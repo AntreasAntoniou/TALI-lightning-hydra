@@ -1,8 +1,11 @@
 _target_: tali.models.auto_builder.transformers.AutoConv1DTransformers
 config:
   embedding_output_features: 512
-  resnet_num_filters: 8
+  resnet_num_filters: 128
   resnet_num_stages: 5
-  resnet_num_blocks: 1
+  resnet_num_blocks: 0
+  resnet_kernel_size: 2
   grid_patch_size: 64
   resnet_dilated: false
+  transformer_num_layers: 12
+  transformer_num_heads: 8

@@ -74,6 +74,7 @@ class AutoConv1DTransformersConfig:
     resnet_num_filters: int = 64
     resnet_num_stages: int = 3
     resnet_num_blocks: int = 4
+    resnet_kernel_size: int = 3
     resnet_adaptive_pool_output_features: int = 4096
     resnet_dilated: bool = True
     grid_patch_size: int = 11025
