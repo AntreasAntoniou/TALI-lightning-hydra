@@ -462,11 +462,11 @@ class TALIMultiModalDataset(Dataset):
             max_workers=int(mp.cpu_count())
         ) as executor:
             with tqdm.tqdm(total=len(matched_meta_data_files), smoothing=0.0) as pbar:
-                for dataset_dir, video_key, media_tuples in executor.map(
-                    collect_files, args
-                ):
-                    if len(media_tuples) > 0:
-                        path_dict[video_key] = media_tuples
+                for item in executor.map(collect_files, args):
+                    if item is not None:
+                        dataset_dir, video_key, media_tuples = item
+                        if len(media_tuples) > 0:
+                            path_dict[video_key] = media_tuples
 
                     pbar.update(1)
                     pbar.set_description(f"{len(path_dict)} subclips found")

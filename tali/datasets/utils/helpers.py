@@ -202,6 +202,19 @@ def collect_subclip_data(input_tuple):
 import multiprocessing as mp
 
 
+def prevent_error_kill(method):
+    def try_catch_return(*args, **kwargs):
+        try:
+            result = method(*args, **kwargs)
+            return result
+        except Exception as e:
+            log.exception(f"{method.__name__} error: {e}")
+            return None
+
+    return try_catch_return
+
+
+@prevent_error_kill
 def collect_files(args):
     # sourcery skip: identity-comprehension, simplify-len-comparison, use-named-expression
     dataset_dir, json_file_path, training_set_size_fraction_value = args
