@@ -70,6 +70,28 @@ datamodule.prefetch_factor=1 \
 datamodule.config.dataset_size_identifier=deci
 ```
 
+# Currently running on gpu-medium-instance-0
+```bash
+python run.py \
+hydra.verbose=False \
+resume=False \
+batch_size=250 \
+datamodule.num_workers=16 \
+trainer.gpus=1 \
+model=base_modus_prime_vi-transformer16 \
+datamodule=tali \
+datamodule.config.modality_config.image=True \
+datamodule.config.modality_config.text=True \
+datamodule.config.modality_config.audio=False \
+datamodule.config.modality_config.video=False \
+datamodule.config.rescan_paths=True \
+datamodule.prefetch_factor=2 \
+datamodule.config.dataset_size_identifier=base \
+model/lr_scheduler_config=reduce_lr_on_plateau \
+seed=20130023 \
+model.optimizer_config.lr=0.00001
+```
+
 ```bash
 gcloud beta compute instances create gpu-instance-small-0 \
 --project=tali-multi-modal \

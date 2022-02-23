@@ -438,11 +438,14 @@ class TALIMultiModalDataset(Dataset):
         ) as pbar:
             for dir_path in pathlib.Path(self.dataset_dir).iterdir():
                 cur_file = dir_path / "meta_data.json"
-                if cur_file.exists():
-                    meta_data_string_path = path_to_string(cur_file).replace(
-                        self.dataset_dir, ""
-                    )
-                    matched_meta_data_files.append(meta_data_string_path)
+                try:
+                    if cur_file.exists():
+                        meta_data_string_path = path_to_string(cur_file).replace(
+                            self.dataset_dir, ""
+                        )
+                        matched_meta_data_files.append(meta_data_string_path)
+                except:
+                    log.error(f"Error when checking if {cur_file} exists")
                 pbar.update(1)
 
         logging.info(f"Found {len(matched_meta_data_files)} matched meta_data files")
