@@ -366,8 +366,7 @@ class TALIMultiModalDataset(Dataset):
                     allow_pickle=True,
                 ).values()
             )[0]
-
-            frames_dict.audio = torch.Tensor(frames_dict.audio)
+            frames_dict.audio = torch.Tensor(frames_dict.audio).type(torch.float16)
             frames_dict.audio = frames_dict.audio.permute([1, 0])
 
             if frames_dict.audio is None:
