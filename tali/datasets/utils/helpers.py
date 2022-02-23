@@ -214,31 +214,34 @@ def prevent_error_kill(method):
     return try_catch_return
 
 
-@prevent_error_kill
 def collect_files(args):
     # sourcery skip: identity-comprehension, simplify-len-comparison, use-named-expression
-    dataset_dir, json_file_path, training_set_size_fraction_value = args
-    json_file_path = pathlib.Path(f"{dataset_dir}/{json_file_path}")
-    video_files = list(json_file_path.parent.glob("**/*.frames"))
-    video_files_new = []
+    try:
+        dataset_dir, json_file_path, training_set_size_fraction_value = args
+        json_file_path = pathlib.Path(f"{dataset_dir}/{json_file_path}")
+        video_files = list(json_file_path.parent.glob("**/*.frames"))
+        video_files_new = []
 
-    for file in video_files:
-        roll = np.random.random()
-        if roll <= training_set_size_fraction_value:
-            video_files_new.append(path_to_string(file))
+        for file in video_files:
+            roll = np.random.random()
+            if roll <= training_set_size_fraction_value:
+                video_files_new.append(path_to_string(file))
 
-    video_key = json_file_path.parent.stem
-    media_tuples = []
-    multiprocessing_tuple = [
-        (dataset_dir, video_key, filepath, json_file_path)
-        for filepath in video_files_new
-    ]
-    with concurrent.futures.ProcessPoolExecutor(max_workers=2) as executor:
-        for data_tuple in executor.map(collect_subclip_data, multiprocessing_tuple):
-            if data_tuple is not None:
-                media_tuples.append(data_tuple)
-                # log.info(f"{data_tuple}")
-    return dataset_dir, video_key, media_tuples
+        video_key = json_file_path.parent.stem
+        media_tuples = []
+        multiprocessing_tuple = [
+            (dataset_dir, video_key, filepath, json_file_path)
+            for filepath in video_files_new
+        ]
+        with concurrent.futures.ProcessPoolExecutor(max_workers=2) as executor:
+            for data_tuple in executor.map(collect_subclip_data, multiprocessing_tuple):
+                if data_tuple is not None:
+                    media_tuples.append(data_tuple)
+
+        return dataset_dir, video_key, media_tuples
+    except Exception as e:
+        log.exception(f"collect_files error: {e}")
+        return None
 
 
 def collate_fn_replace_corrupted(batch, dataset):
