@@ -15,7 +15,7 @@ def load_frames(
     image_tensor = torch.zeros(
         (len(selected_frame_list), image_channels, image_height, image_width)
     )
-
+    # log.info(f"Loading frame {selected_frame_list}")
     for idx, frame_filepath in enumerate(selected_frame_list):
         try:
             image = cv2.imread(frame_filepath)

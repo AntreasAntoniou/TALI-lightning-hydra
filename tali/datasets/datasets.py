@@ -8,11 +8,13 @@ import random
 import re
 import shelve
 import shutil
+import sys
 from collections import defaultdict
 from concurrent.futures import as_completed
 from contextlib import closing
 from typing import Callable, Dict, List, Union
 
+import h5py
 import numpy as np
 import torch
 import tqdm
@@ -70,99 +72,73 @@ class TALIMultiModalDataset(Dataset):
         self.dataset_dir = os.path.join(self.dataset_root, self.set_name)
         self.start_index = start_index
 
-        self.pre_scanned_dataset_json_filepath_on_dataset_disk = os.path.join(
-            self.dataset_dir,
-            f"tali_path_cache_{self.config.dataset_size_identifier}.json",
-        )
-
-        self.pre_scanned_dataset_json_filepath_on_boot_disk = os.path.join(
-            os.environ.get("PATH_CACHE_DIR"),
-            f"tali_path_caches/{set_name}-{self.config.dataset_size_identifier}.json",
-        )
-
-        self.pre_scanned_dataset_json_filepath = (
-            self.pre_scanned_dataset_json_filepath_on_boot_disk
+        self.hdf5_dataset_path = (
+            f"{os.environ.get('PATH_CACHE_DIR')}/"
+            f"{set_name}-{self.config.dataset_size_identifier}-tali.hdf5"
         )
 
         logging.info(
-            f"{self.pre_scanned_dataset_json_filepath}, "
+            f"{self.hdf5_dataset_path}, "
             f"{self.config.dataset_size_identifier}, "
             f"{self.percentage_to_keep}"
         )
-        temp_filepath = pathlib.Path(self.pre_scanned_dataset_json_filepath)
+        temp_filepath = pathlib.Path(self.hdf5_dataset_path)
         logging.debug(
             f"{self.config.rescan_paths == True and temp_filepath.exists()} "
             f"{self.config.rescan_paths} {temp_filepath.exists()}"
         )
         if (
             self.config.rescan_paths is True
-            and pathlib.Path(self.pre_scanned_dataset_json_filepath).exists()
+            and pathlib.Path(self.hdf5_dataset_path).exists()
         ):
             # set the cache path to the experiment directory since
             # the dataset is read only and would cause issues when saving
-            self.pre_scanned_dataset_json_filepath = (
-                self.pre_scanned_dataset_json_filepath_on_boot_disk
-            )
-            pathlib.Path(self.pre_scanned_dataset_json_filepath).unlink(missing_ok=True)
 
-        if not pathlib.Path(self.pre_scanned_dataset_json_filepath).exists():
+            pathlib.Path(self.hdf5_dataset_path).unlink(missing_ok=True)
+
+        if not pathlib.Path(self.hdf5_dataset_path).exists():
             path_dict = self._scan_paths_return_dict(
                 percentage_to_keep=self.percentage_to_keep
             )
-            save_json(
-                filepath=self.pre_scanned_dataset_json_filepath,
-                metrics_dict=path_dict,
-                overwrite=True,
-            )
-        else:
-            path_dict = load_json(self.pre_scanned_dataset_json_filepath)
 
-        self.efficient_path_dict = defaultdict(list)
-        folder_keys = list(path_dict.keys())
-        with tqdm.tqdm(total=len(path_dict)) as pbar:
-            for folder_key in folder_keys:
-                folder_key = folder_key.replace(self.dataset_dir, "")
-                prefix = f"{self.dataset_dir}/{folder_key}".replace("//", "/")
-                folder_list = path_dict[folder_key]
-                for media_tuple in folder_list:
-                    (
-                        frame_list,
-                        video_filepath,
-                        audio_filepath,
-                        meta_data_filepath,
-                    ) = media_tuple
+            folder_keys = list(path_dict.keys())
 
-                    video_filepath = video_filepath.replace(prefix, "")
-                    audio_filepath = audio_filepath.replace(prefix, "")
-                    meta_data_filepath = meta_data_filepath.replace(prefix, "")
-                    frame_list = [
-                        frame.replace(prefix, "")
-                        .replace(video_filepath, "")
-                        .replace(self.postfix, "")
-                        .replace("/", "")
-                        for frame in frame_list
-                    ]
-                    # output_string = (
-                    #     f"{video_filepath} {frame_list[0]}"
-                    #     f" {audio_filepath} {meta_data_filepath}"
-                    # )
-                    # log.debug(f"{output_string}")
+            dataset_file = h5py.File(self.hdf5_dataset_path, "w")
 
-                    self.efficient_path_dict[folder_key].append(
+            with tqdm.tqdm(total=len(path_dict)) as pbar:
+                for folder_key in folder_keys:
+                    folder_key = folder_key.replace(self.dataset_dir, "")
+                    prefix = f"{self.dataset_dir}/{folder_key}".replace("//", "/")
+                    folder_list = path_dict[folder_key]
+                    for media_tuple in folder_list:
                         (
                             frame_list,
-                            video_filepath.replace(self.postfix, "").replace("/", ""),
+                            video_filepath,
+                            audio_filepath,
+                            meta_data_filepath,
+                        ) = media_tuple
+                        video_filepath = video_filepath.replace(prefix, "")
+                        frame_list = [
+                            frame.replace(prefix, "")
+                            .replace(video_filepath, "")
+                            .replace(self.postfix, "")
+                            .replace("/", "")
+                            for frame in frame_list
+                        ]
+                        dataset_file.create_dataset(
+                            name=f"{folder_key}/{video_filepath}",
+                            data=frame_list,
                         )
-                    )
+                    path_dict.pop(folder_key)
+                    pbar.update(1)
 
-                path_dict.pop(folder_key)
-                pbar.update(1)
+                dataset_file.close()
 
-        self.video_keys = list(self.efficient_path_dict.keys())
+        self.dataset_file = h5py.File(self.hdf5_dataset_path, "r")
 
-        count_sub_clips = np.sum(
-            [len(value) for value in self.efficient_path_dict.values()]
-        )
+        self.video_keys = list(self.dataset_file.keys())
+
+        count_sub_clips = np.sum([len(value) for value in self.dataset_file.values()])
 
         self.num_samples = num_samples or count_sub_clips
 
@@ -172,7 +148,7 @@ class TALIMultiModalDataset(Dataset):
             f"{len(self.video_keys)} and "
             f"num subclips (10 seconds each at 8 FPS): {count_sub_clips} "
             f"with sampler length of {self.num_samples} \n"
-            f"sampled from num video clips: {len(folder_keys)}"
+            f"sampled from num video clips: {len(self.video_keys)}"
         )
 
     @prevent_error_kill
@@ -184,25 +160,22 @@ class TALIMultiModalDataset(Dataset):
         torch_rng = torch.Generator()
         torch_rng.manual_seed(index)
 
-        folder_key = self.video_keys[actual_index]
+        video_key = self.video_keys[actual_index]
+        # log.info(f"📥 Loading video {video_key}")
+        video_tuples = self.dataset_file[video_key]
 
-        video_folder_tuples = self.efficient_path_dict[folder_key]
+        sub_video_key = rng.choice(list(video_tuples.keys()))
 
-        video_filepath_idx = rng.choice(len(video_folder_tuples))
+        # log.info(f"video_filepath_idx: {sub_video_key}")
+        frame_list = video_tuples[sub_video_key]
 
-        video_filepath = video_folder_tuples[video_filepath_idx]
-
-        (frame_list, video_filepath) = video_filepath
-
-        path_prefix = f"{self.dataset_dir}/{folder_key}".replace("//", "/")
-        video_filepath = f"{path_prefix}/{self.postfix}{video_filepath}".replace(
-            "//", "/"
-        )
+        path_prefix = f"{self.dataset_dir}/{video_key}".replace("//", "/")
+        video_filepath = f"{path_prefix}/{sub_video_key}".replace("//", "/")
         audio_filepath = f"{video_filepath}".replace(".frames", ".npz")
         meta_data_filepath = f"{path_prefix}/{self.meta_data_filename}".replace(
             "//", "/"
         )
-
+        # log.info(f"📥 Loading {video_filepath} {audio_filepath}")
         # log.debug(
         #     f"{video_filepath} {frame_list[0]} {audio_filepath} {meta_data_filepath}"
         # )
@@ -225,7 +198,6 @@ class TALIMultiModalDataset(Dataset):
         data_dict.video = None
         data_dict.audio = None
         data_dict.image = None
-
         # write script that cleans up clips without any captions, write script that
         # cleans something in video space (removes videos smaller than 10 seconds)
 
@@ -346,15 +318,16 @@ class TALIMultiModalDataset(Dataset):
                 image_width=self.config.image_shape.width,
                 image_channels=self.config.image_shape.channels,
                 selected_frame_list=[
-                    f"{video_filepath}/{self.postfix}{frame_list[idx]}".replace(
+                    f"{video_filepath}/"
+                    f"{self.postfix}{frame_list[idx].decode('utf-8')}".replace(
                         "//", "/"
                     )
                     for idx in selected_frame_list_idx
                 ],
             )
 
-            if frames_dict.video is None:
-                shutil.rmtree(video_filepath)
+            # if frames_dict.video is None:
+            #     shutil.rmtree(video_filepath)
 
         if self.config.modality_config.audio:
             if not pathlib.Path(audio_filepath).exists():
@@ -369,8 +342,8 @@ class TALIMultiModalDataset(Dataset):
             frames_dict.audio = torch.Tensor(frames_dict.audio).type(torch.float16)
             frames_dict.audio = frames_dict.audio.permute([1, 0])
 
-            if frames_dict.audio is None:
-                shutil.rmtree(video_filepath)
+            # if frames_dict.audio is None:
+            #     shutil.rmtree(video_filepath)
 
         if self.config.modality_config.image:
             frames_dict.image = load_frames(
@@ -378,15 +351,16 @@ class TALIMultiModalDataset(Dataset):
                 image_width=self.config.image_shape.width,
                 image_channels=self.config.image_shape.channels,
                 selected_frame_list=[
-                    f"{video_filepath}/{self.postfix}{frame}".replace("//", "/")
+                    f"{video_filepath}/"
+                    f"{self.postfix}{frame.decode('utf-8')}".replace("//", "/")
                     for frame in rng.choice(frame_list, (1,))
                 ],
             )
             if frames_dict.image is not None:
                 frames_dict.image = frames_dict.image[0]
 
-            if frames_dict.image is None:
-                shutil.rmtree(video_filepath)
+            # if frames_dict.image is None:
+            #     shutil.rmtree(video_filepath)
 
         return frames_dict
 
