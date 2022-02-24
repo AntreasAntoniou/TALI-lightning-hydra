@@ -515,14 +515,19 @@ class ModusPrime(LightningModule):
         optimizer_dict = {"optimizer": optimizer}
 
         if self.lr_scheduler_config._target_.split(".")[-1] == "CosineAnnealingLR":
-            self.lr_scheduler_config["T_max"] = self.num_train_samples / self.batch_size
+            if "T_max" not in self.lr_scheduler_config:
+                self.lr_scheduler_config["T_max"] = (
+                    self.num_train_samples / self.batch_size
+                )
         elif (
             self.lr_scheduler_config._target_.split(".")[-1]
             == "CosineAnnealingWarmRestarts"
         ):
-            self.lr_scheduler_config["T_0"] = (
-                self.num_train_samples / self.batch_size // 2
-            )
+            if "T_0" not in self.lr_scheduler_config:
+                self.lr_scheduler_config["T_0"] = (
+                    self.num_train_samples / self.batch_size // 2
+                )
+
         elif self.lr_scheduler_config._target_.split(".")[-1] == "ReduceLROnPlateau":
             self.lr_scheduler_config["patience"] = (
                 self.lr_scheduler_config["patience"] * torch.cuda.device_count()
