@@ -138,15 +138,14 @@ class TALIMultiModalDataset(Dataset):
 
         self.video_keys = list(self.dataset_file.keys())
 
-        count_sub_clips = np.sum([len(value) for value in self.dataset_file.values()])
-
-        self.num_samples = num_samples or count_sub_clips
+        self.num_samples = num_samples or np.sum(
+            [len(value) for value in self.dataset_file.values()]
+        )
 
         logging.info(
             f"👍 Loaded {self.set_name} set with: \n"
             f"📊 num video videos: "
             f"{len(self.video_keys)} and "
-            f"num subclips (10 seconds each at 8 FPS): {count_sub_clips} "
             f"with sampler length of {self.num_samples} \n"
             f"sampled from num video clips: {len(self.video_keys)}"
         )
