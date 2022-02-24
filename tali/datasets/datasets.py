@@ -138,8 +138,8 @@ class TALIMultiModalDataset(Dataset):
 
         self.video_keys = list(self.dataset_file.keys())
 
-        self.num_samples = num_samples or np.sum(
-            [len(value) for value in self.dataset_file.values()]
+        self.num_samples = (
+            num_samples or self.num_youtube_video_dict[self.set_name] * 100
         )
 
         logging.info(

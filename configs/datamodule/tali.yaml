@@ -20,7 +20,7 @@ config:
     height: 176
   text_context_length: 77
 batch_size: ${batch_size}
-persistent_workers: True
+persistent_workers: False
 pin_memory: True
 prefetch_factor: 2
 num_workers: 2
