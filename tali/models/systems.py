@@ -841,10 +841,34 @@ class DumbusPrime(LightningModule):
         )
 
         optimizer_dict = {"optimizer": optimizer}
+        torch.optim.lr_scheduler.CosineAnnealingWarmRestarts
+        if self.lr_scheduler_config._target_.split(".")[-1] == "CosineAnnealingLR":
+            if "T_max" not in self.lr_scheduler_config:
+                self.lr_scheduler_config["T_max"] = (
+                    self.num_train_samples / self.batch_size
+                )
+        elif (
+            self.lr_scheduler_config._target_.split(".")[-1]
+            == "CosineAnnealingWarmRestarts"
+        ):
+            if "T_0" not in self.lr_scheduler_config:
+                self.lr_scheduler_config["T_0"] = (
+                    self.num_train_samples / self.batch_size // 2
+                )
+
+        elif self.lr_scheduler_config._target_.split(".")[-1] == "ReduceLROnPlateau":
+            self.lr_scheduler_config["patience"] = (
+                self.lr_scheduler_config["patience"] * torch.cuda.device_count()
+                if torch.cuda.is_available()
+                else 1
+            )
+
         lr_scheduler = hydra.utils.instantiate(
             config=self.lr_scheduler_config, optimizer=optimizer
         )
-
+        log.info(
+            f"\noptimizer: {optimizer} \n" f"lr_scheduler: {self.lr_scheduler_config}"
+        )
         if isinstance(lr_scheduler, torch.optim.lr_scheduler.ReduceLROnPlateau):
             self.lr_scheduler = lr_scheduler
             self.lr_scheduler_step_must_be_called_manually = True
