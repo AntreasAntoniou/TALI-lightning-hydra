@@ -6,8 +6,9 @@ import hydra.utils
 import numpy as np
 import torch
 import yaml
-from pytorch_lightning import LightningModule
+from pytorch_lightning import LightningModule, Trainer
 from torch import nn
+from torch.optim import Optimizer
 from torchmetrics import Metric
 from torchmetrics.classification.accuracy import Accuracy
 
@@ -888,8 +889,8 @@ class DumbusPrime(LightningModule):
 
     def on_before_optimizer_step(
         self,
-        trainer: "pl.Trainer",
-        pl_module: "pl.LightningModule",
+        trainer: "Trainer",
+        pl_module: "LightningModule",
         optimizer: Optimizer,
         opt_idx: int,
     ) -> None:
