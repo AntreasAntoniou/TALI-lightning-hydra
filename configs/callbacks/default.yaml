@@ -46,9 +46,7 @@ learning_rate_monitor:
 #  options_list: ['r', 'd', 'u', 'e']
 #  resume: ${resume}
 
-log_grads:
-  _target_: tali.base.callbacks.wandb_callbacks.LogGrads
-  refresh_rate: 100
+
 
 #log_params:
 #  _target_: tali.base.callbacks.wandb_callbacks.LogParams

@@ -24,3 +24,7 @@ upload_ckpts_as_artifact:
 log_multi_modal_similarity_prediction_heatmap:
   _target_: tali.base.callbacks.wandb_callbacks.LogMultiModalPredictionHeatmaps
   num_samples: 16
+
+log_grads:
+  _target_: tali.base.callbacks.wandb_callbacks.LogGrads
+  refresh_rate: 100
