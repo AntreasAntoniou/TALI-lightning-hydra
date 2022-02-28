@@ -17,6 +17,7 @@ git+https://github.com/AntreasAntoniou/GATE.git@antreas_dev
 hydra-core==1.1.0
 hydra-colorlog==1.1.0
 hydra-optuna-sweeper==1.1.0
+h5py
 # hydra-ax-sweeper
 # hydra-ray-launcher
 # hydra-submitit-launcher

@@ -814,10 +814,10 @@ class DumbusPrime(LightningModule):
             batch,
         )
 
-        # embedding_feature_dict = self.all_gather(embedding_feature_dict)
-        # cross_modal_cosine_similarities = self.all_gather(
-        #     cross_modal_cosine_similarities
-        # )
+        embedding_feature_dict = self.all_gather(embedding_feature_dict)
+        cross_modal_cosine_similarities = self.all_gather(
+            cross_modal_cosine_similarities
+        )
 
         targets = torch.stack(
             [
@@ -857,7 +857,6 @@ class DumbusPrime(LightningModule):
         )
 
         optimizer_dict = {"optimizer": optimizer}
-        torch.optim.lr_scheduler.CosineAnnealingWarmRestarts
         if self.lr_scheduler_config._target_.split(".")[-1] == "CosineAnnealingLR":
             if "T_max" not in self.lr_scheduler_config:
                 self.lr_scheduler_config["T_max"] = 1000000
