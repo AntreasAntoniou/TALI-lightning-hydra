@@ -1,9 +1,11 @@
 import logging
 from itertools import combinations
+from pprint import pformat
 from typing import Any, Dict, List, Optional, Union
 
 import hydra.utils
 import numpy as np
+import orjson
 import torch
 import yaml
 from pytorch_lightning import LightningModule, Trainer
@@ -27,9 +29,7 @@ log = utils.get_logger(__name__)
 
 def contrastive_logits_labels(logits: torch.Tensor):
     # logit shape is expected to be (batch_size, num_classes)
-    labels = (
-        torch.arange(logits.shape[1]).type_as(logits).long().repeat(logits.shape[0], 1)
-    )
+    labels = torch.arange(logits.shape[1]).type_as(logits).long()
     return logits, labels
 
 
@@ -811,36 +811,36 @@ class DumbusPrime(LightningModule):
 
     def step(self, batch, batch_idx):
 
-        (
-            embedding_feature_dict,
-            cross_modal_cosine_similarities,
-        ) = self.system.forward(
+        (embedding_feature_dict, logits_similarities_dict,) = self.system.forward(
             batch,
         )
 
         embedding_feature_dict = self.all_gather(embedding_feature_dict)
-        cross_modal_cosine_similarities = self.all_gather(
-            cross_modal_cosine_similarities
-        )
+        logits_similarities_dict = self.all_gather(logits_similarities_dict)
         # {source_to_target: (b, n_sources, n_targets)}
-        logits = torch.cat(list(cross_modal_cosine_similarities.values()), dim=0)
-        # after concat: (num_modalities * b, n_sources, n_targets)
-        n_samples, n_source, n_targets = logits.shape
-        logits, targets = contrastive_logits_labels(logits=logits)
-        logits = logits.view(-1, n_targets)
-        targets = targets.view(-1)
-        return embedding_feature_dict, cross_modal_cosine_similarities, logits, targets
+
+        targets_dict = {
+            key: contrastive_logits_labels(value)[1]
+            for key, value in logits_similarities_dict.items()
+        }
+
+        return embedding_feature_dict, logits_similarities_dict, targets_dict
 
     def training_step(self, batch, batch_idx):
         (
             embedding_feature_dict,
-            cross_modal_cosine_similarities,
-            logits,
-            targets,
+            logits_similarities_dict,
+            targets_dict,
         ) = self.step(batch=batch, batch_idx=batch_idx)
-        log.info(f"logits: {logits.shape}, targets: {targets.shape} {targets}")
-        log.info(f"{list(cross_modal_cosine_similarities.keys())}")
+
+        logits = torch.stack(list(logits_similarities_dict.values()), dim=0)
+        logits = logits.view(-1, logits.shape[-1])
+
+        targets = torch.stack(list(targets_dict.values()), dim=0)
+        targets = targets.view(-1)
+
         loss = self.criterion(input=logits, target=targets)
+
         if self.lr_scheduler_step_must_be_called_manually:
             self.lr_scheduler.step(loss.detach().item(), self.global_step)
 
@@ -887,18 +887,21 @@ class DumbusPrime(LightningModule):
 
         return optimizer_dict
 
-    def on_before_optimizer_step(
-        self,
-        trainer: "Trainer",
-        pl_module: "LightningModule",
-        optimizer: Optimizer,
-        opt_idx: int,
-    ) -> None:
-
+    def on_before_backward(self, loss: torch.Tensor):
         grad_dict = {
-            name: param.grad.cpu().detach().abs().mean()
-            if param.requires_grad
+            name: grad.cpu().detach().abs().mean()
+            if param.requires_grad and param.grad is not None
             else None
-            for name, param in pl_module.named_parameters()
+            for (name, param), grad in zip(
+                self.named_parameters(),
+                torch.autograd.grad(
+                    outputs=loss,
+                    inputs=self.parameters(),
+                    allow_unused=True,
+                    retain_graph=True,
+                ),
+            )
         }
-        log.info(f"grad_dict: {grad_dict}")
+        log.info(
+            f"grad_dict: {pformat(grad_dict, sort_dicts=False, compact=True, indent=0)}"
+        )

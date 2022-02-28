@@ -18,7 +18,7 @@ if [ ! -d "$MOUNT_DIR" ]; then
 fi
 
 #mount -o discard,defaults /dev/sdb $MOUNT_DIR
-mount -o ro,noload /dev/sdb $MOUNT_DIR
+#mount -o ro,noload /dev/sdb $MOUNT_DIR
 
 
 #rm -rf $EXPERIMENTS_DIR
