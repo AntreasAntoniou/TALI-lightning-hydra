@@ -838,6 +838,7 @@ class DumbusPrime(LightningModule):
             targets,
         ) = self.step(batch=batch, batch_idx=batch_idx)
         log.info(f"logits: {logits.shape}, targets: {targets.shape}")
+        log.info(f"{list(cross_modal_cosine_similarities.keys())}")
         loss = self.criterion(input=logits, target=targets)
         if self.lr_scheduler_step_must_be_called_manually:
             self.lr_scheduler.step(loss.detach().item(), self.global_step)
