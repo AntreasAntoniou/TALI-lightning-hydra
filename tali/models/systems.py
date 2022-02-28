@@ -844,17 +844,13 @@ class DumbusPrime(LightningModule):
         torch.optim.lr_scheduler.CosineAnnealingWarmRestarts
         if self.lr_scheduler_config._target_.split(".")[-1] == "CosineAnnealingLR":
             if "T_max" not in self.lr_scheduler_config:
-                self.lr_scheduler_config["T_max"] = (
-                    self.num_train_samples / self.batch_size
-                )
+                self.lr_scheduler_config["T_max"] = 1000000
         elif (
             self.lr_scheduler_config._target_.split(".")[-1]
             == "CosineAnnealingWarmRestarts"
         ):
             if "T_0" not in self.lr_scheduler_config:
-                self.lr_scheduler_config["T_0"] = (
-                    self.num_train_samples / self.batch_size // 2
-                )
+                self.lr_scheduler_config["T_0"] = 1000000
 
         elif self.lr_scheduler_config._target_.split(".")[-1] == "ReduceLROnPlateau":
             self.lr_scheduler_config["patience"] = (
