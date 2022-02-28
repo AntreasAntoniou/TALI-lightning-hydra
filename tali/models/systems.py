@@ -27,7 +27,7 @@ log = utils.get_logger(__name__)
 def contrastive_logits_labels(logits: torch.Tensor):
     # logit shape is expected to be (batch_size, num_classes)
     labels = (
-        torch.arange(len(logits.shape[1])).type_as(logits).long().repeat(len(logits), 1)
+        torch.arange(logits.shape[1]).type_as(logits).long().repeat(logits.shape[0], 1)
     )
     return logits, labels
 
