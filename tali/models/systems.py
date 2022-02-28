@@ -885,3 +885,19 @@ class DumbusPrime(LightningModule):
             }
 
         return optimizer_dict
+
+    def on_before_optimizer_step(
+        self,
+        trainer: "pl.Trainer",
+        pl_module: "pl.LightningModule",
+        optimizer: Optimizer,
+        opt_idx: int,
+    ) -> None:
+
+        grad_dict = {
+            name: param.grad.cpu().detach().abs().mean()
+            if param.requires_grad
+            else None
+            for name, param in pl_module.named_parameters()
+        }
+        log.info(f"grad_dict: {grad_dict}")
