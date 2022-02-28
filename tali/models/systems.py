@@ -815,13 +815,9 @@ class DumbusPrime(LightningModule):
             batch,
         )
 
-        # embedding_feature_dict = self.all_gather(embedding_feature_dict)
-        # logits_similarities_dict = self.all_gather(logits_similarities_dict)
-        # {source_to_target: (b, n_sources, n_targets)}
         logits_shape_dict = {
             key: value.shape for key, value in logits_similarities_dict.items()
         }
-        # log.info(f"logits_similarities_dict: {logits_shape_dict}")
         targets_dict = {
             key: contrastive_logits_labels(value)[1]
             for key, value in logits_similarities_dict.items()
@@ -889,22 +885,3 @@ class DumbusPrime(LightningModule):
             }
 
         return optimizer_dict
-
-    # def on_before_backward(self, loss: torch.Tensor):
-    #     grad_dict = {
-    #         name: grad.cpu().detach().abs().mean()
-    #         if param.requires_grad and param.grad is not None
-    #         else None
-    #         for (name, param), grad in zip(
-    #             self.named_parameters(),
-    #             torch.autograd.grad(
-    #                 outputs=loss,
-    #                 inputs=self.parameters(),
-    #                 allow_unused=True,
-    #                 retain_graph=True,
-    #             ),
-    #         )
-    #     }
-    #     log.info(
-    #         f"grad_dict: {pformat(grad_dict, sort_dicts=False, compact=True, indent=0)}"
-    #     )
