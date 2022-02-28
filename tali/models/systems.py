@@ -24,8 +24,11 @@ from tali.config_repository import (
 log = utils.get_logger(__name__)
 
 
-def contrastive_logits_labels(logits):
-    labels = torch.arange(len(logits)).type_as(logits).long()
+def contrastive_logits_labels(logits: torch.Tensor):
+    # logit shape is expected to be (batch_size, num_classes)
+    labels = (
+        torch.arange(len(logits.shape[1])).type_as(logits).long().repeat(len(logits), 1)
+    )
     return logits, labels
 
 
@@ -818,23 +821,13 @@ class DumbusPrime(LightningModule):
         cross_modal_cosine_similarities = self.all_gather(
             cross_modal_cosine_similarities
         )
-
-        targets = torch.stack(
-            [
-                contrastive_logits_labels(modality_similarities)[1]
-                for modality_similarities in cross_modal_cosine_similarities.values()
-            ],
-            dim=0,
-        )
-
-        logits = torch.cat(
-            [
-                contrastive_logits_labels(modality_similarities)[0]
-                for modality_similarities in cross_modal_cosine_similarities.values()
-            ],
-            dim=0,
-        )
-
+        # {source_to_target: (b, n_sources, n_targets)}
+        logits = torch.cat(list(cross_modal_cosine_similarities.values()), dim=0)
+        # after concat: (num_modalities * b, n_sources, n_targets)
+        n_samples, n_source, n_targets = logits.shape
+        logits, targets = contrastive_logits_labels(logits=logits)
+        logits = logits.view(-1, n_targets)
+        targets = targets.view(-1)
         return embedding_feature_dict, cross_modal_cosine_similarities, logits, targets
 
     def training_step(self, batch, batch_idx):
