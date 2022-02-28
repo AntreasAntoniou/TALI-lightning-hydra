@@ -25,7 +25,7 @@ log = utils.get_logger(__name__)
 
 
 def contrastive_logits_labels(logits):
-    labels = torch.arange(len(logits)).type_as(logits)
+    labels = torch.arange(len(logits)).type_as(logits).long()
     return logits, labels
 
 
@@ -827,7 +827,7 @@ class DumbusPrime(LightningModule):
             targets,
         ) = self.step(batch=batch, batch_idx=batch_idx)
 
-        logits = torch.stack(cross_modal_cosine_similarities.values(), dim=0)
+        logits = torch.stack(tuple(cross_modal_cosine_similarities.values()), dim=0)
 
         loss = self.criterion(input=logits, target=targets)
         if self.lr_scheduler_step_must_be_called_manually:
