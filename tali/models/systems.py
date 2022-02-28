@@ -434,10 +434,18 @@ class ModusPrime(LightningModule):
             dim=0,
         )
 
+        logits = torch.stack(
+            [
+                contrastive_logits_labels(modality_similarities)[0]
+                for modality_similarities in cross_modal_cosine_similarities.values()
+            ],
+            dim=0,
+        )
+
         # log.debug(f'targets shape: '
         #          f'{targets.shape}')
 
-        return embedding_feature_dict, cross_modal_cosine_similarities, targets
+        return embedding_feature_dict, cross_modal_cosine_similarities, logits, targets
 
     def training_step(self, batch, batch_idx):
         # logging.debug(f'{[(key, value.shape) for key, value in batch.items()]}')
@@ -445,6 +453,7 @@ class ModusPrime(LightningModule):
         (
             embedding_feature_dict,
             cross_modal_cosine_similarities,
+            logits,
             targets,
         ) = self.step(batch=batch, batch_idx=batch_idx)
 
@@ -453,8 +462,6 @@ class ModusPrime(LightningModule):
             targets=targets,
             phase_name="training",
         )
-
-        logits = torch.stack(list(cross_modal_cosine_similarities.values()), dim=0)
 
         loss = self.criterion(input=logits, target=targets)
 
@@ -474,6 +481,7 @@ class ModusPrime(LightningModule):
         (
             embedding_feature_dict,
             cross_modal_cosine_similarities,
+            logits,
             targets,
         ) = self.step(batch=batch, batch_idx=batch_idx)
 
@@ -493,6 +501,7 @@ class ModusPrime(LightningModule):
         (
             embedding_feature_dict,
             cross_modal_cosine_similarities,
+            logits,
             targets,
         ) = self.step(batch=batch, batch_idx=batch_idx)
 
@@ -818,16 +827,23 @@ class DumbusPrime(LightningModule):
             dim=0,
         )
 
-        return embedding_feature_dict, cross_modal_cosine_similarities, targets
+        logits = torch.stack(
+            [
+                contrastive_logits_labels(modality_similarities)[0]
+                for modality_similarities in cross_modal_cosine_similarities.values()
+            ],
+            dim=0,
+        )
+
+        return embedding_feature_dict, cross_modal_cosine_similarities, logits, targets
 
     def training_step(self, batch, batch_idx):
         (
             embedding_feature_dict,
             cross_modal_cosine_similarities,
+            logits,
             targets,
         ) = self.step(batch=batch, batch_idx=batch_idx)
-
-        logits = torch.stack(tuple(cross_modal_cosine_similarities.values()), dim=0)
 
         loss = self.criterion(input=logits, target=targets)
         if self.lr_scheduler_step_must_be_called_manually:
