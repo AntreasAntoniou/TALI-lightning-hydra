@@ -827,7 +827,7 @@ class DumbusPrime(LightningModule):
             dim=0,
         )
 
-        logits = torch.stack(
+        logits = torch.cat(
             [
                 contrastive_logits_labels(modality_similarities)[0]
                 for modality_similarities in cross_modal_cosine_similarities.values()
