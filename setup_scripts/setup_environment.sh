@@ -19,6 +19,7 @@ conda install h5py -y
 conda install screen starship tmux -y
 conda install gh --channel conda-forge -y
 #apt install htop nvtop -y
+#apt-get install ffmpeg libsm6 libxext6  -y
 conda install google-cloud-sdk bat micro -y
 ########################################################################################
 echo "export CODE_DIR=$HOME/target_codebase" >> $HOME/.bashrc
