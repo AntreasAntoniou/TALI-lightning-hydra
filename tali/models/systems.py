@@ -815,8 +815,8 @@ class DumbusPrime(LightningModule):
             batch,
         )
 
-        embedding_feature_dict = self.all_gather(embedding_feature_dict)
-        logits_similarities_dict = self.all_gather(logits_similarities_dict)
+        # embedding_feature_dict = self.all_gather(embedding_feature_dict)
+        # logits_similarities_dict = self.all_gather(logits_similarities_dict)
         # {source_to_target: (b, n_sources, n_targets)}
         logits_shape_dict = {
             key: value.shape for key, value in logits_similarities_dict.items()
