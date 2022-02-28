@@ -34,7 +34,7 @@ class CrossModalMatchingNetwork(LightningModule):
         self,
         embedding_output_features: int,
         modality_embeddings: nn.ModuleDict,
-        logit_scale: float = 1.0,  # / 0.07,
+        logit_scale: float = 1 / 0.07,
         sub_batch_size_dict: Optional[Dict[str, int]] = None,
     ):
         super(CrossModalMatchingNetwork, self).__init__()
@@ -43,7 +43,7 @@ class CrossModalMatchingNetwork(LightningModule):
         self.embed_dim = embedding_output_features
         self.modality_embeddings = modality_embeddings
         self.sub_batch_size_dict = sub_batch_size_dict
-        self.logit_scale = logit_scale
+        self.logit_scale = np.log(logit_scale)
         self.is_built = False
 
     def init_logit_scale_params(self):
@@ -239,7 +239,7 @@ class ModusPrime(LightningModule):
         batch_size: int = 2,
         num_train_samples: int = None,
         embedding_output_features: int = 512,
-        logit_scale: float = 1.0,
+        logit_scale: float = 1 / 0.07,
     ):
         super(ModusPrime, self).__init__()
         self.system = CrossModalMatchingNetwork(
@@ -569,7 +569,7 @@ class DumbusPrime(LightningModule):
         sub_batch_size_dict: Optional[Dict[str, int]] = None,
         batch_size: int = 2,
         embedding_output_features: int = 512,
-        logit_scale: float = 1.0,
+        logit_scale: float = 1.0 / 0.07,
     ):
         super(DumbusPrime, self).__init__()
         self.system = CrossModalMatchingNetwork(

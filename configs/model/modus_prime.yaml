@@ -7,4 +7,4 @@ _target_: tali.models.systems.ModusPrime
 embedding_output_features: 512
 num_train_samples: ${datamodule.train_num_samples}
 batch_size: ${batch_size}
-logit_scale: 1.0
+logit_scale: 14.2857142857

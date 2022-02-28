@@ -1,3 +1,26 @@
+Currently running on tpu-large
+```bash
+python run.py hydra.verbose=True \
+resume=True \
+batch_size=32 \
+datamodule.num_workers=-1 \
+trainer.gpus=0 \
+trainer.tpu_cores=8 \
++trainer.strategy=ddp \
++trainer.sync_batchnorm=True \
+model=milli_modus_prime_vi-transformer16 \
+datamodule=debug-tali \
+datamodule.config.modality_config.image=True \
+datamodule.config.modality_config.text=True \
+datamodule.config.modality_config.audio=False \
+datamodule.config.modality_config.video=False \
+datamodule.config.rescan_paths=False \
+datamodule.prefetch_factor=1 \
+datamodule.config.dataset_size_identifier=base
+```
+
+
+
 Currently running on gpu-instance-0
 ```bash
 python run.py hydra.verbose=False \

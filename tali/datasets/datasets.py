@@ -458,52 +458,89 @@ class DummyMultiModalDataset(Dataset):
         self.set_name = set_name
         self.config = config
         self.num_samples = num_samples or 1000
-        self.cache = []
+        self.total_cache = 100
+        random.seed(0)
+        torch.manual_seed(0)
+        torch_rng = torch.Generator()
+
+        if self.config.modality_config.text:
+            self.text = torch.randint(
+                0,
+                77,
+                size=(
+                    self.total_cache,
+                    77,
+                ),
+                generator=torch_rng,
+            ).int()
+
+        if self.config.modality_config.video:
+            self.video = (
+                torch.randint(
+                    low=1,
+                    high=255,
+                    size=(
+                        self.total_cache,
+                        self.config.num_video_frames_per_datapoint,
+                        self.config.image_shape.channels,
+                        self.config.image_shape.height,
+                        self.config.image_shape.width,
+                    ),
+                    generator=torch_rng,
+                ).float()
+                / 255.0
+            )
+
+        if self.config.modality_config.audio:
+            self.audio = (
+                torch.randint(
+                    low=1,
+                    high=255,
+                    size=(
+                        self.total_cache,
+                        2,
+                        self.config.num_audio_frames_per_datapoint,
+                    ),
+                    generator=torch_rng,
+                ).float()
+                / 255.0
+            )
+
+        if self.config.modality_config.image:
+            self.image = (
+                torch.randint(
+                    low=1,
+                    high=255,
+                    size=(
+                        self.total_cache,
+                        self.config.image_shape.channels,
+                        self.config.image_shape.height,
+                        self.config.image_shape.width,
+                    ),
+                    generator=torch_rng,
+                ).float()
+                / 255.0
+            )
 
     def __getitem__(self, index):
-        actual_index = index % self.num_samples
-
-        torch.set_num_threads(1)
-        random.seed(actual_index)
-        torch.manual_seed(actual_index)
-        torch_rng = torch.Generator()
+        actual_index = index % self.total_cache
 
         data_dict = DictWithDotNotation()
 
         if self.config.modality_config.text:
-            data_dict.text = torch.randint(0, 77, size=(77,), generator=torch_rng).int()
-
-        if self.config.modality_config.video:
-            data_dict.video = torch.rand(
-                size=(
-                    self.config.num_video_frames_per_datapoint,
-                    self.config.image_shape.channels,
-                    self.config.image_shape.height,
-                    self.config.image_shape.width,
-                ),
-                generator=torch_rng,
-            ).float()
-
-        if self.config.modality_config.audio:
-            data_dict.audio = torch.rand(
-                size=(
-                    2,
-                    self.config.num_audio_frames_per_datapoint,
-                ),
-                generator=torch_rng,
-            ).float()
+            data_dict.text = self.text[actual_index]
 
         if self.config.modality_config.image:
-            data_dict.image = torch.rand(
-                size=(
-                    self.config.image_shape.channels,
-                    self.config.image_shape.height,
-                    self.config.image_shape.width,
-                ),
-                generator=torch_rng,
-            ).float()
+            data_dict.image = self.image[actual_index]
+
+        if self.config.modality_config.video:
+            data_dict.video = self.video[actual_index]
+
+        if self.config.modality_config.audio:
+            data_dict.audio = self.audio[actual_index]
 
         data_dict.filepath = f"{self.set_name}-{index}-{actual_index}"
+
         return data_dict
 
     def __len__(self):
