@@ -345,8 +345,8 @@ class ModusPrime(LightningModule):
                     ] = metric_function(dist_sync_on_step=False)
 
                 value = self.per_modality_metrics_computed_dict[phase_name][cur_key](
-                    measurement_value.detach().cpu(),
-                    target_value.detach().cpu(),
+                    measurement_value.detach(),
+                    target_value.detach(),
                 )
                 if value is not None:
                     self.log(
@@ -367,8 +367,8 @@ class ModusPrime(LightningModule):
                 ] = metric_function(dist_sync_on_step=False)
 
             value = self.per_modality_metrics_computed_dict[phase_name][cur_key](
-                torch.stack(list(logits_dict.values())).detach().cpu(),
-                torch.stack(list(targets_dict.values())).detach().cpu(),
+                torch.stack(list(logits_dict.values())).detach(),
+                torch.stack(list(targets_dict.values())).detach(),
             )
 
             if value is not None:
@@ -388,7 +388,7 @@ class ModusPrime(LightningModule):
             if isinstance(value, Accuracy) and value is not None:
                 self.log(
                     name=f"{phase_name}/{key}/epoch",
-                    value=value.compute().detach().cpu(),
+                    value=value.compute().detach(),
                     prog_bar=False,
                     logger=True,
                     on_step=False,
@@ -396,16 +396,16 @@ class ModusPrime(LightningModule):
                     sync_dist=False,
                 )
 
-            # if isinstance(value, CrossEntropyLoss) and value is not None:
-            #     self.log(
-            #         name=f"{phase_name}/{key}/epoch",
-            #         value=value.compute().detach().cpu(),
-            #         prog_bar=False,
-            #         logger=True,
-            #         on_step=False,
-            #         on_epoch=True,
-            #         sync_dist=False,
-            #     )
+            if isinstance(value, CrossEntropyLoss) and value is not None:
+                self.log(
+                    name=f"{phase_name}/{key}/epoch",
+                    value=value.compute().detach(),
+                    prog_bar=False,
+                    logger=True,
+                    on_step=False,
+                    on_epoch=True,
+                    sync_dist=False,
+                )
 
     def step(self, batch, batch_idx):
 
