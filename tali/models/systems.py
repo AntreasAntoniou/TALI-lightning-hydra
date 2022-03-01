@@ -266,7 +266,7 @@ class ModusPrime(LightningModule):
         self.batch_size = batch_size
         self.num_train_samples = num_train_samples
         self.is_built = False
-        self.sync_dist = True
+        self.sync_dist = False
 
         self.metrics_to_track = {
             "cross_entropy": CrossEntropyLoss,
@@ -356,7 +356,7 @@ class ModusPrime(LightningModule):
                         cur_key
                     ] = metric_function(dist_sync_on_step=self.sync_dist)
                     self.per_modality_metrics_computed_dict.to(self.device)
-                    log.info(list(self.per_modality_metrics_computed_dict.items()))
+                    # log.info(list(self.per_modality_metrics_computed_dict.items()))
 
                 value = self.per_modality_metrics_computed_dict[
                     f"{phase_name}-metrics"
@@ -385,7 +385,7 @@ class ModusPrime(LightningModule):
                     cur_key
                 ] = metric_function(dist_sync_on_step=self.sync_dist)
                 self.per_modality_metrics_computed_dict.to(self.device)
-                log.info(list(self.per_modality_metrics_computed_dict.items()))
+                # log.info(list(self.per_modality_metrics_computed_dict.items()))
 
             value = self.per_modality_metrics_computed_dict[f"{phase_name}-metrics"][
                 cur_key
@@ -419,7 +419,7 @@ class ModusPrime(LightningModule):
                     logger=True,
                     on_step=False,
                     on_epoch=True,
-                    sync_dist=self.sync_dist,
+                    sync_dist=True,
                 )
 
             if isinstance(value, CrossEntropyLoss) and value is not None:
@@ -430,7 +430,7 @@ class ModusPrime(LightningModule):
                     logger=True,
                     on_step=False,
                     on_epoch=True,
-                    sync_dist=self.sync_dist,
+                    sync_dist=True,
                 )
 
     def step(self, batch, batch_idx):
