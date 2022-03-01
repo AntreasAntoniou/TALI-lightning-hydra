@@ -31,45 +31,24 @@ def get_logger(name=__name__) -> logging.Logger:
 
 
 def extras(config: DictConfig) -> None:
-    """A couple of optional utilities, controlled by main config file:
-    - disabling warnings
-    - forcing debug friendly configuration
-    - verifying experiment name is set when running in experiment mode
+    """Applies optional utilities, controlled by config flags.
 
-    Modifies DictConfig in place.
-
-    Args:
-        config (DictConfig): Configuration composed by Hydra.
+    Utilities:
+    - Ignoring python warnings
+    - Rich config printing
     """
-
     log = get_logger(__name__)
 
+    # disable python warnings if <config.ignore_warnings=True>
     # disable python warnings if <config.ignore_warnings=True>
     if config.get("ignore_warnings"):
         log.info("Disabling python warnings! <config.ignore_warnings=True>")
         warnings.filterwarnings("ignore")
 
-    # verify experiment name is set when running in experiment mode
-    if config.get("experiment_mode") and not config.get("name"):
-        log.info(
-            "Running in experiment mode without the experiment name specified! "
-            "Use `python run.py mode=exp name=experiment_name`"
-        )
-        log.info("Exiting...")
-        exit()
-
-    # force debugger friendly configuration if <config.trainer.fast_dev_run=True>
-    # debuggers don't like GPUs and multiprocessing
-    if config.trainer.get("fast_dev_run"):
-        log.info(
-            "Forcing debugger friendly configuration! <config.trainer.fast_dev_run=True>"
-        )
-        if config.trainer.get("gpus"):
-            config.trainer.gpus = 0
-        if config.datamodule.get("pin_memory"):
-            config.datamodule.pin_memory = False
-        if config.datamodule.get("num_workers"):
-            config.datamodule.num_workers = 0
+    # pretty print config tree using Rich library if <config.print_config=True>
+    if config.get("print_config"):
+        log.info("Printing config tree with Rich! <config.print_config=True>")
+        print_config(config, resolve=True)
 
 
 @rank_zero_only
