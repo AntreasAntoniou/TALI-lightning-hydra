@@ -316,7 +316,7 @@ class ModusPrime(LightningModule):
 
         return embedding_feature_dict, cross_modal_cosine_similarities, targets
 
-    def collect_metrics_step(self, logits, targets, phase_name):
+    def collect_metrics_step(self, logits_dict, targets_dict, phase_name):
 
         for key, value in self.system.logit_scale_dict.items():
             self.log(
@@ -331,7 +331,7 @@ class ModusPrime(LightningModule):
 
         for metric_key, metric_function in self.metrics_to_track.items():
             for measurement_key, measurement_value, target_value in zip(
-                logits.keys(), logits.values(), targets
+                logits_dict.keys(), logits_dict.values(), targets_dict.values()
             ):
                 # logging.debug(f"{measurement_value'].shape} {target_value.shape}")
                 cur_key = f"{metric_key}_{measurement_key}"
@@ -377,9 +377,10 @@ class ModusPrime(LightningModule):
                 ] = metric_function(dist_sync_on_step=True)
 
             value = self.per_modality_metrics_computed_dict[phase_name][cur_key](
-                torch.stack(list(logits.values())).detach().cpu(),
-                targets.detach().cpu(),
+                torch.stack(list(logits_dict.values())).detach().cpu(),
+                torch.stack(list(targets_dict.values())).detach().cpu(),
             )
+
             if value is not None:
                 self.log(
                     name=f"{phase_name}/{cur_key}",
@@ -418,56 +419,43 @@ class ModusPrime(LightningModule):
 
     def step(self, batch, batch_idx):
 
-        (
-            embedding_feature_dict,
-            cross_modal_cosine_similarities,
-        ) = self.system.forward(
+        (embedding_feature_dict, logits_similarities_dict,) = self.system.forward(
             batch,
         )
 
-        # embedding_feature_dict = self.all_gather(embedding_feature_dict)
-        # cross_modal_cosine_similarities = self.all_gather(
-        #     cross_modal_cosine_similarities
-        # )
+        logits_shape_dict = {
+            key: value.shape for key, value in logits_similarities_dict.items()
+        }
 
-        targets = torch.stack(
-            [
-                contrastive_logits_labels(modality_similarities)[1]
-                for modality_similarities in cross_modal_cosine_similarities.values()
-            ],
-            dim=0,
-        )
+        log.info(f"logits_shape_dict: {logits_shape_dict}")
 
-        logits = torch.stack(
-            [
-                contrastive_logits_labels(modality_similarities)[0]
-                for modality_similarities in cross_modal_cosine_similarities.values()
-            ],
-            dim=0,
-        )
+        targets_dict = {
+            key: contrastive_logits_labels(value)[1]
+            for key, value in logits_similarities_dict.items()
+        }
 
-        # log.debug(f'targets shape: '
-        #          f'{targets.shape}')
-
-        return embedding_feature_dict, cross_modal_cosine_similarities, logits, targets
+        return embedding_feature_dict, logits_similarities_dict, targets_dict
 
     def training_step(self, batch, batch_idx):
-        # logging.debug(f'{[(key, value.shape) for key, value in batch.items()]}')
-
         (
             embedding_feature_dict,
-            cross_modal_cosine_similarities,
-            logits,
-            targets,
+            logits_similarities_dict,
+            targets_dict,
         ) = self.step(batch=batch, batch_idx=batch_idx)
 
-        self.collect_metrics_step(
-            logits=cross_modal_cosine_similarities,
-            targets=targets,
-            phase_name="training",
-        )
+        logits = torch.stack(list(logits_similarities_dict.values()), dim=0)
+        logits = logits.view(-1, logits.shape[-1])
+
+        targets = torch.stack(list(targets_dict.values()), dim=0)
+        targets = targets.view(-1)
 
         loss = self.criterion(input=logits, target=targets)
+
+        self.collect_metrics_step(
+            logits_dict=logits_similarities_dict,
+            targets_dict=targets_dict,
+            phase_name="training",
+        )
 
         if self.lr_scheduler_step_must_be_called_manually:
             self.lr_scheduler.step(loss.detach().item(), self.global_step)
@@ -479,46 +467,45 @@ class ModusPrime(LightningModule):
         self.collect_metrics_epoch(phase_name="training")
         self.reset_metric_caches(phase_name="training")
 
-    def validation_step(self, batch, batch_idx):
-        # logging.debug(f'{[(key, value.shape) for key, value in batch.items()]}')
-
-        (
-            embedding_feature_dict,
-            cross_modal_cosine_similarities,
-            logits,
-            targets,
-        ) = self.step(batch=batch, batch_idx=batch_idx)
-
-        self.collect_metrics_step(
-            logits=cross_modal_cosine_similarities,
-            targets=targets,
-            phase_name="validation",
-        )
-
-    def validation_epoch_end(self, outputs: List[Any]):
-        log.info(f"\nValidation epoch {self.current_epoch} ended.\n")
-        self.collect_metrics_epoch(phase_name="validation")
-        self.reset_metric_caches(phase_name="validation")
-
-    def test_step(self, batch, batch_idx):
-
-        (
-            embedding_feature_dict,
-            cross_modal_cosine_similarities,
-            logits,
-            targets,
-        ) = self.step(batch=batch, batch_idx=batch_idx)
-
-        self.collect_metrics_step(
-            logits=cross_modal_cosine_similarities,
-            targets=targets,
-            phase_name="test",
-        )
-
-    def testing_epoch_end(self, outputs: List[Any]):
-        log.info(f"\nTest epoch {self.current_epoch} ended.\n")
-        self.collect_metrics_epoch(phase_name="test")
-        self.reset_metric_caches(phase_name="test")
+    # def validation_step(self, batch, batch_idx):
+    #     # logging.debug(f'{[(key, value.shape) for key, value in batch.items()]}')
+    #
+    #     (
+    #         embedding_feature_dict,
+    #         logits_similarities_dict,
+    #         targets_dict,
+    #     ) = self.step(batch=batch, batch_idx=batch_idx)
+    #
+    #     self.collect_metrics_step(
+    #         logits=logits_similarities_dict,
+    #         targets=targets_dict,
+    #         phase_name="validation",
+    #     )
+    #
+    # def validation_epoch_end(self, outputs: List[Any]):
+    #     log.info(f"\nValidation epoch {self.current_epoch} ended.\n")
+    #     self.collect_metrics_epoch(phase_name="validation")
+    #     self.reset_metric_caches(phase_name="validation")
+    #
+    # def test_step(self, batch, batch_idx):
+    #
+    #     (
+    #         embedding_feature_dict,
+    #         cross_modal_cosine_similarities,
+    #         logits,
+    #         targets,
+    #     ) = self.step(batch=batch, batch_idx=batch_idx)
+    #
+    #     self.collect_metrics_step(
+    #         logits=cross_modal_cosine_similarities,
+    #         targets=targets,
+    #         phase_name="test",
+    #     )
+    #
+    # def testing_epoch_end(self, outputs: List[Any]):
+    #     log.info(f"\nTest epoch {self.current_epoch} ended.\n")
+    #     self.collect_metrics_epoch(phase_name="test")
+    #     self.reset_metric_caches(phase_name="test")
 
     def configure_optimizers(self):
         optimizer = hydra.utils.instantiate(
@@ -567,175 +554,6 @@ class ModusPrime(LightningModule):
         return optimizer_dict
 
 
-class CrossModalDumbusMatchingNetwork(LightningModule):
-    def __init__(
-        self,
-        embedding_output_features: int,
-        modality_embeddings: nn.ModuleDict,
-        logit_scale: float = 1 / 0.07,
-        sub_batch_size_dict: Optional[Dict[str, int]] = None,
-    ):
-        super(CrossModalDumbusMatchingNetwork, self).__init__()
-
-        self.logit_scale_dict = None
-        self.embed_dim = embedding_output_features
-        self.modality_embeddings = modality_embeddings
-        self.sub_batch_size_dict = sub_batch_size_dict
-        self.logit_scale = np.log(logit_scale)
-        self.is_built = False
-
-    def init_logit_scale_params(self):
-        modality_keys = [
-            key for key, value in self.modality_embeddings.items() if value is not None
-        ]
-
-        for key, value in self.modality_embeddings.items():
-            log.debug(f"{key} {value}")
-
-        modality_combinations = combinations(modality_keys, 2)
-
-        self.logit_scale_dict = {
-            f"{modality_name[0]}_to_{modality_name[1]}": idx
-            for idx, modality_name in enumerate(modality_combinations)
-        }
-
-        self.logit_scale_params = nn.Parameter(
-            torch.ones([len(self.logit_scale_dict)]) * self.logit_scale,
-            requires_grad=True,
-        )
-
-        log.debug(f"Initialized logit scale params: {self.logit_scale_dict}")
-
-    def build(
-        self,
-        batch_shape,
-    ):
-
-        logging.debug(f"{batch_shape}")
-
-        for modality_key, modality_shape in batch_shape.items():
-            if modality_shape is not None:
-                modality_shape = list(modality_shape)
-                modality_shape[0] = 1
-                if (
-                    modality_key == "video"
-                    and "image" in batch_shape
-                    and batch_shape["image"] is not None
-                ):
-                    self.modality_embeddings["video"].connect_image_embedding(
-                        self.modality_embeddings["image"]
-                    )
-
-                self.modality_embeddings[modality_key].build(modality_shape)
-                self._check_modality_embedding_shape(modality_shape, modality_key)
-
-        self.init_logit_scale_params()
-        logging.debug(
-            f"built {self.__class__.__name__} with output shape {self.embed_dim}",
-        )
-        log.info(f"Built system made of {self}")
-        self.is_built = True
-
-    def _check_modality_embedding_shape(self, input_shape, embedding_name):
-        input_dummy = torch.zeros(size=input_shape)
-
-        embeddings, _ = self.modality_embeddings[embedding_name].forward(input_dummy)
-
-        assert embeddings.shape[1] == self.embed_dim
-
-    def _get_normalized_features(self, inputs, embedding_name):
-
-        if inputs is not None:
-            inputs, _ = self.modality_embeddings[embedding_name](inputs)
-            inputs = inputs / inputs.norm(dim=-1, keepdim=True)
-            return inputs
-        else:
-            return None
-
-    def _compute_cross_modal_cosine_similarities(self, embedding_dict):
-        logit_dict = {}
-        # log.info(
-        #     f"Computing cross modal cosine similarities for {list(self.logit_scale_dict.keys())}"
-        # )
-        for source_key, source_value in embedding_dict.items():
-            for target_key, target_value in embedding_dict.items():
-                if (
-                    source_key != target_key
-                    and source_value is not None
-                    and target_value is not None
-                ):
-                    if f"{source_key}_to_{target_key}" in self.logit_scale_dict:
-                        logit_scale_idx = self.logit_scale_dict[
-                            f"{source_key}_to_{target_key}"
-                        ]
-                    else:
-                        logit_scale_idx = self.logit_scale_dict[
-                            f"{target_key}_to_{source_key}"
-                        ]
-
-                    logit_scale = self.logit_scale_params[logit_scale_idx].exp()
-
-                    if f"{target_key}_to_{source_key}_similarity" in logit_dict:
-                        logit_dict[
-                            f"{source_key}_to_{target_key}_similarity"
-                        ] = logit_dict[f"{target_key}_to_{source_key}_similarity"].t()
-                    else:
-                        logit_dict[f"{source_key}_to_{target_key}_similarity"] = (
-                            torch.matmul(source_value, target_value.t()) * logit_scale
-                        )
-
-        return logit_dict
-
-    def forward(self, batch):
-
-        batch = {
-            key: value
-            for key, value in batch.items()
-            if isinstance(value, torch.Tensor)
-        }
-
-        if not self.is_built:
-            self.build({key: value.shape for key, value in batch.items()})
-
-        if self.sub_batch_size_dict is not None:
-            embedding_feature_dict = {}
-            for embedding_name, inputs in batch.items():
-                if embedding_name in self.sub_batch_size_dict:
-                    sub_batch_size = self.sub_batch_size_dict[embedding_name]
-                    sub_batches = inputs.view(
-                        (
-                            sub_batch_size,
-                            -1,
-                        )
-                        + inputs.shape[1:]
-                    )
-                    current_embedding_features = []
-                    for sub_batch in sub_batches:
-                        sub_batch_features_for_current_embedding = (
-                            self._get_normalized_features(sub_batch, embedding_name)
-                        )
-                        current_embedding_features.append(
-                            sub_batch_features_for_current_embedding
-                        )
-                    embedding_feature_dict[embedding_name] = torch.cat(
-                        current_embedding_features, dim=0
-                    )
-                else:
-                    embedding_feature_dict[
-                        embedding_name
-                    ] = self._get_normalized_features(inputs, embedding_name)
-        else:
-            embedding_feature_dict = {
-                embedding_name: self._get_normalized_features(inputs, embedding_name)
-                for embedding_name, inputs in batch.items()
-            }
-
-        return (
-            embedding_feature_dict,
-            self._compute_cross_modal_cosine_similarities(embedding_feature_dict),
-        )
-
-
 class DumbusPrime(LightningModule):
     def __init__(
         self,
@@ -754,7 +572,7 @@ class DumbusPrime(LightningModule):
         logit_scale: float = 1.0 / 0.07,
     ):
         super(DumbusPrime, self).__init__()
-        self.system = CrossModalDumbusMatchingNetwork(
+        self.system = CrossModalMatchingNetwork(
             embedding_output_features=embedding_output_features,
             modality_embeddings=nn.ModuleDict(
                 dict(
