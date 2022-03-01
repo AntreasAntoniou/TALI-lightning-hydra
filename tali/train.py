@@ -116,7 +116,6 @@ def train_eval(config: DictConfig) -> List[Dict[str, float]]:
         callbacks=callbacks,
         logger=logger,
         _convert_="partial",
-        _recursive_=True,
     )
 
     if config.trainer.auto_scale_batch_size:
