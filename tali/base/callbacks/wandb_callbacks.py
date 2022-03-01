@@ -298,6 +298,7 @@ class LogMultiModalPredictionHeatmaps(Callback):
         """Start executing this callback only after all validation sanity checks end."""
         self.ready = True
 
+    @rank_zero_only
     def build_data_table(self, data_dict):
         available_modalities = [
             key for key, value in data_dict.items() if value is not None
@@ -421,15 +422,19 @@ class LogMultiModalPredictionHeatmaps(Callback):
                         }
                     )
 
+    @rank_zero_only
     def on_test_epoch_start(self, trainer, pl_module):
         self.log_similarity_heatmaps_multi_modal(trainer, pl_module, "test")
 
+    @rank_zero_only
     def on_validation_epoch_start(self, trainer, pl_module):
         self.log_similarity_heatmaps_multi_modal(trainer, pl_module, "validation")
 
+    @rank_zero_only
     def on_train_epoch_start(self, trainer, pl_module):
         self.log_similarity_heatmaps_multi_modal(trainer, pl_module, "train")
 
+    @rank_zero_only
     def on_save_checkpoint(
         self,
         trainer: "pl.Trainer",
