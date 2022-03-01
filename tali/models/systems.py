@@ -268,7 +268,7 @@ class ModusPrime(LightningModule):
         self.is_built = False
 
         self.metrics_to_track = {
-            "cross_entropy": CrossEntropyLoss,
+            # "cross_entropy": CrossEntropyLoss,
             "accuracy": Accuracy,
         }
 
@@ -344,19 +344,6 @@ class ModusPrime(LightningModule):
                         cur_key
                     ] = metric_function(dist_sync_on_step=True)
 
-                # # print all values in a dictionary
-                # dict_string = [
-                #     (key, value)
-                #     for key, value in self.per_modality_metrics_computed_dict[
-                #         phase_name
-                #     ].items()
-                # ]
-                #
-                # log.info(
-                #     f"{[(key, value) for key, value in self.metrics_to_track.items()]} "
-                #     f"{list(self.per_modality_metrics_computed_dict.keys())}"
-                #     f" {dict_string}"
-                # )
                 value = self.per_modality_metrics_computed_dict[phase_name][cur_key](
                     measurement_value.detach().cpu(),
                     target_value.detach().cpu(),
@@ -426,11 +413,11 @@ class ModusPrime(LightningModule):
             batch,
         )
 
-        logits_shape_dict = {
-            key: value.shape for key, value in logits_similarities_dict.items()
-        }
+        # logits_shape_dict = {
+        #     key: value.shape for key, value in logits_similarities_dict.items()
+        # }
 
-        log.info(f"logits_shape_dict: {logits_shape_dict}")
+        # log.info(f"logits_shape_dict: {logits_shape_dict}")
 
         targets_dict = {
             key: contrastive_logits_labels(value)[1]
