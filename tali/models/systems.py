@@ -328,6 +328,7 @@ class ModusPrime(LightningModule):
 
     def collect_metrics_step(self, logits_dict, targets_dict, phase_name):
         self.per_modality_metrics_computed_dict.to(self.device)
+        log.info(list(self.per_modality_metrics_computed_dict.items()))
         for key, value in self.system.logit_scale_dict.items():
             self.log(
                 name=f"logit_scale/{key}",
