@@ -209,7 +209,7 @@ class Conv1DTransformer(nn.Module):
         out = out + positional_embeddings
         log.debug(f"out + positional_embeddings output shape {out.shape}")
 
-        self.layer_dict["transformer_encoder_layer"] = nn.TransformerEncoderLayer(
+        encoder_layer = nn.TransformerEncoderLayer(
             d_model=self.transformer_num_filters,
             dim_feedforward=self.transformer_dim_feedforward,
             nhead=self.transformer_num_heads,
@@ -219,7 +219,7 @@ class Conv1DTransformer(nn.Module):
             norm_first=True,
         )
         self.layer_dict["transformer_encoder"] = nn.TransformerEncoder(
-            encoder_layer=self.layer_dict["transformer_encoder_layer"],
+            encoder_layer=encoder_layer,
             num_layers=self.transformer_num_layers,
         )
 
@@ -311,14 +311,15 @@ class VideoTransformer(nn.Module):
 
         out = out + repeat(self.positional_embeddings, "p f -> b p f", b=out.shape[0])
 
-        self.layer_dict["transformer_encoder_layer"] = nn.TransformerEncoderLayer(
+        encoder_layer = nn.TransformerEncoderLayer(
             d_model=self.transformer_num_filters,
             dim_feedforward=self.transformer_dim_feedforward,
             nhead=self.transformer_num_heads,
             batch_first=True,
         )
+
         self.layer_dict["transformer_encoder"] = nn.TransformerEncoder(
-            encoder_layer=self.layer_dict["transformer_encoder_layer"],
+            encoder_layer=encoder_layer,
             num_layers=self.transformer_num_layers,
         )
 
