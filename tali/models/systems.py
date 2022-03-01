@@ -327,8 +327,7 @@ class ModusPrime(LightningModule):
         return embedding_feature_dict, cross_modal_cosine_similarities, targets
 
     def collect_metrics_step(self, logits_dict, targets_dict, phase_name):
-        self.per_modality_metrics_computed_dict.to(self.device)
-        log.info(list(self.per_modality_metrics_computed_dict.items()))
+
         for key, value in self.system.logit_scale_dict.items():
             self.log(
                 name=f"logit_scale/{key}",
@@ -356,6 +355,8 @@ class ModusPrime(LightningModule):
                     self.per_modality_metrics_computed_dict[f"{phase_name}-metrics"][
                         cur_key
                     ] = metric_function(dist_sync_on_step=self.sync_dist)
+                    self.per_modality_metrics_computed_dict.to(self.device)
+                    log.info(list(self.per_modality_metrics_computed_dict.items()))
 
                 value = self.per_modality_metrics_computed_dict[
                     f"{phase_name}-metrics"
@@ -383,6 +384,8 @@ class ModusPrime(LightningModule):
                 self.per_modality_metrics_computed_dict[f"{phase_name}-metrics"][
                     cur_key
                 ] = metric_function(dist_sync_on_step=self.sync_dist)
+                self.per_modality_metrics_computed_dict.to(self.device)
+                log.info(list(self.per_modality_metrics_computed_dict.items()))
 
             value = self.per_modality_metrics_computed_dict[f"{phase_name}-metrics"][
                 cur_key
