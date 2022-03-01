@@ -227,7 +227,7 @@ class CrossEntropyLoss(Metric):
         # compute metric
 
         loss = self.loss_sum / self.num_updates
-        return loss.item()
+        return loss
 
 
 class ModusPrime(LightningModule):
