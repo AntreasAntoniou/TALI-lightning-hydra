@@ -396,16 +396,16 @@ class ModusPrime(LightningModule):
                     sync_dist=False,
                 )
 
-            if isinstance(value, CrossEntropyLoss) and value is not None:
-                self.log(
-                    name=f"{phase_name}/{key}/epoch",
-                    value=value.compute().detach().cpu(),
-                    prog_bar=False,
-                    logger=True,
-                    on_step=False,
-                    on_epoch=True,
-                    sync_dist=False,
-                )
+            # if isinstance(value, CrossEntropyLoss) and value is not None:
+            #     self.log(
+            #         name=f"{phase_name}/{key}/epoch",
+            #         value=value.compute().detach().cpu(),
+            #         prog_bar=False,
+            #         logger=True,
+            #         on_step=False,
+            #         on_epoch=True,
+            #         sync_dist=False,
+            #     )
 
     def step(self, batch, batch_idx):
 
