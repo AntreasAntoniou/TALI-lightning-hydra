@@ -329,7 +329,7 @@ class ModusPrime(LightningModule):
                 logger=True,
                 on_step=True,
                 on_epoch=True,
-                sync_dist=True,
+                sync_dist=False,
             )
 
         for metric_key, metric_function in self.metrics_to_track.items():
@@ -342,7 +342,7 @@ class ModusPrime(LightningModule):
                 if cur_key not in self.per_modality_metrics_computed_dict[phase_name]:
                     self.per_modality_metrics_computed_dict[phase_name][
                         cur_key
-                    ] = metric_function(dist_sync_on_step=True)
+                    ] = metric_function(dist_sync_on_step=False)
 
                 value = self.per_modality_metrics_computed_dict[phase_name][cur_key](
                     measurement_value.detach().cpu(),
@@ -356,7 +356,7 @@ class ModusPrime(LightningModule):
                         logger=True,
                         on_step=True,
                         on_epoch=False,
-                        sync_dist=True,
+                        sync_dist=False,
                     )
 
             cur_key = f"overall_{metric_key}"
@@ -364,7 +364,7 @@ class ModusPrime(LightningModule):
             if cur_key not in self.per_modality_metrics_computed_dict[phase_name]:
                 self.per_modality_metrics_computed_dict[phase_name][
                     cur_key
-                ] = metric_function(dist_sync_on_step=True)
+                ] = metric_function(dist_sync_on_step=False)
 
             value = self.per_modality_metrics_computed_dict[phase_name][cur_key](
                 torch.stack(list(logits_dict.values())).detach().cpu(),
@@ -379,7 +379,7 @@ class ModusPrime(LightningModule):
                     logger=True,
                     on_step=True,
                     on_epoch=True,
-                    sync_dist=True,
+                    sync_dist=False,
                 )
 
     def collect_metrics_epoch(self, phase_name):
@@ -388,23 +388,23 @@ class ModusPrime(LightningModule):
             if isinstance(value, Accuracy) and value is not None:
                 self.log(
                     name=f"{phase_name}/{key}/epoch",
-                    value=value.compute(),
+                    value=value.compute().detach().cpu(),
                     prog_bar=False,
                     logger=True,
                     on_step=False,
                     on_epoch=True,
-                    sync_dist=True,
+                    sync_dist=False,
                 )
 
             if isinstance(value, CrossEntropyLoss) and value is not None:
                 self.log(
                     name=f"{phase_name}/{key}/epoch",
-                    value=value.compute(),
+                    value=value.compute().detach().cpu(),
                     prog_bar=False,
                     logger=True,
                     on_step=False,
                     on_epoch=True,
-                    sync_dist=True,
+                    sync_dist=False,
                 )
 
     def step(self, batch, batch_idx):
