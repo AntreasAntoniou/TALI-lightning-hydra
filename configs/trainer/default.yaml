@@ -1,4 +1,4 @@
-_target_: from tali.base.trainer.Trainer
+_target_: from tali.trainer.Trainer
 
 gpus: -1
 
