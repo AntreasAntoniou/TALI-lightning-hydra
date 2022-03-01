@@ -4,7 +4,6 @@ from typing import Dict, List, Optional
 
 import hydra
 import torch.cuda
-import wandb
 from omegaconf import DictConfig
 from pytorch_lightning import (
     Callback,
@@ -17,7 +16,7 @@ from pytorch_lightning.tuner.tuning import Tuner
 from wandb.util import generate_id
 
 from tali.base import utils
-from tali.base.trainer import Trainer
+from tali.trainer import Trainer
 
 log = utils.get_logger(__name__)
 
