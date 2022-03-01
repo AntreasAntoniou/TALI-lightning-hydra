@@ -1,4 +1,4 @@
-_target_: pytorch_lightning.Trainer
+_target_: from tali.base.trainer.Trainer
 
 gpus: -1
 
