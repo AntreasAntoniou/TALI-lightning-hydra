@@ -275,9 +275,9 @@ class ModusPrime(LightningModule):
 
         self.per_modality_metrics_computed_dict = nn.ModuleDict(
             {
-                "training": nn.ModuleDict(),
-                "validation": nn.ModuleDict(),
-                "test": nn.ModuleDict(),
+                "training-metrics": nn.ModuleDict(),
+                "validation-metrics": nn.ModuleDict(),
+                "test-metrics": nn.ModuleDict(),
             }
         )
         self.criterion = nn.CrossEntropyLoss()
@@ -292,8 +292,12 @@ class ModusPrime(LightningModule):
         self.save_hyperparameters(logger=False)
 
     def reset_metric_caches(self, phase_name):
-        for key in self.per_modality_metrics_computed_dict[phase_name].keys():
-            self.per_modality_metrics_computed_dict[phase_name][key].reset()
+        for key in self.per_modality_metrics_computed_dict[
+            f"{phase_name}-metrics"
+        ].keys():
+            self.per_modality_metrics_computed_dict[f"{phase_name}-metrics"][
+                key
+            ].reset()
 
     def forward(self, batch):
 
@@ -342,12 +346,19 @@ class ModusPrime(LightningModule):
                 # logging.debug(f"{measurement_value'].shape} {target_value.shape}")
                 cur_key = f"{metric_key}_{measurement_key}"
 
-                if cur_key not in self.per_modality_metrics_computed_dict[phase_name]:
-                    self.per_modality_metrics_computed_dict[phase_name][
+                if (
+                    cur_key
+                    not in self.per_modality_metrics_computed_dict[
+                        f"{phase_name}-metrics"
+                    ]
+                ):
+                    self.per_modality_metrics_computed_dict[f"{phase_name}-metrics"][
                         cur_key
                     ] = metric_function(dist_sync_on_step=self.sync_dist)
 
-                value = self.per_modality_metrics_computed_dict[phase_name][cur_key](
+                value = self.per_modality_metrics_computed_dict[
+                    f"{phase_name}-metrics"
+                ][cur_key](
                     measurement_value.detach(),
                     target_value.detach(),
                 )
@@ -364,12 +375,17 @@ class ModusPrime(LightningModule):
 
             cur_key = f"overall_{metric_key}"
 
-            if cur_key not in self.per_modality_metrics_computed_dict[phase_name]:
-                self.per_modality_metrics_computed_dict[phase_name][
+            if (
+                cur_key
+                not in self.per_modality_metrics_computed_dict[f"{phase_name}-metrics"]
+            ):
+                self.per_modality_metrics_computed_dict[f"{phase_name}-metrics"][
                     cur_key
                 ] = metric_function(dist_sync_on_step=self.sync_dist)
 
-            value = self.per_modality_metrics_computed_dict[phase_name][cur_key](
+            value = self.per_modality_metrics_computed_dict[f"{phase_name}-metrics"][
+                cur_key
+            ](
                 torch.stack(list(logits_dict.values())).detach(),
                 torch.stack(list(targets_dict.values())).detach(),
             )
@@ -386,7 +402,9 @@ class ModusPrime(LightningModule):
                 )
 
     def collect_metrics_epoch(self, phase_name):
-        for key, value in self.per_modality_metrics_computed_dict[phase_name].items():
+        for key, value in self.per_modality_metrics_computed_dict[
+            f"{phase_name}-metrics"
+        ].items():
 
             if isinstance(value, Accuracy) and value is not None:
                 self.log(
