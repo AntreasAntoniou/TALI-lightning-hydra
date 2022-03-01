@@ -342,6 +342,7 @@ class LogMultiModalPredictionHeatmaps(Callback):
             log_batch_dict["filepath"],
         )
 
+    @rank_zero_only
     def log_similarity_heatmaps_multi_modal(self, trainer, pl_module, set_name):
         if not self.ready:
             return
@@ -448,6 +449,7 @@ class LogGrads(Callback):
         super().__init__()
         self.refresh_rate = refresh_rate
 
+    @rank_zero_only
     def on_before_optimizer_step(
         self,
         trainer: "pl.Trainer",
