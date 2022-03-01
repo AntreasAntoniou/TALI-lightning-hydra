@@ -31,7 +31,7 @@ class GoogleStorageBucketRSyncClient(Callback):
     @rank_zero_only
     def on_save_checkpoint(
         self,
-        trainer: "pl.Trainer",
+        trainer: "pl.CustomTrainer",
         pl_module: "pl.LightningModule",
         checkpoint: Dict[str, Any],
     ) -> Dict[str, Any]:
@@ -46,7 +46,7 @@ class GoogleStorageBucketRSyncClient(Callback):
     @rank_zero_only
     def on_load_checkpoint(
         self,
-        trainer: "pl.Trainer",
+        trainer: "pl.CustomTrainer",
         pl_module: "pl.LightningModule",
         callback_state: Dict[str, Any],
     ) -> None:

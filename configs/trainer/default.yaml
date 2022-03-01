@@ -1,4 +1,4 @@
-_target_: tali.trainer.Trainer
+_target_: tali.trainer.CustomTrainer
 
 gpus: -1
 

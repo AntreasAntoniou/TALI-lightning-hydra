@@ -437,7 +437,7 @@ class LogMultiModalPredictionHeatmaps(Callback):
     @rank_zero_only
     def on_save_checkpoint(
         self,
-        trainer: "pl.Trainer",
+        trainer: "pl.CustomTrainer",
         pl_module: "pl.LightningModule",
         checkpoint: Dict[str, Any],
     ) -> dict:
@@ -457,7 +457,7 @@ class LogGrads(Callback):
     @rank_zero_only
     def on_before_optimizer_step(
         self,
-        trainer: "pl.Trainer",
+        trainer: "pl.CustomTrainer",
         pl_module: "pl.LightningModule",
         optimizer: Optimizer,
         opt_idx: int,

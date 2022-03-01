@@ -25,6 +25,7 @@ from typing import Any, Callable, cast, Dict, Iterable, List, Optional, Tuple, U
 from weakref import proxy
 
 import torch
+from pytorch_lightning import Trainer
 from torch.optim import Optimizer
 
 import pytorch_lightning as pl
@@ -134,12 +135,7 @@ warnings.filterwarnings(
 )
 
 
-class Trainer(
-    TrainerCallbackHookMixin,
-    TrainerModelHooksMixin,
-    TrainerOptimizersMixin,
-    TrainerDataLoadingMixin,
-):
+class CustomTrainer(Trainer):
     # Needed because of LightningOptimizer
     _lightning_optimizers = None
 
@@ -449,7 +445,7 @@ class Trainer(
                     directly to the Trainer's ``callbacks`` argument instead.
         """
         super().__init__()
-        Trainer._log_api_event("init")
+        CustomTrainer._log_api_event("init")
         self.state = TrainerState()
         log.info(f"Current line in trainer: {sys._getframe().f_lineno}")
         gpu_ids, tpu_cores = self._parse_devices(gpus, auto_select_gpus, tpu_cores)
@@ -865,7 +861,7 @@ class Trainer(
         datamodule: Optional[LightningDataModule] = None,
         ckpt_path: Optional[str] = None,
     ) -> None:
-        Trainer._log_api_event("fit")
+        CustomTrainer._log_api_event("fit")
         log.info(f"Current line in trainer: {sys._getframe().f_lineno}")
 
         self.state.fn = TrainerFn.FITTING
@@ -963,7 +959,7 @@ class Trainer(
         # --------------------
         # SETUP HOOK
         # --------------------
-        Trainer._log_api_event("validate")
+        CustomTrainer._log_api_event("validate")
         self.verbose_evaluate = verbose
 
         self.state.fn = TrainerFn.VALIDATING
@@ -1061,7 +1057,7 @@ class Trainer(
         # --------------------
         # SETUP HOOK
         # --------------------
-        Trainer._log_api_event("test")
+        CustomTrainer._log_api_event("test")
         self.verbose_evaluate = verbose
 
         self.state.fn = TrainerFn.TESTING
@@ -1156,7 +1152,7 @@ class Trainer(
         # --------------------
         # SETUP HOOK
         # --------------------
-        Trainer._log_api_event("predict")
+        CustomTrainer._log_api_event("predict")
 
         self.state.fn = TrainerFn.PREDICTING
         self.state.status = TrainerStatus.RUNNING
@@ -1228,7 +1224,7 @@ class Trainer(
 
             lr_find_kwargs: Arguments for :func:`~pytorch_lightning.tuner.lr_finder.lr_find`
         """
-        Trainer._log_api_event("tune")
+        CustomTrainer._log_api_event("tune")
 
         self.state.fn = TrainerFn.TUNING
         self.state.status = TrainerStatus.RUNNING
@@ -1330,7 +1326,7 @@ class Trainer(
         # ----------------------------
         rf"""
              Lightning internal flow looks like this:
-        {Trainer.fit} or {Trainer.test} or {Trainer.predict}  ||
+        {CustomTrainer.fit} or {CustomTrainer.test} or {CustomTrainer.predict}  ||
                                 |                             ||
                         create accelerator                    ||
                                 |                             ||
