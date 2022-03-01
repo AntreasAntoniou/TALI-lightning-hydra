@@ -6,14 +6,14 @@ defaults:
 #  log: "all"
 #  log_freq: 1
 
-upload_code_as_artifact:
-  _target_: tali.base.callbacks.wandb_callbacks.UploadCodeAsArtifact
-  code_dir: ${code_dir}
-
-upload_ckpts_as_artifact:
-  _target_: tali.base.callbacks.wandb_callbacks.UploadCheckpointsAsArtifact
-  ckpt_dir: ${current_experiment_dir}/checkpoints/
-  upload_best_only: False
+#upload_code_as_artifact:
+#  _target_: tali.base.callbacks.wandb_callbacks.UploadCodeAsArtifact
+#  code_dir: ${code_dir}
+#
+#upload_ckpts_as_artifact:
+#  _target_: tali.base.callbacks.wandb_callbacks.UploadCheckpointsAsArtifact
+#  ckpt_dir: ${current_experiment_dir}/checkpoints/
+#  upload_best_only: False
 
 #log_f1_precision_recall_heatmap:
 #  _target_: tali.base.callbacks.wandb_callbacks.LogF1PrecRecHeatmap
