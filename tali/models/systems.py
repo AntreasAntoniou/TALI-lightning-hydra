@@ -213,8 +213,8 @@ class CrossEntropyLoss(Metric):
         dist_sync_on_step: bool = False,
     ) -> None:
         super().__init__(dist_sync_on_step=dist_sync_on_step)
-        self.add_state("loss_sum", default=torch.Tensor([0]), dist_reduce_fx="sum")
-        self.add_state("num_updates", default=torch.Tensor([0]), dist_reduce_fx="sum")
+        self.add_state("loss_sum", default=torch.zeros([]), dist_reduce_fx="sum")
+        self.add_state("num_updates", default=torch.zeros([]), dist_reduce_fx="sum")
 
         self.criterion = nn.CrossEntropyLoss()
 
@@ -266,17 +266,20 @@ class ModusPrime(LightningModule):
         self.batch_size = batch_size
         self.num_train_samples = num_train_samples
         self.is_built = False
+        self.sync_dist = True
 
         self.metrics_to_track = {
             "cross_entropy": CrossEntropyLoss,
             "accuracy": Accuracy,
         }
 
-        self.per_modality_metrics_computed_dict = {
-            "training": nn.ModuleDict(),
-            "validation": nn.ModuleDict(),
-            "test": nn.ModuleDict(),
-        }
+        self.per_modality_metrics_computed_dict = nn.ModuleDict(
+            {
+                "training": nn.ModuleDict(),
+                "validation": nn.ModuleDict(),
+                "test": nn.ModuleDict(),
+            }
+        )
         self.criterion = nn.CrossEntropyLoss()
         self.optimizer_config = optimizer_config
         self.lr_scheduler_config = lr_scheduler_config
@@ -329,7 +332,7 @@ class ModusPrime(LightningModule):
                 logger=True,
                 on_step=True,
                 on_epoch=True,
-                sync_dist=False,
+                sync_dist=self.sync_dist,
             )
 
         for metric_key, metric_function in self.metrics_to_track.items():
@@ -342,7 +345,7 @@ class ModusPrime(LightningModule):
                 if cur_key not in self.per_modality_metrics_computed_dict[phase_name]:
                     self.per_modality_metrics_computed_dict[phase_name][
                         cur_key
-                    ] = metric_function(dist_sync_on_step=False)
+                    ] = metric_function(dist_sync_on_step=self.sync_dist)
 
                 value = self.per_modality_metrics_computed_dict[phase_name][cur_key](
                     measurement_value.detach(),
@@ -356,7 +359,7 @@ class ModusPrime(LightningModule):
                         logger=True,
                         on_step=True,
                         on_epoch=False,
-                        sync_dist=False,
+                        sync_dist=self.sync_dist,
                     )
 
             cur_key = f"overall_{metric_key}"
@@ -364,7 +367,7 @@ class ModusPrime(LightningModule):
             if cur_key not in self.per_modality_metrics_computed_dict[phase_name]:
                 self.per_modality_metrics_computed_dict[phase_name][
                     cur_key
-                ] = metric_function(dist_sync_on_step=False)
+                ] = metric_function(dist_sync_on_step=self.sync_dist)
 
             value = self.per_modality_metrics_computed_dict[phase_name][cur_key](
                 torch.stack(list(logits_dict.values())).detach(),
@@ -379,7 +382,7 @@ class ModusPrime(LightningModule):
                     logger=True,
                     on_step=True,
                     on_epoch=True,
-                    sync_dist=False,
+                    sync_dist=self.sync_dist,
                 )
 
     def collect_metrics_epoch(self, phase_name):
@@ -393,7 +396,7 @@ class ModusPrime(LightningModule):
                     logger=True,
                     on_step=False,
                     on_epoch=True,
-                    sync_dist=False,
+                    sync_dist=self.sync_dist,
                 )
 
             if isinstance(value, CrossEntropyLoss) and value is not None:
@@ -404,7 +407,7 @@ class ModusPrime(LightningModule):
                     logger=True,
                     on_step=False,
                     on_epoch=True,
-                    sync_dist=False,
+                    sync_dist=self.sync_dist,
                 )
 
     def step(self, batch, batch_idx):
