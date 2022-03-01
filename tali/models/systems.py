@@ -329,7 +329,7 @@ class ModusPrime(LightningModule):
                 logger=True,
                 on_step=True,
                 on_epoch=True,
-                sync_dist=False,
+                sync_dist=True,
             )
 
         for metric_key, metric_function in self.metrics_to_track.items():
@@ -342,7 +342,7 @@ class ModusPrime(LightningModule):
                 if cur_key not in self.per_modality_metrics_computed_dict[phase_name]:
                     self.per_modality_metrics_computed_dict[phase_name][
                         cur_key
-                    ] = metric_function(dist_sync_on_step=False)
+                    ] = metric_function(dist_sync_on_step=True)
 
                 value = self.per_modality_metrics_computed_dict[phase_name][cur_key](
                     measurement_value.detach().cpu(),
@@ -356,7 +356,7 @@ class ModusPrime(LightningModule):
                         logger=True,
                         on_step=True,
                         on_epoch=False,
-                        sync_dist=False,
+                        sync_dist=True,
                     )
 
             cur_key = f"overall_{metric_key}"
@@ -364,7 +364,7 @@ class ModusPrime(LightningModule):
             if cur_key not in self.per_modality_metrics_computed_dict[phase_name]:
                 self.per_modality_metrics_computed_dict[phase_name][
                     cur_key
-                ] = metric_function(dist_sync_on_step=False)
+                ] = metric_function(dist_sync_on_step=True)
 
             value = self.per_modality_metrics_computed_dict[phase_name][cur_key](
                 torch.stack(list(logits_dict.values())).detach().cpu(),
@@ -379,7 +379,7 @@ class ModusPrime(LightningModule):
                     logger=True,
                     on_step=True,
                     on_epoch=True,
-                    sync_dist=False,
+                    sync_dist=True,
                 )
 
     def collect_metrics_epoch(self, phase_name):
@@ -393,7 +393,7 @@ class ModusPrime(LightningModule):
                     logger=True,
                     on_step=False,
                     on_epoch=True,
-                    sync_dist=False,
+                    sync_dist=True,
                 )
 
             if isinstance(value, CrossEntropyLoss) and value is not None:
@@ -404,7 +404,7 @@ class ModusPrime(LightningModule):
                     logger=True,
                     on_step=False,
                     on_epoch=True,
-                    sync_dist=False,
+                    sync_dist=True,
                 )
 
     def step(self, batch, batch_idx):
