@@ -88,9 +88,12 @@ class CrossModalMatchingNetwork(LightningModule):
                     and "image" in batch_shape
                     and batch_shape["image"] is not None
                 ):
-                    self.modality_embeddings["video"].connect_image_embedding(
-                        self.modality_embeddings["image"]
-                    )
+                    if hasattr(
+                        self.modality_embeddings["video"], "connect_image_embedding"
+                    ):
+                        self.modality_embeddings["video"].connect_image_embedding(
+                            self.modality_embeddings["image"]
+                        )
 
                 self.modality_embeddings[modality_key].build(modality_shape)
                 self._check_modality_embedding_shape(modality_shape, modality_key)
