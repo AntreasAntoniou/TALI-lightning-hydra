@@ -10,13 +10,13 @@ from pytorch_lightning import (
     LightningDataModule,
     LightningModule,
     seed_everything,
+    Trainer,
 )
 from pytorch_lightning.loggers import LightningLoggerBase
 from pytorch_lightning.tuner.tuning import Tuner
 from wandb.util import generate_id
 
 from tali.base import utils
-from tali.trainer import CustomTrainer
 
 log = utils.get_logger(__name__)
 
@@ -111,7 +111,7 @@ def train_eval(config: DictConfig) -> List[Dict[str, float]]:
 
     # Init lightning trainer
     log.info(f"Instantiating trainer <{config.trainer._target_}>")
-    trainer: CustomTrainer = hydra.utils.instantiate(
+    trainer: Trainer = hydra.utils.instantiate(
         config.trainer,
         callbacks=callbacks,
         logger=logger,

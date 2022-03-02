@@ -285,8 +285,6 @@ class ModusPrime(LightningModule):
         self.lr_scheduler_config = lr_scheduler_config
 
     def build(self, batch):
-        _, _ = self.system.forward(batch=batch)
-
         (
             embedding_feature_dict,
             logits_similarities_dict,
@@ -368,6 +366,7 @@ class ModusPrime(LightningModule):
                 ] = metric_function(dist_sync_on_step=self.sync_dist)
                 self.per_modality_metrics_computed_dict.to(self.device)
                 # log.info(list(self.per_modality_metrics_computed_dict.items()))
+        log.info(list(self.per_modality_metrics_computed_dict.items()))
 
     def collect_metrics_step(self, logits_dict, targets_dict, phase_name):
         for key, value in self.system.logit_scale_dict.items():
