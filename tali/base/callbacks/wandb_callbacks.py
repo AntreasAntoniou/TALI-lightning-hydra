@@ -11,7 +11,7 @@ import seaborn as sn
 import torch
 import wandb
 import yaml
-from pytorch_lightning import Callback, Trainer
+from pytorch_lightning import Callback, Trainer, LightningModule
 from pytorch_lightning.loggers import LoggerCollection, WandbLogger
 from pytorch_lightning.utilities import rank_zero_only
 from rich.pretty import pprint
@@ -500,3 +500,31 @@ class LogGrads(Callback):
                         )
                     }
                 )
+
+
+class LogConfigInformation(Callback):
+    """Logs a validation batch and their predictions to wandb.
+    Example adapted from:
+        https://wandb.ai/wandb/wandb-lightning/reports/Image-Classification-using-PyTorch-Lightning--VmlldzoyODk1NzY
+    """
+
+    def __init__(self):
+        super().__init__()
+        self.done = False
+
+    @rank_zero_only
+    def on_train_epoch_start(
+        self, trainer: Trainer, pl_module: LightningModule
+    ) -> None:
+        logger = get_wandb_logger(trainer=trainer)
+        data_hparams = trainer.datamodule.hparams
+        model_hparams = trainer.model.hparams
+        trainer_hparams = trainer.hparams
+
+        hparams = {
+            "trainer": trainer_hparams,
+            "model": model_hparams,
+            "datamodule": data_hparams,
+        }
+
+        logger.log_hyperparams(hparams)

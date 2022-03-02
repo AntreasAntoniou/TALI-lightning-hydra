@@ -300,7 +300,7 @@ class ModusPrime(LightningModule):
                 targets_dict=targets_dict,
                 phase_name=phase_name,
             )
-        self.save_hyperparameters(logger=True)
+
         self.is_built = True
 
     def reset_metric_caches(self, phase_name):

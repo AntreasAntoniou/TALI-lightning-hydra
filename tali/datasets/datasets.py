@@ -450,15 +450,16 @@ class DummyMultiModalDataset(Dataset):
         self,
         config: TALIDatasetConfig,
         set_name: str = "dummy",
-        num_samples: int = 1000,
+        num_samples: int = 100,
         **kwargs,
     ):
         super(DummyMultiModalDataset, self).__init__()
 
         self.set_name = set_name
         self.config = config
-        self.num_samples = num_samples or 1000
-        self.total_cache = 1000
+        self.total_cache = 100
+        self.num_samples = num_samples or self.total_cache
+
         random.seed(0)
         torch.manual_seed(0)
         torch_rng = torch.Generator()
