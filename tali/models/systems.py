@@ -285,11 +285,14 @@ class ModusPrime(LightningModule):
         self.lr_scheduler_config = lr_scheduler_config
 
     def build(self, batch):
-        (
-            embedding_feature_dict,
-            logits_similarities_dict,
-            targets_dict,
-        ) = self.step(batch=batch, batch_idx=0)
+        (embedding_feature_dict, logits_similarities_dict,) = self.system.forward(
+            batch,
+        )
+
+        targets_dict = {
+            key: contrastive_logits_labels(value)[1]
+            for key, value in logits_similarities_dict.items()
+        }
 
         for phase_name in ["training", "validation", "test"]:
             self.init_metrics(
@@ -310,30 +313,21 @@ class ModusPrime(LightningModule):
 
     def forward(self, batch):
 
-        if not self.system.is_built:
-            self.system.build(
-                batch_shape={
-                    key: value.shape if isinstance(value, torch.Tensor) else None
-                    for key, value in batch.items()
-                }
+        if not self.is_built:
+            self.build(
+                batch=batch,
             )
 
-        (
-            embedding_feature_dict,
-            cross_modal_cosine_similarities,
-        ) = self.system.forward(
+        (embedding_feature_dict, logits_similarities_dict,) = self.system.forward(
             batch,
         )
 
-        targets = torch.stack(
-            [
-                contrastive_logits_labels(modality_similarities)[1]
-                for modality_similarities in cross_modal_cosine_similarities.values()
-            ],
-            dim=0,
-        )
+        targets_dict = {
+            key: contrastive_logits_labels(value)[1]
+            for key, value in logits_similarities_dict.items()
+        }
 
-        return embedding_feature_dict, cross_modal_cosine_similarities, targets
+        return embedding_feature_dict, logits_similarities_dict, targets_dict
 
     def init_metrics(self, logits_dict, targets_dict, phase_name):
         for metric_key, metric_function in self.metrics_to_track.items():
@@ -454,16 +448,7 @@ class ModusPrime(LightningModule):
 
     def step(self, batch, batch_idx):
 
-        (embedding_feature_dict, logits_similarities_dict,) = self.system.forward(
-            batch,
-        )
-
-        targets_dict = {
-            key: contrastive_logits_labels(value)[1]
-            for key, value in logits_similarities_dict.items()
-        }
-
-        return embedding_feature_dict, logits_similarities_dict, targets_dict
+        return self.forward(batch)
 
     def training_step(self, batch, batch_idx):
         (
