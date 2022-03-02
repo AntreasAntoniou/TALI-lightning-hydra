@@ -129,17 +129,6 @@ def train_eval(config: DictConfig) -> List[Dict[str, float]]:
         datamodule.batch_size = new_batch_size
         config.datamodule.batch_size = new_batch_size
 
-    # Send some parameters from config to all lightning loggers
-    log.info("Logging hyperparameters!")
-    utils.log_hyperparameters(
-        config=config,
-        model=model,
-        datamodule=datamodule,
-        trainer=trainer,
-        callbacks=callbacks,
-        logger=logger,
-    )
-
     if config.mode.fit:
         log.info("Starting training!")
         trainer.fit(model=model, datamodule=datamodule, ckpt_path=checkpoint_path)
