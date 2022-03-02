@@ -458,7 +458,7 @@ class DummyMultiModalDataset(Dataset):
         self.set_name = set_name
         self.config = config
         self.num_samples = num_samples or 1000
-        self.total_cache = 100
+        self.total_cache = 1000
         random.seed(0)
         torch.manual_seed(0)
         torch_rng = torch.Generator()
