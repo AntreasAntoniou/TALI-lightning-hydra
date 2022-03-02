@@ -37,11 +37,11 @@ learning_rate_monitor:
   _target_: pytorch_lightning.callbacks.LearningRateMonitor
   logging_interval: "step"
 
-gs_file_monitor:
-  _target_: tali.base.callbacks.cloud_storage_callbacks.GoogleStorageBucketRSyncClient
-  bucket_name: 'tali-experiments'
-  experiments_root_dir: ${current_experiment_dir}
-  experiment_name: ${name}
-  exclude_list: [.git/*]
-  options_list: ['r', 'd', 'u', 'e']
-  resume: ${resume}
+#gs_file_monitor:
+#  _target_: tali.base.callbacks.cloud_storage_callbacks.GoogleStorageBucketRSyncClient
+#  bucket_name: 'tali-experiments'
+#  experiments_root_dir: ${current_experiment_dir}
+#  experiment_name: ${name}
+#  exclude_list: [.git/*]
+#  options_list: ['r', 'd', 'u', 'e']
+#  resume: ${resume}
