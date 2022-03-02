@@ -131,14 +131,14 @@ def train_eval(config: DictConfig) -> List[Dict[str, float]]:
 
     # Send some parameters from config to all lightning loggers
     log.info("Logging hyperparameters!")
-    # utils.log_hyperparameters(
-    #     config=config,
-    #     model=model,
-    #     datamodule=datamodule,
-    #     trainer=trainer,
-    #     callbacks=callbacks,
-    #     logger=logger,
-    # )
+    utils.log_hyperparameters(
+        config=config,
+        model=model,
+        datamodule=datamodule,
+        trainer=trainer,
+        callbacks=callbacks,
+        logger=logger,
+    )
 
     if config.mode.fit:
         log.info("Starting training!")
