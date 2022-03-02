@@ -133,15 +133,6 @@ def train_eval(config: DictConfig) -> List[Dict[str, float]]:
         log.info("Starting training!")
         trainer.fit(model=model, datamodule=datamodule, ckpt_path=checkpoint_path)
 
-    # # Get metric score for hyperparameter optimization
-    # optimized_metric = config.get("optimized_metric")
-    # if optimized_metric and optimized_metric not in trainer.callback_metrics:
-    #     raise Exception(
-    #         "Metric for hyperparameter optimization not found! "
-    #         "Make sure the `optimized_metric` in `hparams_search` config is correct!"
-    #     )
-    # score = trainer.callback_metrics.get(optimized_metric)
-
     if config.mode.test and not config.trainer.get("fast_dev_run"):
         datamodule.setup(stage="test")
         log.info("Starting testing!")

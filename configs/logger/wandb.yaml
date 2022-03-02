@@ -6,7 +6,7 @@ wandb:
   offline: False # set True to store all logs only locally
   resume: allow # allow, True, False, must
   save_dir: ${current_experiment_dir}/
-  log_model: False
+  log_model: True
   prefix: ""
   job_type: "train"
   group: ""
