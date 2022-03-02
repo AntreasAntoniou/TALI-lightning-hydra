@@ -122,6 +122,7 @@ class TALIDataModule(BaseDataModule):
                 ]
             ),
         }
+        self.save_hyperparameters(logger=True)
 
     def prepare_data(self, **kwargs):
         # download

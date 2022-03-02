@@ -513,18 +513,15 @@ class LogConfigInformation(Callback):
         self.done = False
 
     @rank_zero_only
-    def on_train_epoch_start(
-        self, trainer: Trainer, pl_module: LightningModule
-    ) -> None:
-        logger = get_wandb_logger(trainer=trainer)
-        data_hparams = trainer.datamodule.hparams
-        model_hparams = trainer.model.hparams
-        trainer_hparams = trainer.hparams
+    def on_fit_start(self, trainer: Trainer, pl_module: LightningModule) -> None:
+        if not self.done:
+            logger = get_wandb_logger(trainer=trainer)
 
-        hparams = {
-            "trainer": trainer_hparams,
-            "model": model_hparams,
-            "datamodule": data_hparams,
-        }
+            trainer_hparams = trainer.__dict__.copy()
 
-        logger.log_hyperparams(hparams)
+            hparams = {
+                "trainer": trainer_hparams,
+            }
+
+            logger.log_hyperparams(hparams)
+            self.done = True

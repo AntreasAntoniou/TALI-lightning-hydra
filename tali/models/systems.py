@@ -283,6 +283,7 @@ class ModusPrime(LightningModule):
         self.criterion = nn.CrossEntropyLoss()
         self.optimizer_config = optimizer_config
         self.lr_scheduler_config = lr_scheduler_config
+        self.save_hyperparameters(logger=True)
 
     def build(self, batch):
         (embedding_feature_dict, logits_similarities_dict,) = self.system.forward(

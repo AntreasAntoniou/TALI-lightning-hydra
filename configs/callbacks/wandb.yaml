@@ -22,3 +22,6 @@ log_multi_modal_similarity_prediction_heatmap:
 log_grads:
   _target_: tali.base.callbacks.wandb_callbacks.LogGrads
   refresh_rate: 100
+
+log_configs:
+  _target_: tali.base.callbacks.wandb_callbacks.LogConfigInformation
