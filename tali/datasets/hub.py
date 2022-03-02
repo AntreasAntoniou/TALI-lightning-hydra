@@ -66,7 +66,7 @@ class TALIDataModule(BaseDataModule):
         use_dummy_dataloader: bool = False,
     ):
         super(TALIDataModule, self).__init__()
-        self.save_hyperparameters(logger=False)
+        # self.save_hyperparameters(logger=False)
         self.config = config
         self.batch_size = batch_size
         self.persistent_workers = persistent_workers

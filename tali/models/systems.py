@@ -283,13 +283,11 @@ class ModusPrime(LightningModule):
         self.criterion = nn.CrossEntropyLoss()
         self.optimizer_config = optimizer_config
         self.lr_scheduler_config = lr_scheduler_config
-        self.save_hyperparameters(logger=False)
 
     def build(self, batch):
         _, _ = self.system.forward(batch=batch)
 
         self.is_built = True
-        self.save_hyperparameters(logger=False)
 
     def reset_metric_caches(self, phase_name):
         for key in self.per_modality_metrics_computed_dict[
@@ -609,13 +607,13 @@ class DumbusPrime(LightningModule):
         self.criterion = nn.CrossEntropyLoss()
         self.optimizer_config = optimizer_config
         self.lr_scheduler_config = lr_scheduler_config
-        self.save_hyperparameters(logger=False)
+        # self.save_hyperparameters(logger=False)
 
     def build(self, batch):
         _, _ = self.system.forward(batch=batch)
 
         self.is_built = True
-        self.save_hyperparameters(logger=False)
+        # self.save_hyperparameters(logger=False)
 
     def forward(self, batch):
 
