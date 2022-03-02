@@ -450,7 +450,7 @@ class DummyMultiModalDataset(Dataset):
         self,
         config: TALIDatasetConfig,
         set_name: str = "dummy",
-        num_samples: int = 100000,
+        num_samples: int = 1000,
         **kwargs,
     ):
         super(DummyMultiModalDataset, self).__init__()
