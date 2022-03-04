@@ -32,7 +32,7 @@ class CrossModalMatchingNetwork(LightningModule):
     def __init__(
         self,
         embedding_output_features: int,
-        modality_embeddings: nn.ModuleDict,
+        modality_embeddings: torch.nn.ModuleDict,
         logit_scale: float = 1 / 0.07,
         sub_batch_size_dict: Optional[Dict[str, int]] = None,
     ):
