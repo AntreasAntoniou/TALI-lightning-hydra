@@ -41,9 +41,7 @@ class HuggingFaceBPETokenizer(nn.Module):
             log.error(f"Error bro {preshape} {postshape}.")
 
     def batch_decode(self, x):
-        return self.tokenizer.batch_decode(
-            x, skip_special_tokens=True, clean_up_tokenization_spaces=True
-        )
+        return self.tokenizer.batch_decode(x)
 
     def decode(self, x):
         return self.tokenizer.decode(x)
