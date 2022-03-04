@@ -10,8 +10,9 @@ def get_current_gpu_memory_stats():
         handle = nvidia_smi.nvmlDeviceGetHandleByIndex(i)
         info = nvidia_smi.nvmlDeviceGetMemoryInfo(handle)
         info_string += (
-            f"Device {i}: {nvidia_smi.nvmlDeviceGetName(handle)}, "
-            f"Memory : ({100 * info.free / info.total}% free): {info.total}(total), "
+            f"Device {i}: {nvidia_smi.nvmlDeviceGetName(handle)},\n"
+            f"Memory : ({100 * info.free / info.total}% free): \n"
+            f"{info.total}(total), "
             f"{info.free} (free), {info.used} (used)"
         )
 
