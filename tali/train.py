@@ -87,9 +87,15 @@ def train_eval(config: DictConfig) -> List[Dict[str, float]]:
     #     for key, value in dummy_data_dict.items()
     # }
     # log.info(f"Data description: {str_data_descr_dict}")
-    dummy_data_dict = {key: value.to("cpu") for key, value in dummy_data_dict.items()}
+    dummy_data_dict = {
+        key: value.to("cpu")
+        for key, value in dummy_data_dict.items()
+        if isinstance(value, torch.Tensor)
+    }
     dummy_data_device_dict = {
-        key: value.device for key, value in dummy_data_dict.items()
+        key: value.device
+        for key, value in dummy_data_dict.items()
+        if isinstance(value, torch.Tensor)
     }
     log.info(f"Data description: {dummy_data_device_dict}")
     _ = model.forward(dummy_data_dict)
