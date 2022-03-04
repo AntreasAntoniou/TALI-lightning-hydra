@@ -27,7 +27,7 @@ class BaseLinearOutputModel(nn.Module):
         """
         Builds network whilst automatically inferring shapes of layers.
         """
-        out = torch.zeros(input_shape, dtype=self.input_type)
+        out = torch.zeros(input_shape, dtype=self.input_type).to("cpu")
         logging.debug(
             "Building basic block of a classification model using input shape"
         )

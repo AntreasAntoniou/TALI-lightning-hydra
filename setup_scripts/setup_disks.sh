@@ -38,8 +38,8 @@ fi
 ########################################################################################
 
 #mount -o discard,defaults /dev/sdb $MOUNT_DIR
-mount -o ro,noload /dev/sdb $MOUNT_TRAIN_DIR
-mount -o ro,noload /dev/sdc $MOUNT_EVAL_DIR
+mount -o ro,noload /dev/sdc $MOUNT_TRAIN_DIR
+mount -o ro,noload /dev/sdb $MOUNT_EVAL_DIR
 
 ########################################################################################
 
