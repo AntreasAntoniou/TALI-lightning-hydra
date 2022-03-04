@@ -504,9 +504,10 @@ class LogConfigInformation(Callback):
         https://wandb.ai/wandb/wandb-lightning/reports/Image-Classification-using-PyTorch-Lightning--VmlldzoyODk1NzY
     """
 
-    def __init__(self):
+    def __init__(self, config):
         super().__init__()
         self.done = False
+        self.config = config
 
     @rank_zero_only
     def on_fit_start(self, trainer: Trainer, pl_module: LightningModule) -> None:
@@ -520,4 +521,5 @@ class LogConfigInformation(Callback):
             }
 
             logger.log_hyperparams(hparams)
+            logger.log_hyperparams(self.config)
             self.done = True

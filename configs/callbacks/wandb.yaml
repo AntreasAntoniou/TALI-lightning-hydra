@@ -25,3 +25,4 @@ log_grads:
 
 log_configs:
   _target_: tali.base.callbacks.wandb_callbacks.LogConfigInformation
+  config: config.yaml
