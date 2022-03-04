@@ -154,15 +154,6 @@ def train_eval(config: DictConfig) -> List[Dict[str, float]]:
 
     # Make sure everything closed properly
     log.info("Finalizing!")
-    utils.finish(
-        config=config,
-        model=model,
-        datamodule=datamodule,
-        trainer=trainer,
-        callbacks=callbacks,
-        logger=logger,
-    )
-
     # Print path to best checkpoint
     if not config.trainer.get("fast_dev_run"):
         log.info(f"Best model ckpt at {trainer.checkpoint_callback.best_model_path}")
