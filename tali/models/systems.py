@@ -18,6 +18,7 @@ from tali.config_repository import (
     AutoConv1DTransformersConfig,
     AutoVideoTransformersConfig,
 )
+from tali.utils.device_utils import get_current_gpu_memory_stats
 
 log = utils.get_logger(__name__)
 
@@ -76,7 +77,8 @@ class CrossModalMatchingNetwork(LightningModule):
 
         for modality_key, modality_shape in batch_shape.items():
             log.info(
-                f" Building embedding for {modality_key} processing {modality_shape}"
+                f" Building embedding for {modality_key} processing {modality_shape} \n"
+                f"current gpu device info {get_current_gpu_memory_stats()}"
             )
             if modality_shape is not None:
                 modality_shape = list(modality_shape)
