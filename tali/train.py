@@ -90,7 +90,7 @@ def train_eval(config: DictConfig) -> List[Dict[str, float]]:
     # }
     # log.info(f"Data description: {str_data_descr_dict}")
     dummy_data_dict = {
-        key: value.to("cpu")
+        key: value
         for key, value in dummy_data_dict.items()
         if isinstance(value, torch.Tensor)
     }

@@ -262,19 +262,19 @@ class ModusPrime(LightningModule):
         modality_embeddings = torch.nn.ModuleDict()
         log.info(f"Instantiating image embedding <{image_embedding_config._target_}>")
         modality_embeddings["image"] = hydra.utils.instantiate(image_embedding_config)
-        modality_embeddings["image"] = modality_embeddings["image"].to("cpu")
+        modality_embeddings["image"] = modality_embeddings["image"]
 
         log.info(f"Instantiating audio embedding <{audio_embedding_config._target_}>")
         modality_embeddings["audio"] = hydra.utils.instantiate(audio_embedding_config)
-        modality_embeddings["audio"] = modality_embeddings["audio"].to("cpu")
+        modality_embeddings["audio"] = modality_embeddings["audio"]
 
         log.info(f"Instantiating text embedding <{text_embedding_config._target_}>")
         modality_embeddings["text"] = hydra.utils.instantiate(text_embedding_config)
-        modality_embeddings["text"] = modality_embeddings["text"].to("cpu")
+        modality_embeddings["text"] = modality_embeddings["text"]
 
         log.info(f"Instantiating video embedding <{video_embedding_config._target_}>")
         modality_embeddings["video"] = hydra.utils.instantiate(video_embedding_config)
-        modality_embeddings["video"] = modality_embeddings["video"].to("cpu")
+        modality_embeddings["video"] = modality_embeddings["video"]
 
         self.system = CrossModalMatchingNetwork(
             embedding_output_features=embedding_output_features,
