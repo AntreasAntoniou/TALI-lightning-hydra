@@ -357,7 +357,7 @@ def google_storage_rsync_gs_to_local(
         f"screen -dmS gsutil-update bash -c '{command_string}; exec bash'"
     )
     log.debug(command_string + "\n\n")
-    os.system(command_string)
+    os.system(screen_command_string)
 
 
 def google_storage_rsync_local_to_gs(
@@ -383,7 +383,7 @@ def google_storage_rsync_local_to_gs(
     )
 
     log.debug(command_string + "\n\n")
-    os.system(command_string)
+    os.system(screen_command_string)
 
 
 class GoogleStorageClient(object):
