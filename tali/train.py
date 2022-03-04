@@ -24,8 +24,6 @@ from tali.utils.storage import (
     google_storage_rsync_gs_to_local,
 )
 
-torch.cuda.is_available()
-
 
 def train_eval(config: DictConfig) -> List[Dict[str, float]]:
     """Contains training pipeline.

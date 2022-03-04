@@ -12,4 +12,3 @@ plugins:
   - _target_: pytorch_lightning.plugins.DDPPlugin
     find_unused_parameters: False
 
-# milli transformer batch_size=48, gpus=1
