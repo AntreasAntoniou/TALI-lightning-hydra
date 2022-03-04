@@ -38,7 +38,8 @@ class CrossModalMatchingNetwork(LightningModule):
         sub_batch_size_dict: Optional[Dict[str, int]] = None,
     ):
         super(CrossModalMatchingNetwork, self).__init__()
-
+        log.info(f"Initializing {self.__class__.__name__}")
+        log.info(f"{get_current_gpu_memory_stats()}")
         self.logit_scale_dict = None
         self.embed_dim = embedding_output_features
         self.modality_embeddings = modality_embeddings
@@ -249,6 +250,9 @@ class ModusPrime(LightningModule):
         logit_scale: float = 1 / 0.07,
     ):
         super(ModusPrime, self).__init__()
+
+        log.info(f"Initializing {self.__class__.__name__}")
+        log.info(f"{get_current_gpu_memory_stats()}")
 
         modality_embeddings = torch.nn.ModuleDict()
         log.info(f"Instantiating image embedding <{image_embedding_config._target_}>")
