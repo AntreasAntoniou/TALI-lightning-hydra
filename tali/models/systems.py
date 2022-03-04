@@ -75,6 +75,9 @@ class CrossModalMatchingNetwork(LightningModule):
         logging.debug(f"{batch_shape}")
 
         for modality_key, modality_shape in batch_shape.items():
+            log.info(
+                f" Building embedding for {modality_key} processing {modality_shape}"
+            )
             if modality_shape is not None:
                 modality_shape = list(modality_shape)
                 modality_shape[0] = 1
