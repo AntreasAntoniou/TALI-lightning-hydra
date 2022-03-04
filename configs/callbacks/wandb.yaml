@@ -25,4 +25,27 @@ log_grads:
 
 log_configs:
   _target_: tali.base.callbacks.wandb_callbacks.LogConfigInformation
-  config: config.yaml
+  config:
+    trainer: ${trainer}
+    model: ${model}
+    datamodule: ${datamodule}
+    logger: ${logger}
+    mode: ${mode}
+    resume: ${resume}
+    checkpoint_path: ${checkpoint_path}
+    dataloading_only_run: ${dataloading_only_run}
+    visualize_data_locally: ${visualize_data_locally}
+    wandb_visualization_config: ${wandb_visualization_config}
+    print_config: ${print_config}
+    ignore_warnings: ${ignore_warnings}
+    logging_level: ${logging_level}
+    test_after_training: ${test_after_training}
+    batch_size: ${batch_size}
+    seed: ${seed}
+    name: ${name}
+    code_dir: ${code_dir}
+    root_experiment_dir: ${root_experiment_dir}
+    current_experiment_dir: ${current_experiment_dir}
+    train_data_dir: ${train_data_dir}
+    val_data_dir: ${val_data_dir}
+    test_data_dir: ${test_data_dir}
