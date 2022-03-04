@@ -244,16 +244,23 @@ class ModusPrime(LightningModule):
         logit_scale: float = 1 / 0.07,
     ):
         super(ModusPrime, self).__init__()
+
+        modality_embeddings = torch.nn.ModuleDict()
+        log.info(f"Instantiating image embedding <{image_embedding_config._target_}>")
+        modality_embeddings["image"] = hydra.utils.instantiate(image_embedding_config)
+
+        log.info(f"Instantiating audio embedding <{audio_embedding_config._target_}>")
+        modality_embeddings["audio"] = hydra.utils.instantiate(audio_embedding_config)
+
+        log.info(f"Instantiating text embedding <{text_embedding_config._target_}>")
+        modality_embeddings["text"] = hydra.utils.instantiate(text_embedding_config)
+
+        log.info(f"Instantiating video embedding <{video_embedding_config._target_}>")
+        modality_embeddings["video"] = hydra.utils.instantiate(video_embedding_config)
+
         self.system = CrossModalMatchingNetwork(
             embedding_output_features=embedding_output_features,
-            modality_embeddings=torch.nn.ModuleDict(
-                dict(
-                    image=hydra.utils.instantiate(image_embedding_config),
-                    audio=hydra.utils.instantiate(audio_embedding_config),
-                    text=hydra.utils.instantiate(text_embedding_config),
-                    video=hydra.utils.instantiate(video_embedding_config),
-                )
-            ),
+            modality_embeddings=modality_embeddings,
             logit_scale=logit_scale,
             sub_batch_size_dict=sub_batch_size_dict,
         )
