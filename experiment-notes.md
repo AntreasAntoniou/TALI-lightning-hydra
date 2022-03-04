@@ -28,7 +28,7 @@ run.py \
 hydra.verbose=False \
 resume=False \
 batch_size=12 \
-datamodule.dataloader_config.num_workers=80 \
+datamodule.dataloader_config.num_workers=5 \
 trainer=ddp \
 trainer.gpus=16 \
 datamodule=tali \
