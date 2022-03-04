@@ -42,10 +42,6 @@ def load_text_into_language_time_stamps(filepath):
         filepath.parent / "start_timestamp_to_caption_dict_fast.json"
     )
 
-    old_caption_data_filepath = pathlib.Path(
-        filepath.parent / "start_timestamp_to_caption_dict.json"
-    )
-
     if caption_data_filepath.exists():
         try:
             return convert_keys_to_float(load_json(caption_data_filepath))

@@ -280,29 +280,6 @@ class TALIMultiModalDataset(Dataset):
         rng,
     ):
 
-        num_frames_to_sample_for_video = self.config.num_video_frames_per_datapoint
-        # log.info(f"{len(frame_list)}, {num_frames_to_sample_for_video}")
-        if len(frame_list) < num_frames_to_sample_for_video:
-            selected_frame_list_idx = sorted(
-                list(
-                    rng.choice(
-                        len(frame_list),
-                        size=(num_frames_to_sample_for_video,),
-                        replace=True,
-                    )
-                )
-            )
-        else:
-            selected_frame_list_idx = sorted(
-                list(
-                    rng.choice(
-                        len(frame_list),
-                        size=(num_frames_to_sample_for_video,),
-                        replace=False,
-                    )
-                )
-            )
-
         frames_dict = DictWithDotNotation()
 
         frames_dict.video = None
@@ -310,6 +287,30 @@ class TALIMultiModalDataset(Dataset):
         frames_dict.image = None
 
         if self.config.modality_config.video:
+
+            num_frames_to_sample_for_video = self.config.num_video_frames_per_datapoint
+            # log.info(f"{len(frame_list)}, {num_frames_to_sample_for_video}")
+            if len(frame_list) < num_frames_to_sample_for_video:
+                selected_frame_list_idx = sorted(
+                    list(
+                        rng.choice(
+                            len(frame_list),
+                            size=(num_frames_to_sample_for_video,),
+                            replace=True,
+                        )
+                    )
+                )
+            else:
+                selected_frame_list_idx = sorted(
+                    list(
+                        rng.choice(
+                            len(frame_list),
+                            size=(num_frames_to_sample_for_video,),
+                            replace=False,
+                        )
+                    )
+                )
+
             frames_dict.video = load_frames(
                 image_height=self.config.image_shape.height,
                 image_width=self.config.image_shape.width,
