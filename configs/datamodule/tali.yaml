@@ -26,7 +26,7 @@ dataset_config:
 dataloader_config:
   batch_size: ${batch_size}
   persistent_workers: False
-  pin_memory: True
+  pin_memory: False
   prefetch_factor: 2
   num_workers: 2
   shuffle_train: True
