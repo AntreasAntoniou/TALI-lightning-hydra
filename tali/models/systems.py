@@ -78,8 +78,8 @@ class CrossModalMatchingNetwork(torch.nn.Module):
 
         for modality_key, modality_shape in batch_shape.items():
             log.info(
-                f" Building embedding for {modality_key} processing {modality_shape} \n"
-                f"current gpu device info {get_current_gpu_memory_stats()}"
+                f"Building embedding for {modality_key} processing {modality_shape} \n"
+                f"current gpu device info: {get_current_gpu_memory_stats()}"
             )
             if modality_shape is not None:
                 modality_shape = list(modality_shape)
@@ -165,6 +165,11 @@ class CrossModalMatchingNetwork(torch.nn.Module):
         }
 
         if not self.is_built:
+            log.info(
+                f"Building during forward in "
+                f"{self.__class__.__name__} "
+                f"{get_current_gpu_memory_stats()}"
+            )
             self.build({key: value.shape for key, value in batch.items()})
 
         if self.sub_batch_size_dict is not None:
