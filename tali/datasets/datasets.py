@@ -21,7 +21,7 @@ import tqdm
 from torch.utils.data import Dataset
 
 from preprocessing_scripts.convert_audiofiles_to_npz import path_to_string
-from tali.config_repository import TALIDatasetConfig
+from tali.config_repository import DatasetConfig
 from tali.datasets.utils.audio import prevent_error_kill
 from tali.datasets.utils.helpers import (
     collect_files,
@@ -39,7 +39,7 @@ log = utils.get_logger(__name__)
 class TALIMultiModalDataset(Dataset):
     def __init__(
         self,
-        config: TALIDatasetConfig,
+        config: DatasetConfig,
         set_name: str,
         transforms: Dict[str, Union[List[Callable], Callable]],
         start_index: int = 0,
@@ -48,8 +48,8 @@ class TALIMultiModalDataset(Dataset):
         super(TALIMultiModalDataset, self).__init__()
 
         self.config = config
-        self.dataset_root = config.dataset_root
         self.set_name = set_name
+        self.dataset_dir = getattr(config.dataset_dir_config, set_name)
         self.num_youtube_video_dict = {"train": 141468, "val": 6369, "test": 6500}
         self.transforms = transforms
         self.postfix = "full_video_360p"
@@ -69,9 +69,7 @@ class TALIMultiModalDataset(Dataset):
                 else 1.0
             )
 
-        self.dataset_dir = os.path.join(self.dataset_root, self.set_name)
         self.start_index = start_index
-
         self.hdf5_dataset_path = (
             f"{os.environ.get('PATH_CACHE_DIR')}/"
             f"{set_name}-{self.config.dataset_size_identifier}-tali.hdf5"
@@ -448,7 +446,7 @@ class TALIMultiModalDataset(Dataset):
 class DummyMultiModalDataset(Dataset):
     def __init__(
         self,
-        config: TALIDatasetConfig,
+        config: DatasetConfig,
         set_name: str = "dummy",
         num_samples: int = 100,
         **kwargs,

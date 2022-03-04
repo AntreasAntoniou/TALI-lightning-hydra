@@ -503,21 +503,21 @@ class ModusPrime(LightningModule):
         self.reset_metric_caches(phase_name="validation")
 
     def test_step(self, batch, batch_idx):
+        # logging.debug(f'{[(key, value.shape) for key, value in batch.items()]}')
 
         (
             embedding_feature_dict,
-            cross_modal_cosine_similarities,
-            logits,
-            targets,
+            logits_similarities_dict,
+            targets_dict,
         ) = self.step(batch=batch, batch_idx=batch_idx)
 
         self.collect_metrics_step(
-            logits_dict=cross_modal_cosine_similarities,
-            targets_dict=targets,
+            logits_dict=logits_similarities_dict,
+            targets_dict=targets_dict,
             phase_name="test",
         )
 
-    def testing_epoch_end(self, outputs: List[Any]):
+    def test_epoch_end(self, outputs: List[Any]):
         log.info(f"\nTest epoch {self.current_epoch} ended.\n")
         self.collect_metrics_epoch(phase_name="test")
         self.reset_metric_caches(phase_name="test")
@@ -528,7 +528,6 @@ class ModusPrime(LightningModule):
         )
 
         optimizer_dict = {"optimizer": optimizer}
-        torch.optim.lr_scheduler.CosineAnnealingWarmRestarts
         if self.lr_scheduler_config._target_.split(".")[-1] == "CosineAnnealingLR":
             if "T_max" not in self.lr_scheduler_config:
                 self.lr_scheduler_config["T_max"] = (

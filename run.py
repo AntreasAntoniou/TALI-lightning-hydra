@@ -11,7 +11,7 @@ from tali.run_data_only import sample_datamodule
 from tali.sample_actuate_data import sample_and_upload_datamodule
 
 dotenv.load_dotenv(override=True)
-install(show_locals=True, extra_lines=1, word_wrap=True, width=350)
+install(show_locals=False, extra_lines=1, word_wrap=True, width=350)
 
 
 @hydra.main(config_path="configs", config_name="config")
@@ -33,7 +33,7 @@ def main(config: DictConfig):
     if config.get("print_config"):
         utils.print_config(config, resolve=True)
 
-    if config.debug_data:
+    if config.dataloading_only_run:
         # iterate through dataloaders only with current config
         # -- used to test datamodules
         return sample_datamodule(config)

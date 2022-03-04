@@ -33,7 +33,7 @@ resume=True batch_size=48 trainer.gpus=1 model=base_modus_prime_resnet50
 
 #######################################################################################
 
-datamodule.config.modality_config.image=True
-datamodule.config.modality_config.text=False
-datamodule.config.modality_config.video=False
-datamodule.config.modality_config.audio=True
+datamodule.dataset_config.modality_config.image=True
+datamodule.dataset_config.modality_config.text=False
+datamodule.dataset_config.modality_config.video=False
+datamodule.dataset_config.modality_config.audio=True

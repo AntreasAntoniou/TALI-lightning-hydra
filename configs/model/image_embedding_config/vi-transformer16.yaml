@@ -3,7 +3,7 @@ config:
   grid_patch_size: 16
   embedding_output_features: 512
   image_resolution:
-    - ${datamodule.config.image_shape.width}
-    - ${datamodule.config.image_shape.height}
+    - ${datamodule.dataset_config.image_shape.width}
+    - ${datamodule.dataset_config.image_shape.height}
   transformer_num_layers: 12
   transformer_num_heads: 12

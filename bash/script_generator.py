@@ -3,10 +3,10 @@
 #
 # #######################################################################################
 #
-# datamodule.config.modality_config.image=True
-# datamodule.config.modality_config.text=False
-# datamodule.config.modality_config.video=False
-# datamodule.config.modality_config.audio=True
+# datamodule.dataset_config.modality_config.image=True
+# datamodule.dataset_config.modality_config.text=False
+# datamodule.dataset_config.modality_config.video=False
+# datamodule.dataset_config.modality_config.audio=True
 import os
 
 
@@ -49,15 +49,15 @@ def main():
                                         f"batch_size={num_gpus * 2} \\\n"
                                         f"trainer.gpus={num_gpus} \\\n"
                                         f"trainer.auto_scale_batch_size=True \\\n"
-                                        f"datamodule.config.rescan_paths=True \\\n"
+                                        f"datamodule.dataset_config.rescan_paths=True \\\n"
                                         f"datamodule.prefetch_factor=3 \\\n"
                                         f"datamodule.num_workers={num_workers} \\\n"
                                         f"model={model_name} \\\n"
-                                        f"datamodule.config.dataset_size_identifier={dataset_name} \\\n"
-                                        f"datamodule.config.modality_config.image={use_image_modality} \\\n"
-                                        f"datamodule.config.modality_config.text={use_text_modality} \\\n"
-                                        f"datamodule.config.modality_config.audio={use_audio_modality} \\\n"
-                                        f"datamodule.config.modality_config.video={use_video_modality} \n\n"
+                                        f"datamodule.dataset_config.dataset_size_identifier={dataset_name} \\\n"
+                                        f"datamodule.dataset_config.modality_config.image={use_image_modality} \\\n"
+                                        f"datamodule.dataset_config.modality_config.text={use_text_modality} \\\n"
+                                        f"datamodule.dataset_config.modality_config.audio={use_audio_modality} \\\n"
+                                        f"datamodule.dataset_config.modality_config.video={use_video_modality} \n\n"
                                     )
                                     exp_dict[
                                         f"{dataset_name}_{model_name}_"

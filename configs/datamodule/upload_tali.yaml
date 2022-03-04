@@ -2,13 +2,13 @@ _target_: tali.datasets.hub.TALIDataModule
 config:
   dataset_root: ${data_dir}
   dataset_size_identifier: base
-  dataset_name: ${datamodule.config.dataset_size_identifier}-tali
+  dataset_name: ${datamodule.dataset_config.dataset_size_identifier}-tali
   modality_config:
     image: true
     audio: true
     video: true
     text: true
-    name: video-${datamodule.config.modality_config.video}-audio-${datamodule.config.modality_config.audio}-text-${datamodule.config.modality_config.text}-image-${datamodule.config.modality_config.image}
+    name: video-${datamodule.dataset_config.modality_config.video}-audio-${datamodule.dataset_config.modality_config.audio}-text-${datamodule.dataset_config.modality_config.text}-image-${datamodule.dataset_config.modality_config.image}
   rescan_paths: False
   num_video_frames_per_datapoint: 80
   num_audio_frames_per_datapoint: 441000

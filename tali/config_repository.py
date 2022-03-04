@@ -32,11 +32,36 @@ class ModalityConfig:
 
 
 @dataclass
-class TALIDatasetConfig:
-    dataset_root: str = "./data/tali-dataset/"
+class DatasetDirectoryConfig:
+    train: Optional[str] = None
+    val: Optional[str] = None
+    test: Optional[str] = None
+
+
+@dataclass
+class DataLoaderConfig:
+    batch_size: int = 2
+    persistent_workers: bool = False
+    pin_memory: bool = True
+    prefetch_factor: int = 2
+    num_workers: int = 2
+    shuffle_train: bool = True
+    shuffle_eval: bool = False
+    train_start_index: int = 0
+    val_start_index: int = 0
+    test_start_index: int = 0
+    train_num_samples: Optional[int] = 200000000
+    val_num_samples: Optional[int] = None
+    test_num_samples: Optional[int] = None
+    use_dummy_dataloader: bool = False
+
+
+@dataclass
+class DatasetConfig:
+    dataset_dir_config: DatasetDirectoryConfig
     using_pre_sampled_split: bool = False
     dataset_size_identifier: str = "base"
-    dataset_name: str = "base-tali"
+    dataset_name: str = "base"
     modality_config: ModalityConfig = ModalityConfig()
     rescan_paths: bool = False
     num_video_frames_per_datapoint: int = 10
@@ -44,20 +69,6 @@ class TALIDatasetConfig:
     num_audio_sample_rate: int = 44100
     image_shape: ImageShape = ImageShape(channels=3, width=224, height=224)
     text_context_length: int = 77
-
-
-@dataclass
-class TALIDataModuleConfig:
-    data_config: Any = TALIDatasetConfig()
-    train_batch_size: int = 32
-    eval_batch_size: int = 32
-    eval_drop_last: bool = False
-    persistent_workers: bool = False
-    train_drop_last: bool = True
-    pin_memory: bool = True
-    train_shuffle: bool = True
-    eval_shuffle: bool = False
-    prefetch_factor: int = 2
 
 
 @dataclass
@@ -225,20 +236,6 @@ class ModusPrimeConfig:
     logit_scale: float = 1.0
 
 
-@dataclass
-class ExperimentConfig:
-    data: InstantiationConfig = InstantiationConfig(
-        _target_="tali.datasets.hub.TALIDataModule",
-        config=TALIDataModuleConfig(),
-    )
-    system: InstantiationConfig = InstantiationConfig(
-        _target_="tali.models.systems.ModusPrime", config=ModusPrimeConfig()
-    )
-    trainer: Any = TrainerConfig()
-    mode: TrainerModes = TrainerModes()
-    logging_level: Union[str] = "INFO"
-
-
 class ExperimentStatus:
     def __init__(self, status_string="new"):
         # should be one of new, continued-full, continued-minimal
@@ -259,9 +256,3 @@ class GoogleStorageConfig:
     from_scratch: bool
     use_google_storage: bool
     bucket_name: str = "tali-experiments"
-
-
-# TODOs:
-# - collate path must be converted to method
-# Make life easier by creating instantiation classes for a particular class as a
-# eans to keep them around?

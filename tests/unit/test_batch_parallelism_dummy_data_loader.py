@@ -9,7 +9,7 @@ import tqdm
 from rich.logging import RichHandler
 from torch.utils.data import default_collate, DataLoader
 
-from tali.config_repository import TALIDatasetConfig, ImageShape, ModalityConfig
+from tali.config_repository import DatasetConfig, ImageShape, ModalityConfig
 from tali.datasets.dataloaders import SampleParallelismDataLoader
 from tali.datasets.datasets import DummyMultiModalDataset
 
@@ -35,7 +35,7 @@ log.addHandler(ch)
 @pytest.mark.parametrize("num_samples", [100000])
 def test_data_loader(batch_size, shuffle, num_workers, prefetch_factor, num_samples):
     dataset = DummyMultiModalDataset(
-        config=TALIDatasetConfig(
+        config=DatasetConfig(
             modality_config=ModalityConfig(),
             num_video_frames_per_datapoint=10,
             num_audio_frames_per_datapoint=88200,

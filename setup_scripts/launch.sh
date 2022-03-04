@@ -24,15 +24,15 @@ batch_size=64 \
 wandb_project_name=TALI-gcp-sweep-1 \
 trainer.gpus=-1 \
 trainer.auto_scale_batch_size=False \
-datamodule.config.rescan_paths=True \
+datamodule.dataset_config.rescan_paths=True \
 datamodule.prefetch_factor=3 \
 datamodule.num_workers=96 \
 model=base_modus_prime_resnet50 \
-datamodule.config.dataset_size_identifier=milli \
-datamodule.config.modality_config.image=True \
-datamodule.config.modality_config.text=True \
-datamodule.config.modality_config.audio=True \
-datamodule.config.modality_config.video=False \
+datamodule.dataset_config.dataset_size_identifier=milli \
+datamodule.dataset_config.modality_config.image=True \
+datamodule.dataset_config.modality_config.text=True \
+datamodule.dataset_config.modality_config.audio=True \
+datamodule.dataset_config.modality_config.video=False \
 callbacks.model_checkpoint_train.every_n_train_steps=2500
 
 #for i in {0..9}

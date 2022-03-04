@@ -20,7 +20,7 @@ defaults:
 resume: True
 checkpoint_path: null
 
-debug_data: False
+dataloading_only_run: False
 visualize_data_locally: False
 
 wandb_visualization_config:
@@ -49,7 +49,7 @@ seed : 0
 
 wandb_project_name: ${env:WANDB_PROJECT}
 # name of the run, should be used along with experiment mode
-name: ${datamodule.config.dataset_name}-${model.name}-${datamodule.config.modality_config.name}-${seed}
+name: ${datamodule.dataset_config.dataset_name}-${model.name}-${datamodule.dataset_config.modality_config.name}-${seed}
 
 # path to original working directory
 # hydra hijacks working directory by changing it to the new log directory
@@ -59,4 +59,6 @@ code_dir: ${hydra:runtime.cwd}
 root_experiment_dir: ${env:EXPERIMENTS_DIR}
 current_experiment_dir: ${root_experiment_dir}/${name}/
 # path to folder with data
-data_dir: ${env:DATASET_DIR}
+train_data_dir: ${env:TRAIN_DATASET_DIR}
+val_data_dir: ${env:VAL_DATASET_DIR}
+test_data_dir: ${env:TEST_DATASET_DIR}

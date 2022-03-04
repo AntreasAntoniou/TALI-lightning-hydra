@@ -97,14 +97,14 @@ def main():
         f"wandb_project_name=TALI-gcp-sweep-1 "
         f"trainer.gpus={num_gpus} "
         f"trainer.auto_scale_batch_size=False "
-        f"datamodule.config.rescan_paths=True datamodule.prefetch_factor=3 "
+        f"datamodule.dataset_config.rescan_paths=True datamodule.prefetch_factor=3 "
         f"datamodule.num_workers={int(num_gpus * 12)} "
         f"model={config.model_name} "
-        f"datamodule.config.dataset_size_identifier={config.datamodule_name} "
-        f"datamodule.config.modality_config.image={config.use_image_modality} "
-        f"datamodule.config.modality_config.text={config.use_text_modality} "
-        f"datamodule.config.modality_config.audio={config.use_audio_modality} "
-        f"datamodule.config.modality_config.video={config.use_video_modality}\n\n"
+        f"datamodule.dataset_config.dataset_size_identifier={config.datamodule_name} "
+        f"datamodule.dataset_config.modality_config.image={config.use_image_modality} "
+        f"datamodule.dataset_config.modality_config.text={config.use_text_modality} "
+        f"datamodule.dataset_config.modality_config.audio={config.use_audio_modality} "
+        f"datamodule.dataset_config.modality_config.video={config.use_video_modality}\n\n"
     )
     log.info(template_command)
     os.system(template_command)

@@ -1,10 +1,10 @@
 defaults:
   - default.yaml
 
-watch_model:
-  _target_: tali.base.callbacks.wandb_callbacks.WatchModel
-  log: "all"
-  log_freq: 1
+#watch_model:
+#  _target_: tali.base.callbacks.wandb_callbacks.WatchModel
+#  log: "all"
+#  log_freq: 1
 
 upload_code_as_artifact:
   _target_: tali.base.callbacks.wandb_callbacks.UploadCodeAsArtifact

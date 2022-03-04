@@ -10,13 +10,13 @@ trainer.tpu_cores=8 \
 +trainer.sync_batchnorm=True \
 model=milli_modus_prime_vi-transformer16 \
 datamodule=debug-tali \
-datamodule.config.modality_config.image=True \
-datamodule.config.modality_config.text=True \
-datamodule.config.modality_config.audio=False \
-datamodule.config.modality_config.video=False \
-datamodule.config.rescan_paths=False \
+datamodule.dataset_config.modality_config.image=True \
+datamodule.dataset_config.modality_config.text=True \
+datamodule.dataset_config.modality_config.audio=False \
+datamodule.dataset_config.modality_config.video=False \
+datamodule.dataset_config.rescan_paths=False \
 datamodule.prefetch_factor=1 \
-datamodule.config.dataset_size_identifier=base
+datamodule.dataset_config.dataset_size_identifier=base
 ```
 
 
@@ -30,13 +30,13 @@ datamodule.num_workers=-1 \
 trainer.gpus=-1 \
 model=centi_modus_prime_resnet50 \
 datamodule=tali \
-datamodule.config.modality_config.image=True \
-datamodule.config.modality_config.text=True \
-datamodule.config.modality_config.audio=False \
-datamodule.config.modality_config.video=False \
-datamodule.config.rescan_paths=False \
+datamodule.dataset_config.modality_config.image=True \
+datamodule.dataset_config.modality_config.text=True \
+datamodule.dataset_config.modality_config.audio=False \
+datamodule.dataset_config.modality_config.video=False \
+datamodule.dataset_config.rescan_paths=False \
 datamodule.prefetch_factor=1 \
-datamodule.config.dataset_size_identifier=deci
+datamodule.dataset_config.dataset_size_identifier=deci
 ```
 
 Currently running on gpu-instance-1
@@ -48,13 +48,13 @@ datamodule.num_workers=-1 \
 trainer.gpus=-1 \
 model=deci_modus_prime_vi-transformer16 \
 datamodule=tali \
-datamodule.config.modality_config.image=True \
-datamodule.config.modality_config.text=True \
-datamodule.config.modality_config.audio=False \
-datamodule.config.modality_config.video=False \
-datamodule.config.rescan_paths=False \
+datamodule.dataset_config.modality_config.image=True \
+datamodule.dataset_config.modality_config.text=True \
+datamodule.dataset_config.modality_config.audio=False \
+datamodule.dataset_config.modality_config.video=False \
+datamodule.dataset_config.rescan_paths=False \
 datamodule.prefetch_factor=1 \
-datamodule.config.dataset_size_identifier=deci
+datamodule.dataset_config.dataset_size_identifier=deci
 ```
 
 Currently running on gpu-instance-2
@@ -66,13 +66,13 @@ datamodule.num_workers=32 \
 trainer.gpus=-1 \
 model=deci_modus_prime_vi-transformer16 \
 datamodule=tali \
-datamodule.config.modality_config.image=True \
-datamodule.config.modality_config.text=True \
-datamodule.config.modality_config.audio=True \
-datamodule.config.modality_config.video=True \
-datamodule.config.rescan_paths=False \
+datamodule.dataset_config.modality_config.image=True \
+datamodule.dataset_config.modality_config.text=True \
+datamodule.dataset_config.modality_config.audio=True \
+datamodule.dataset_config.modality_config.video=True \
+datamodule.dataset_config.rescan_paths=False \
 datamodule.prefetch_factor=1 \
-datamodule.config.dataset_size_identifier=deci
+datamodule.dataset_config.dataset_size_identifier=deci
 ```
 
 Currently running on gpu-instance-3
@@ -84,13 +84,13 @@ datamodule.num_workers=-1 \
 trainer.gpus=-1 \
 model=centi_modus_prime_resnet50 \
 datamodule=tali \
-datamodule.config.modality_config.image=True \
-datamodule.config.modality_config.text=False \
-datamodule.config.modality_config.audio=True \
-datamodule.config.modality_config.video=False \
-datamodule.config.rescan_paths=False \
+datamodule.dataset_config.modality_config.image=True \
+datamodule.dataset_config.modality_config.text=False \
+datamodule.dataset_config.modality_config.audio=True \
+datamodule.dataset_config.modality_config.video=False \
+datamodule.dataset_config.rescan_paths=False \
 datamodule.prefetch_factor=1 \
-datamodule.config.dataset_size_identifier=deci
+datamodule.dataset_config.dataset_size_identifier=deci
 ```
 
 # Currently running on gpu-medium-instance-0
@@ -103,13 +103,13 @@ datamodule.num_workers=16 \
 trainer.gpus=1 \
 model=base_modus_prime_vi-transformer16 \
 datamodule=tali \
-datamodule.config.modality_config.image=True \
-datamodule.config.modality_config.text=True \
-datamodule.config.modality_config.audio=False \
-datamodule.config.modality_config.video=False \
-datamodule.config.rescan_paths=True \
+datamodule.dataset_config.modality_config.image=True \
+datamodule.dataset_config.modality_config.text=True \
+datamodule.dataset_config.modality_config.audio=False \
+datamodule.dataset_config.modality_config.video=False \
+datamodule.dataset_config.rescan_paths=True \
 datamodule.prefetch_factor=2 \
-datamodule.config.dataset_size_identifier=base \
+datamodule.dataset_config.dataset_size_identifier=base \
 model/lr_scheduler_config=reduce_lr_on_plateau \
 seed=20130023 \
 model.optimizer_config.lr=0.00001
