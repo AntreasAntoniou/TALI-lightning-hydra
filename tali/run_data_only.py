@@ -7,8 +7,6 @@ import tqdm
 from omegaconf import DictConfig
 from pytorch_lightning import LightningDataModule, seed_everything
 
-from tali.datasets.tokenizers import HuggingFaceBPETokenizer
-from tali.sample_actuate_pred_and_data import decode_and_store_text
 from tali.utils.storage import pretty_print_dict
 
 log = logging.getLogger(__name__)

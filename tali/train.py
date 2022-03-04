@@ -88,6 +88,7 @@ def train_eval(config: DictConfig) -> List[Dict[str, float]]:
     # }
     # log.info(f"Data description: {str_data_descr_dict}")
     _ = model.forward(dummy_data_dict)
+    model.to("cpu")
 
     callbacks: List[Callback] = []
     if "callbacks" in config:

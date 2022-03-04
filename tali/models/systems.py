@@ -1,16 +1,11 @@
 import logging
 from itertools import combinations
-from pprint import pformat
 from typing import Any, Dict, List, Optional, Union
 
 import hydra.utils
 import numpy as np
-import orjson
+from pytorch_lightning import LightningModule
 import torch
-import yaml
-from pytorch_lightning import LightningModule, Trainer
-from torch import nn
-from torch.optim import Optimizer
 from torchmetrics import Metric
 from torchmetrics.classification.accuracy import Accuracy
 
@@ -65,7 +60,7 @@ class CrossModalMatchingNetwork(LightningModule):
             for idx, modality_name in enumerate(modality_combinations)
         }
 
-        self.logit_scale_params = nn.Parameter(
+        self.logit_scale_params = torch.nn.Parameter(
             torch.ones([len(self.logit_scale_dict)]) * self.logit_scale,
             requires_grad=True,
         )
@@ -216,7 +211,7 @@ class CrossEntropyLoss(Metric):
         self.add_state("loss_sum", default=torch.zeros([]), dist_reduce_fx="sum")
         self.add_state("num_updates", default=torch.zeros([]), dist_reduce_fx="sum")
 
-        self.criterion = nn.CrossEntropyLoss()
+        self.criterion = torch.nn.CrossEntropyLoss()
 
     def update(self, preds: torch.Tensor, target: torch.Tensor):
         # update metric states
@@ -251,7 +246,7 @@ class ModusPrime(LightningModule):
         super(ModusPrime, self).__init__()
         self.system = CrossModalMatchingNetwork(
             embedding_output_features=embedding_output_features,
-            modality_embeddings=nn.ModuleDict(
+            modality_embeddings=torch.nn.ModuleDict(
                 dict(
                     image=hydra.utils.instantiate(image_embedding_config),
                     audio=hydra.utils.instantiate(audio_embedding_config),
@@ -273,14 +268,14 @@ class ModusPrime(LightningModule):
             "accuracy": Accuracy,
         }
 
-        self.per_modality_metrics_computed_dict = nn.ModuleDict(
+        self.per_modality_metrics_computed_dict = torch.nn.ModuleDict(
             {
-                "training-metrics": nn.ModuleDict(),
-                "validation-metrics": nn.ModuleDict(),
-                "test-metrics": nn.ModuleDict(),
+                "training-metrics": torch.nn.ModuleDict(),
+                "validation-metrics": torch.nn.ModuleDict(),
+                "test-metrics": torch.nn.ModuleDict(),
             }
         )
-        self.criterion = nn.CrossEntropyLoss()
+        self.criterion = torch.nn.CrossEntropyLoss()
         self.optimizer_config = optimizer_config
         self.lr_scheduler_config = lr_scheduler_config
         self.save_hyperparameters(logger=True)
@@ -588,7 +583,7 @@ class DumbusPrime(LightningModule):
         super(DumbusPrime, self).__init__()
         self.system = CrossModalMatchingNetwork(
             embedding_output_features=embedding_output_features,
-            modality_embeddings=nn.ModuleDict(
+            modality_embeddings=torch.nn.ModuleDict(
                 dict(
                     image=hydra.utils.instantiate(image_embedding_config),
                     audio=hydra.utils.instantiate(audio_embedding_config),
@@ -603,7 +598,7 @@ class DumbusPrime(LightningModule):
         self.batch_size = batch_size
         self.is_built = False
 
-        self.criterion = nn.CrossEntropyLoss()
+        self.criterion = torch.nn.CrossEntropyLoss()
         self.optimizer_config = optimizer_config
         self.lr_scheduler_config = lr_scheduler_config
         # self.save_hyperparameters(logger=False)
