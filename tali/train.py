@@ -3,7 +3,7 @@ import pathlib
 from typing import Dict, List, Optional
 
 import hydra
-import torch.cuda
+import torch
 from omegaconf import DictConfig
 from pytorch_lightning import (
     Callback,

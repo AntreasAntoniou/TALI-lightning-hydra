@@ -1,5 +1,5 @@
 import os
-
+import torch
 import dotenv
 import hydra
 from omegaconf import DictConfig
