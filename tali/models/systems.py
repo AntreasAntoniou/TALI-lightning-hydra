@@ -29,7 +29,7 @@ def contrastive_logits_labels(logits: torch.Tensor):
     return logits, labels
 
 
-class CrossModalMatchingNetwork(LightningModule):
+class CrossModalMatchingNetwork(torch.nn.Module):
     def __init__(
         self,
         embedding_output_features: int,

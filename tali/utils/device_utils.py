@@ -13,7 +13,7 @@ def get_current_gpu_memory_stats():
             f"Device {i}: {nvidia_smi.nvmlDeviceGetName(handle)},\n"
             f"Memory : ({100 * info.free / info.total}% free): \n"
             f"{info.total}(total), "
-            f"{info.free} (free), {info.used} (used)"
+            f"{info.free} (free), {info.used} (used)\n"
         )
 
     nvidia_smi.nvmlShutdown()
