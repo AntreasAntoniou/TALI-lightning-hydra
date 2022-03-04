@@ -1,6 +1,4 @@
 import os
-import subprocess
-from collections import defaultdict
 from pathlib import Path
 from typing import List, Dict, Any
 
@@ -10,21 +8,19 @@ import numpy as np
 import seaborn as sn
 import torch
 import wandb
-import yaml
 from pytorch_lightning import Callback, Trainer, LightningModule
 from pytorch_lightning.loggers import LoggerCollection, WandbLogger
 from pytorch_lightning.utilities import rank_zero_only
-from rich.pretty import pprint
 from sklearn import metrics
 from sklearn.metrics import f1_score, precision_score, recall_score
 from torch.optim import Optimizer
 from wandb.plots.heatmap import heatmap
 
+from tali.base import utils
 from tali.sample_actuate_pred_and_data import (
     decode_and_store_text,
     make_image_frame_grid,
 )
-from tali.base import utils
 
 log = utils.get_logger(__name__)
 

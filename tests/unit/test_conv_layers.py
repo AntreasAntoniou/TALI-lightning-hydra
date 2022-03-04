@@ -1,7 +1,6 @@
-import os
-
 import pytest
 import torch
+
 from tali.models.auto_builder.conv_modules import (
     ConvPool1DStemBlock,
     ResNetBlock1D,

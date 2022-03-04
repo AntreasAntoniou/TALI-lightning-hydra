@@ -6,12 +6,6 @@ import os
 import pathlib
 import random
 import re
-import shelve
-import shutil
-import sys
-from collections import defaultdict
-from concurrent.futures import as_completed
-from contextlib import closing
 from typing import Callable, Dict, List, Union
 
 import h5py
@@ -21,6 +15,7 @@ import tqdm
 from torch.utils.data import Dataset
 
 from preprocessing_scripts.convert_audiofiles_to_npz import path_to_string
+from tali.base import utils
 from tali.config_repository import DatasetConfig
 from tali.datasets.utils.audio import prevent_error_kill
 from tali.datasets.utils.helpers import (
@@ -30,8 +25,6 @@ from tali.datasets.utils.helpers import (
 from tali.datasets.utils.text import get_text_tokens
 from tali.datasets.utils.video import load_frames
 from tali.utils.arg_parsing import DictWithDotNotation
-from tali.utils.storage import load_json, save_json
-from tali.base import utils
 
 log = utils.get_logger(__name__)
 

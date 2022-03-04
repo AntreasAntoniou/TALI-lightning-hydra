@@ -1,11 +1,10 @@
 import os
-import warnings
 
 import torch
 from torch import nn
-from transformers import CLIPTokenizerFast
 
 from tali.base import utils
+from transformers import CLIPTokenizerFast
 
 log = utils.get_logger(__name__)
 

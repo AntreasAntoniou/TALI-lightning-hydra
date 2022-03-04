@@ -1,26 +1,15 @@
 from __future__ import print_function
 
-import logging
 from typing import Optional
 
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from clip.model import ModifiedResNet, AttentionPool2d
+from clip.model import ModifiedResNet
 from einops import rearrange, repeat
 from torch.nn import init
 
-from gate.model_blocks.auto_builder_modules.auto_builder_conv_blocks import (
-    SqueezeExciteConv1dBNLeakyReLU,
-)
-
-from transformers import (
-    CLIPTextConfig,
-    CLIPTextModel,
-    CLIPVisionConfig,
-    CLIPVisionModel,
-)
-
+from tali.base import utils
 from tali.config_repository import (
     AutoAveragerConfig,
     AutoCLIPResNetConfig,
@@ -37,10 +26,13 @@ from tali.models.auto_builder.conv_modules import (
     ConvNetEmbedding,
     ConvPool1DStemBlock,
     ResNetBlock1D,
-    ResNetReductionBlock1D,
 )
-
-from tali.base import utils
+from transformers import (
+    CLIPTextConfig,
+    CLIPTextModel,
+    CLIPVisionConfig,
+    CLIPVisionModel,
+)
 
 log = utils.get_logger(__name__)
 

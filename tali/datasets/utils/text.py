@@ -4,7 +4,7 @@ import pathlib
 import defusedxml.ElementTree as ET
 import numpy as np
 
-from tali.utils.storage import load_json, load_yaml, save_yaml, save_json
+from tali.utils.storage import load_json, save_json
 
 log = logging.getLogger(__name__)
 

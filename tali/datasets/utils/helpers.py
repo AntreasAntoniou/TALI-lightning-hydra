@@ -1,10 +1,9 @@
+import concurrent.futures
 import logging
-import os
 import pathlib
 import random
 import signal
 from functools import wraps
-import concurrent.futures
 
 import numpy as np
 import torch
@@ -197,9 +196,6 @@ def collect_subclip_data(input_tuple):
             return data_tuple
 
     return None
-
-
-import multiprocessing as mp
 
 
 def prevent_error_kill(method):

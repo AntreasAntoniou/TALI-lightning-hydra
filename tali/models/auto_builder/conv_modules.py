@@ -2,10 +2,10 @@ from __future__ import print_function
 
 import logging
 
-import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+
 from gate.model_blocks.auto_builder_modules.auto_builder_conv_blocks import (
     Conv2dBNLeakyReLU,
     ClassificationModel,
@@ -13,7 +13,6 @@ from gate.model_blocks.auto_builder_modules.auto_builder_conv_blocks import (
     SqueezeExciteConv1dBNLeakyReLU,
     Conv1dBNLeakyReLU,
 )
-
 from tali.base import utils
 
 log = utils.get_logger(__name__)

@@ -1,18 +1,14 @@
 import functools
-import logging as log
-import multiprocessing as mp
-from dataclasses import dataclass
-from typing import Any, Optional
+from typing import Optional
 
+import torch
 import torchvision.transforms as transforms
 from pytorch_lightning import LightningDataModule
 from torch.utils.data import DataLoader
 
-import tali
 from tali.config_repository import (
     DatasetConfig,
     DataLoaderConfig,
-    DatasetDirectoryConfig,
 )
 from tali.datasets.datasets import TALIMultiModalDataset, DummyMultiModalDataset
 from tali.datasets.tokenizers import HuggingFaceBPETokenizer
@@ -21,6 +17,7 @@ from tali.datasets.utils.helpers import (
     SubSampleVideoFrames,
     collate_fn_replace_corrupted,
 )
+from tali.utils.arg_parsing import DictWithDotNotation
 
 
 class BaseDataModule(LightningDataModule):
@@ -50,6 +47,9 @@ class BaseDataModule(LightningDataModule):
         raise NotImplementedError
 
     def test_dataloader(self):
+        raise NotImplementedError
+
+    def get_dummy_batch(self):
         raise NotImplementedError
 
 
@@ -147,6 +147,78 @@ class TALIDataModule(BaseDataModule):
                 start_index=self.datamodule_config.test_start_index,
                 num_samples=self.datamodule_config.test_num_samples,
             )
+
+    def get_dummy_batch(self):
+        if self.dataset_config.modality_config.text:
+            self.text = torch.randint(
+                0,
+                77,
+                size=(
+                    2,
+                    77,
+                ),
+            ).int()
+
+        if self.dataset_config.modality_config.video:
+            self.video = (
+                torch.randint(
+                    low=1,
+                    high=255,
+                    size=(
+                        2,
+                        self.dataset_config.num_video_frames_per_datapoint,
+                        self.dataset_config.image_shape.channels,
+                        self.dataset_config.image_shape.height,
+                        self.dataset_config.image_shape.width,
+                    ),
+                ).float()
+                / 255.0
+            )
+
+        if self.dataset_config.modality_config.audio:
+            self.audio = (
+                torch.randint(
+                    low=1,
+                    high=255,
+                    size=(
+                        2,
+                        2,
+                        self.dataset_config.num_audio_frames_per_datapoint,
+                    ),
+                ).float()
+                / 255.0
+            )
+
+        if self.dataset_config.modality_config.image:
+            self.image = (
+                torch.randint(
+                    low=1,
+                    high=255,
+                    size=(
+                        2,
+                        self.dataset_config.image_shape.channels,
+                        self.dataset_config.image_shape.height,
+                        self.dataset_config.image_shape.width,
+                    ),
+                ).float()
+                / 255.0
+            )
+
+        data_dict = DictWithDotNotation()
+
+        if self.dataset_config.modality_config.text:
+            data_dict.text = self.text
+
+        if self.dataset_config.modality_config.image:
+            data_dict.image = self.image
+
+        if self.dataset_config.modality_config.video:
+            data_dict.video = self.video
+
+        if self.dataset_config.modality_config.audio:
+            data_dict.audio = self.audio
+
+        return data_dict
 
     def train_dataloader(self):
 

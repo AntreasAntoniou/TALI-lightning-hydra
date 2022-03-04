@@ -16,10 +16,10 @@ from collections import defaultdict
 
 import numpy as np
 import tqdm
+from rich.logging import RichHandler
+
 from gate.utils.logging_helpers import get_logging
 from preprocessing_scripts.convert_audiofiles_to_npz import path_to_string
-
-from rich.logging import RichHandler
 
 log = logging.getLogger(__name__)
 log.setLevel(logging.DEBUG)

@@ -99,9 +99,6 @@ def load_to_tensor(
     return audio
 
 
-import pytorch_lightning.loggers.wandb
-
-
 def convert_audiofile_to_tensor(
     filepath: Union[str, pathlib.Path],
     sample_rate: int = 44100,

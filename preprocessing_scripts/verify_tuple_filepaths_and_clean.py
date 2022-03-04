@@ -15,12 +15,9 @@ import shutil
 import sys
 from collections import defaultdict
 
-import cv2
-import numpy as np
 import tqdm
-from gate.utils.logging_helpers import get_logging
 
-from tali.datasets.utils.audio import load_to_tensor
+from gate.utils.logging_helpers import get_logging
 
 
 def get_base_arguments():

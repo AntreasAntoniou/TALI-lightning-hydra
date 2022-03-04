@@ -19,7 +19,6 @@ from wandb.plots.heatmap import heatmap
 from tali.datasets.tokenizers import HuggingFaceBPETokenizer
 from tali.datasets.utils.audio import tensor_to_audio
 
-
 log = logging.getLogger(__name__)
 tokenizer = HuggingFaceBPETokenizer(context_length=77)
 

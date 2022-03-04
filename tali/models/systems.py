@@ -4,8 +4,8 @@ from typing import Any, Dict, List, Optional, Union
 
 import hydra.utils
 import numpy as np
-from pytorch_lightning import LightningModule
 import torch
+from pytorch_lightning import LightningModule
 from torchmetrics import Metric
 from torchmetrics.classification.accuracy import Accuracy
 

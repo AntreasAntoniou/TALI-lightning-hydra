@@ -1,7 +1,6 @@
 """
 Storage associated utilities
 """
-import orjson as json
 import logging as log
 import os
 import os.path
@@ -9,6 +8,7 @@ import pathlib
 from dataclasses import dataclass
 from typing import Dict
 
+import orjson as json
 import requests
 import tqdm  # progress bar
 import yaml

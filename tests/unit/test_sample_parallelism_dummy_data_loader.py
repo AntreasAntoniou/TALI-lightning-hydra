@@ -1,16 +1,14 @@
 import logging
-import os
+import time
 from time import sleep
 
 import pytest
-import torch
 import tqdm
-import time
 from rich.logging import RichHandler
+from tali.datasets.dataloaders import SampleParallelismDataLoader
 from torch.utils.data import default_collate
 
 from tali.config_repository import DatasetConfig, ImageShape, ModalityConfig
-from tali.datasets.dataloaders import SampleParallelismDataLoader
 from tali.datasets.datasets import DummyMultiModalDataset
 
 log = logging.getLogger(__name__)

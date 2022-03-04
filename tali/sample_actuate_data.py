@@ -16,7 +16,6 @@ from torchvision.utils import make_grid
 
 from tali.datasets.tokenizers import HuggingFaceBPETokenizer
 from tali.datasets.utils.audio import tensor_to_audio
-import pytorch_lightning.callbacks
 
 log = logging.getLogger(__name__)
 tokenizer = HuggingFaceBPETokenizer(context_length=77)

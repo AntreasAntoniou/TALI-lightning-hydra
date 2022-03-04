@@ -24,11 +24,9 @@ from pathlib import Path
 from typing import Any, Callable, cast, Dict, Iterable, List, Optional, Tuple, Union
 from weakref import proxy
 
+import pytorch_lightning as pl
 import torch
 from pytorch_lightning import Trainer
-from torch.optim import Optimizer
-
-import pytorch_lightning as pl
 from pytorch_lightning.accelerators import Accelerator, IPUAccelerator
 from pytorch_lightning.callbacks import (
     Callback,
@@ -60,7 +58,6 @@ from pytorch_lightning.profiler import (
     SimpleProfiler,
     XLAProfiler,
 )
-from pytorch_lightning.trainer.callback_hook import TrainerCallbackHookMixin
 from pytorch_lightning.trainer.configuration_validator import verify_loop_configurations
 from pytorch_lightning.trainer.connectors.accelerator_connector import (
     AcceleratorConnector,
@@ -78,9 +75,6 @@ from pytorch_lightning.trainer.connectors.logger_connector.result import (
     ResultCollection,
 )
 from pytorch_lightning.trainer.connectors.signal_connector import SignalConnector
-from pytorch_lightning.trainer.data_loading import TrainerDataLoadingMixin
-from pytorch_lightning.trainer.model_hooks import TrainerModelHooksMixin
-from pytorch_lightning.trainer.optimizers import TrainerOptimizersMixin
 from pytorch_lightning.trainer.states import (
     RunningStage,
     TrainerFn,
@@ -126,6 +120,7 @@ from pytorch_lightning.utilities.types import (
     LRSchedulerTypeUnion,
     TRAIN_DATALOADERS,
 )
+from torch.optim import Optimizer
 
 log = logging.getLogger(__name__)
 # warnings to ignore in trainer

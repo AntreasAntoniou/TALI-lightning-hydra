@@ -80,8 +80,7 @@ def train_eval(config: DictConfig) -> List[Dict[str, float]]:
     log.info(f"Instantiating model <{config.model._target_}>")
     model: LightningModule = hydra.utils.instantiate(config.model, _recursive_=False)
 
-    dummy_data_dict = iter(datamodule.train_dataloader()).__next__()
-
+    dummy_data_dict = datamodule.get_dummy_batch()
     # str_data_descr_dict = {
     #     key: value.shape if isinstance(value, torch.Tensor) else value
     #     for key, value in dummy_data_dict.items()
