@@ -504,7 +504,7 @@ class LogConfigInformation(Callback):
         https://wandb.ai/wandb/wandb-lightning/reports/Image-Classification-using-PyTorch-Lightning--VmlldzoyODk1NzY
     """
 
-    def __init__(self, config):
+    def __init__(self, config=None):
         super().__init__()
         self.done = False
         self.config = config

@@ -104,8 +104,18 @@ def train_eval(config: DictConfig) -> List[Dict[str, float]]:
     if "callbacks" in config:
         for _, cb_conf in config.callbacks.items():
             if "_target_" in cb_conf:
-                log.info(f"Instantiating callback <{cb_conf._target_}>")
-                callbacks.append(hydra.utils.instantiate(cb_conf))
+                if (
+                    cb_conf["_target_"]
+                    == "tali.base.callbacks.wandb_callbacks.LogConfigInformation"
+                ):
+                    cb_conf["config"] = dict(config)
+                    log.info(f"Instantiating callback <{cb_conf._target_}>")
+                    callbacks.append(
+                        hydra.utils.instantiate(cb_conf, _recursive_=False)
+                    )
+                else:
+                    log.info(f"Instantiating callback <{cb_conf._target_}>")
+                    callbacks.append(hydra.utils.instantiate(cb_conf))
 
     os.environ["WANDB_RESUME"] = "allow"
     os.environ["WANDB_RUN_ID"] = generate_id()
