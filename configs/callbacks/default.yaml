@@ -37,6 +37,8 @@ learning_rate_monitor:
   _target_: pytorch_lightning.callbacks.LearningRateMonitor
   logging_interval: "step"
 
+validate_on_train_start:
+  _target_: tali.base.callbacks.pytorch_lightning_custom.RunValidationOnTrainStart
 #gs_file_monitor:
 #  _target_: tali.base.callbacks.cloud_storage_callbacks.GoogleStorageBucketRSyncClient
 #  bucket_name: 'tali-experiments'

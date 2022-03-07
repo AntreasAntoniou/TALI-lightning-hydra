@@ -1,6 +1,6 @@
-
 ########################################################################################
-wget https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-$(uname)-$(uname -m).sh -O $HOME/conda.sh; bash $HOME/conda.sh -bf -p $HOME/conda/
+wget https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-$(uname)-$(uname -m).sh -O $HOME/conda.sh
+                                                                                                                             bash $HOME/conda.sh -bf -p $HOME/conda/
 
 CONDA_DIR=$HOME/conda/
 
@@ -48,4 +48,3 @@ pip install -e $CODE_DIR
 #git clone https://huggingface.co/openai/clip-vit-base-patch32
 
 ########################################################################################
-
