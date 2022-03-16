@@ -6,7 +6,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from gate.model_blocks.auto_builder_modules.auto_builder_conv_blocks import (
+from gate.model_blocks.auto_builder_modules.conv_blocks import (
     Conv2dBNLeakyReLU,
     ClassificationModel,
     SqueezeExciteConv2dBNLeakyReLU,
