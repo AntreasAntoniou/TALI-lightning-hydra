@@ -425,7 +425,7 @@ lr: 0.001
 Using this config we can instantiate the object with the following line:
 
 ```python
-model = hydra.utils.instantiate(config.model)
+model = hydra.utils.instantiate(config.base_model)
 ```
 
 This allows you to easily iterate over new models!<br>
@@ -942,7 +942,7 @@ The `config.yaml` from `.hydra` folder contains all overriden parameters and sec
    ```python
    # ./src/train.py
    datamodule = hydra.utils.instantiate(config.datamodule)
-   model = hydra.utils.instantiate(config.model, some_param=datamodule.some_param)
+   model = hydra.utils.instantiate(config.base_model, some_param=datamodule.some_param)
    ```
 
    This is not a very robust solution, since it assumes all your datamodules have `some_param` attribute available (otherwise the run will crash).
@@ -951,7 +951,7 @@ The `config.yaml` from `.hydra` folder contains all overriden parameters and sec
 
    ```python
    # ./src/train.py
-   model = hydra.utils.instantiate(config.model, dm_conf=config.datamodule, _recursive_=False)
+   model = hydra.utils.instantiate(config.base_model, dm_conf=config.datamodule, _recursive_=False)
    ```
 
    Now you can access any datamodule config part like this:
