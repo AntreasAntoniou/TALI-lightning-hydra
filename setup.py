@@ -6,6 +6,7 @@ setup(
     packages=[
         "tali.datasets",
         "tali.models",
+        "tali.models.auto_builder",
         "tali.runner",
         "tali.utils",
         "tali.base.callbacks",
