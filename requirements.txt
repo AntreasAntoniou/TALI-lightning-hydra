@@ -12,7 +12,8 @@ git+https://github.com/openai/CLIP.git@main
 cryptography
 google-api-python-client
 google-cloud-storage
-git+https://github.com/AntreasAntoniou/GATE.git@antreas_dev
+git+https://github.com/AntreasAntoniou/GATE.git@core_image_classification_datasets
+
 # --------- hydra --------- #
 hydra-core==1.1.0
 hydra-colorlog==1.1.0
