@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name="tali",
-    version="3.4.3",
+    version="3.4.3.1",
     packages=[
         "tali.datasets",
         "tali.models",
