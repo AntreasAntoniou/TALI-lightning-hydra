@@ -1,31 +1,29 @@
 # --------- machine-learning --------- #
-torch>=1.10.0
-torchvision>=0.11.0
-pytorch-lightning>=1.5.0
-torchmetrics>=0.6.0
-einops
-scipy
-imutils
-ftfy
-git+https://github.com/AntreasAntoniou/transformers.git@master
+mamba install pytorch-lightning>=1.5.0
+mamba install torchmetrics>=0.6.0
+mamba install einops
+mamba install scipy
+mamba install imutils
+mamba install ftfy
+trasnformers
 git+https://github.com/openai/CLIP.git@main
-cryptography
-google-api-python-client
-google-cloud-storage
+mamba install cryptography
+mamba install google-api-python-client
+mamba install google-cloud-storage
 git+https://github.com/AntreasAntoniou/GATE.git@core_image_classification_datasets
 
 # --------- hydra --------- #
-hydra-core==1.1.0
+mamba install hydra-core
+
 hydra-colorlog==1.1.0
 hydra-optuna-sweeper==1.1.0
-h5py
 nvidia-ml-py3
 # hydra-ax-sweeper
 # hydra-ray-launcher
 # hydra-submitit-launcher
 
 # --------- loggers --------- #
-wandb
+mamba install wandb
 # neptune-client
 # mlflow
 # comet-ml
@@ -36,7 +34,7 @@ pre-commit      # hooks for applying linters on commit
 black           # code formatting
 isort           # import sorting
 flake8          # code analysis
-jsonlint        # json linting
+pip install jsonlint        # json linting
 yamllint        # yaml linting
 
 # --------- others --------- #
@@ -50,8 +48,8 @@ jupyterlab      # better jupyter notebooks
 pudb            # debugger
 regex
 tqdm
-testresources
+pip install testresources
 orjson
 # --------scaling up on the cloud ----------#
-ray
+pip install ray
 GPUtil

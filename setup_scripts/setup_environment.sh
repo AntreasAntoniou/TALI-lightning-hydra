@@ -13,10 +13,12 @@ source $CONDA_DIR/bin/activate
 conda create -n gate python=3.8 -y
 conda activate gate
 
-#conda install -c conda-forge git-lfs -y
+
 conda install pytorch torchvision torchaudio cudatoolkit=11.3 -c pytorch-nightly -y
 conda install opencv -y
 conda install h5py -y
+
+#conda install -c conda-forge git-lfs -y
 # optional conda install starship tmux -y
 conda install gh --channel conda-forge -y
 #apt install htop nvtop -y
