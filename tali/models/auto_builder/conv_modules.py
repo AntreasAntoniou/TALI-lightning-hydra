@@ -117,7 +117,7 @@ class ResNet(nn.Module):
            'resnet152', 'resnext50_32x4d', 'resnext101_32x8d',
            'wide_resnet50_2', 'wide_resnet101_2']
     https://github.com/pytorch/vision/blob/331f126855a106d29e1de23f8bbc3cde66c603e5/
-    torchvision/architectures/resnet.py#L144
+    torchvision/architectures/timm_hub.py#L144
     https://pytorch.org/tutorials/beginner/finetuning_torchvision_models_tutorial.html
     model_ft.fc = nn.Linear(num_ftrs, num_classes)
 

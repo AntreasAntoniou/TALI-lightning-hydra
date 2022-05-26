@@ -124,7 +124,7 @@ class TALIDataModule(BaseDataModule):
         if stage == "fit" or stage is None:
             self.val_set = self.dataset_class(
                 config=self.dataset_config,
-                set_name="val",
+                split_name="val",
                 transforms=self.transform_eval,
                 start_index=self.datamodule_config.val_start_index,
                 num_samples=self.datamodule_config.val_num_samples,
@@ -132,7 +132,7 @@ class TALIDataModule(BaseDataModule):
 
             self.train_set = self.dataset_class(
                 config=self.dataset_config,
-                set_name="train",
+                split_name="train",
                 transforms=self.transform_train,
                 start_index=self.datamodule_config.train_start_index,
                 num_samples=self.datamodule_config.train_num_samples,
@@ -142,7 +142,7 @@ class TALIDataModule(BaseDataModule):
         if stage == "test" or stage is None:
             self.test_set = self.dataset_class(
                 config=self.dataset_config,
-                set_name="test",
+                split_name="test",
                 transforms=self.transform_eval,
                 start_index=self.datamodule_config.test_start_index,
                 num_samples=self.datamodule_config.test_num_samples,

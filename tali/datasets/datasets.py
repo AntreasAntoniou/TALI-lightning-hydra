@@ -33,16 +33,16 @@ class TALIMultiModalDataset(Dataset):
     def __init__(
         self,
         config: DatasetConfig,
-        set_name: str,
-        transforms: Dict[str, Union[List[Callable], Callable]],
+        split_name: str,
+        transforms: Dict[str, Union[List[Any], Any]],
         start_index: int = 0,
         num_samples: int = None,
     ):
         super(TALIMultiModalDataset, self).__init__()
 
         self.config = config
-        self.set_name = set_name
-        self.dataset_dir = getattr(config.dataset_dir_config, set_name)
+        self.split_name = split_name
+        self.dataset_dir = getattr(config.dataset_dir_config, split_name)
         self.num_youtube_video_dict = {"train": 141468, "val": 6369, "test": 6500}
         self.transforms = transforms
         self.postfix = "full_video_360p"
@@ -58,14 +58,14 @@ class TALIMultiModalDataset(Dataset):
                     "deci": 0.1,
                     "base": 1.0,
                 }[self.config.dataset_size_identifier]
-                if set_name == "train"
+                if split_name == "train"
                 else 1.0
             )
 
         self.start_index = start_index
         self.hdf5_dataset_path = (
             f"{os.environ.get('PATH_CACHE_DIR')}/"
-            f"{set_name}-{self.config.dataset_size_identifier}-tali.hdf5"
+            f"{split_name}-{self.config.dataset_size_identifier}-tali.hdf5"
         )
 
         logging.info(
@@ -130,11 +130,11 @@ class TALIMultiModalDataset(Dataset):
         self.video_keys = list(self.dataset_file.keys())
 
         self.num_samples = (
-            num_samples or self.num_youtube_video_dict[self.set_name] * 100
+            num_samples or self.num_youtube_video_dict[self.split_name] * 100
         )
 
         logging.info(
-            f"👍 Loaded {self.set_name} set with: \n"
+            f"👍 Loaded {self.split_name} set with: \n"
             f"📊 num video videos: "
             f"{len(self.video_keys)} and "
             f"with sampler length of {self.num_samples} \n"

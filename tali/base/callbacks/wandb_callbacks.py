@@ -340,16 +340,16 @@ class LogMultiModalPredictionHeatmaps(Callback):
         )
 
     @rank_zero_only
-    def log_similarity_heatmaps_multi_modal(self, trainer, pl_module, set_name):
+    def log_similarity_heatmaps_multi_modal(self, trainer, pl_module, split_name):
         if not self.ready:
             return
         logger = get_wandb_logger(trainer=trainer)
         experiment = logger.experiment
 
         # get a validation batch from the validation dat loader
-        if set_name == "train":
+        if split_name == "train":
             data_dict = next(iter(trainer.datamodule.train_dataloader()))
-        elif set_name == "validation":
+        elif split_name == "validation":
             data_dict = next(iter(trainer.datamodule.val_dataloader()))
         else:
             data_dict = next(iter(trainer.datamodule.test_dataloader()))
@@ -372,7 +372,7 @@ class LogMultiModalPredictionHeatmaps(Callback):
         report_table, filepath_batch = self.build_data_table(data_dict)
         modalities = ["video", "image", "audio", "text"]
         output_similarities_collected = set()
-        experiment.log(data={f"{set_name}-similarity-batch": report_table})
+        experiment.log(data={f"{split_name}-similarity-batch": report_table})
 
         for source_modality in modalities:
             for target_modality in modalities:

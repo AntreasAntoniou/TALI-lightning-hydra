@@ -153,7 +153,7 @@ def train_eval(config: DictConfig) -> List[Dict[str, float]]:
         trainer.validate(model=model, datamodule=datamodule, ckpt_path=checkpoint_path)
         trainer.fit(model=model, datamodule=datamodule, ckpt_path=checkpoint_path)
 
-    if config.mode.test and not config.trainer.get("fast_dev_run"):
+    if config.mode.QUERY_SET and not config.trainer.get("fast_dev_run"):
         datamodule.setup(stage="test")
         log.info("Starting testing!")
 

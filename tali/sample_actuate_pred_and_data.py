@@ -38,8 +38,8 @@ def plot_with_spectrum(x, rate=48000):
     return fig
 
 
-def create_storage_dir(parent_dir: pathlib.Path, set_name: str):
-    store_dir = parent_dir / set_name
+def create_storage_dir(parent_dir: pathlib.Path, split_name: str):
+    store_dir = parent_dir / split_name
 
     if not store_dir.exists():
         store_dir.mkdir(parents=True)
