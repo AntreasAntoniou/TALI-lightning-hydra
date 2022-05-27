@@ -1,5 +1,5 @@
 defaults:
-  - default.yaml
+  - base.py
 
 gpus: -1
 accelerator: gpu

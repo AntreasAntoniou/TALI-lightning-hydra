@@ -1,5 +1,5 @@
 defaults:
-  - default.yaml
+  - base.py
 
 #watch_model:
 #  _target_: tali.base.callbacks.wandb_callbacks.WatchModel

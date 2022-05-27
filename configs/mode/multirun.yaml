@@ -5,6 +5,6 @@
 # example usage:
 # `python run.py mode=exp name=some_name`
 defaults:
-  - default.yaml
+  - base.py
 
 ray_multi_run: True

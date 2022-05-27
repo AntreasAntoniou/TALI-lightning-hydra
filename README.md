@@ -452,14 +452,14 @@ It determines how config is composed when simply executing command `python run.p
 ```yaml
 # specify here default training configuration
 defaults:
-  - trainer: default.yaml
+  - trainer: base.py
   - model: mnist.yaml
   - datamodule: mnist.yaml
-  - callbacks: default.yaml
+  - callbacks: base.py
   - logger: null # set logger here or use command line (e.g. `python run.py logger=wandb`)
 
   # modes are special collections of config options for different purposes, e.g. debugging
-  - mode: default.yaml
+  - mode: base.py
 
   # experiment configs allow for version control of specific configurations
   - experiment: null
@@ -468,7 +468,7 @@ defaults:
   - hparams_search: null
 
   # optional local config for machine/user specific settings
-  - optional local: default.yaml
+  - optional local: base.py
 
 # path to original working directory
 # hydra hijacks working directory by changing it to the new log directory
@@ -512,10 +512,10 @@ For example, you can use them to version control best hyperparameters for each c
 
 defaults:
   - override /mode: exp.yaml
-  - override /trainer: default.yaml
+  - override /trainer: base.py
   - override /model: mnist.yaml
   - override /datamodule: mnist.yaml
-  - override /callbacks: default.yaml
+  - override /callbacks: base.py
   - override /logger: null
 
 # all parameters below will be merged with parameters from default configurations set above

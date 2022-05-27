@@ -3,14 +3,14 @@
 # specify here default training configuration
 defaults:
   - _self_
-  - trainer: default.yaml
+  - trainer: base.py
   - model: milli_modus_prime_vi-transformer16.yaml
   - datamodule: tali.yaml
-  - callbacks: wandb.yaml
-  - logger: wandb.yaml # set logger here or use command line (e.g. `python run.py logger=wandb`)
+  - callbacks: wandb.py
+  - logger: wandb.py # set logger here or use command line (e.g. `python run.py logger=wandb`)
 
   # modes are special collections of config options for different purposes, e.g. debugging
-  - mode: default.yaml
+  - mode: base.py
 
   # enable color logging
   - hydra: logging.yaml
