@@ -5,8 +5,8 @@ import hydra
 from omegaconf import DictConfig
 from rich.traceback import install
 
-# load environment variables from `.env` file if it exists
-# recursively searches for `.env` in all folders starting from work dir
+# load environment variables from `.env-test` file if it exists
+# recursively searches for `.env-test` in all folders starting from work dir
 from tali.run_data_only import sample_datamodule
 from tali.sample_actuate_data import sample_and_upload_datamodule
 
